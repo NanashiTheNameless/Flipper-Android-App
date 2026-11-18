@@ -2,13 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- USB-C connection to the Flipper; Bluetooth still works without it -->
+    <uses-feature
+            android:name="android.hardware.usb.host"
+            android:required="false" />
+
     <application
             android:allowBackup="true"
             android:fullBackupContent="false"
             android:icon="@mipmap/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher"
             android:label="@string/app_name"
-            android:name="com.flipperdevices.app.FlipperApplication"
+            android:name="dev.namelessnanashi.flipperzero.app.FlipperApplication"
             android:supportsRtl="false"
             android:theme="@style/FlipperTheme">
         <activity
@@ -28,6 +33,14 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/usb_device_filter" />
 
             <meta-data
                 android:name="android.app.shortcuts"

@@ -19,6 +19,11 @@ commonDependencies {
     implementation(libs.kotlin.coroutines)
 }
 
-jvmSharedDependencies {
+androidDependencies {
+    implementation(projects.components.bridge.connection.config.api)
+    implementation(libs.androidx.core)
+}
+
+desktopDependencies {
     implementation(libs.jserial)
 }

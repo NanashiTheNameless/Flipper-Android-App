@@ -1,0 +1,46 @@
+package dev.namelessnanashi.flipperzero.bridge.connection.feature.protocolversion.impl.api
+
+import dev.namelessnanashi.flipperzero.bridge.connection.feature.getinfo.api.FGetInfoFeatureApi
+import dev.namelessnanashi.flipperzero.bridge.connection.feature.getinfo.model.FGetInfoApiProperty
+import dev.namelessnanashi.flipperzero.bridge.connection.feature.protocolversion.api.FSdkVersionFeatureApi
+import dev.namelessnanashi.flipperzero.core.data.SemVer
+import dev.namelessnanashi.flipperzero.core.log.LogTagProvider
+import dev.namelessnanashi.flipperzero.core.log.error
+import dev.namelessnanashi.flipperzero.core.log.info
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
+class FSdkVersionFeatureApiImpl @AssistedInject constructor(
+    @Assisted private val fGetInfoFeatureApi: FGetInfoFeatureApi,
+) : FSdkVersionFeatureApi, LogTagProvider {
+    override val TAG: String = "FSdkVersionFeatureApiImpl"
+
+    override suspend fun getSdkVersion(): Result<SemVer> = runCatching {
+        val major = fGetInfoFeatureApi.get(FGetInfoApiProperty.DeviceInfo.RPC_SDK_MAJOR_KEY)
+            .onFailure { error(it) { "Answer doesn't contains ${FGetInfoApiProperty.DeviceInfo.RPC_SDK_MAJOR_KEY}" } }
+            .getOrNull()
+            ?.toIntOrNull()
+            ?: error("Answer doesn't contains ${FGetInfoApiProperty.DeviceInfo.RPC_SDK_MAJOR_KEY}")
+
+        val minor = fGetInfoFeatureApi.get(FGetInfoApiProperty.DeviceInfo.RPC_SDK_MINOR_KEY)
+            .onFailure { error(it) { "Answer doesn't contains ${FGetInfoApiProperty.DeviceInfo.RPC_SDK_MINOR_KEY}" } }
+            .getOrNull()
+            ?.toIntOrNull()
+            ?: error("Answer doesn't contains ${FGetInfoApiProperty.DeviceInfo.RPC_SDK_MINOR_KEY}")
+
+        info { "Receive version $major and $minor" }
+
+        SemVer(
+            majorVersion = major,
+            minorVersion = minor
+        )
+    }
+
+    @AssistedFactory
+    fun interface InternalFactory {
+        operator fun invoke(
+            fGetInfoFeatureApi: FGetInfoFeatureApi,
+        ): FSdkVersionFeatureApiImpl
+    }
+}

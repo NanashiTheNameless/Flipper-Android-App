@@ -1,17 +1,10 @@
-import com.flipperdevices.buildlogic.ApkConfig.IS_GOOGLE_FEATURE_AVAILABLE
-import com.flipperdevices.buildlogic.ApkConfig.IS_METRIC_ENABLED
-import com.flipperdevices.buildlogic.ApkConfig.IS_SENTRY_ENABLED
-import com.flipperdevices.buildlogic.ApkConfig.SOURCE_INSTALL
-import com.flipperdevices.buildlogic.SourceInstall
-
 plugins {
     id("flipper.android-app")
     id("flipper.anvil")
-    alias(libs.plugins.google.gms)
     alias(libs.plugins.baselineprofile)
 }
 
-android.namespace = "com.flipperdevices.app"
+android.namespace = "dev.namelessnanashi.flipperzero.app"
 
 dependencies {
     implementation(projects.components.core.buildKonfig)
@@ -157,6 +150,8 @@ dependencies {
     // BLE-new
     implementation(projects.components.bridge.connection.transport.ble.api)
     implementation(projects.components.bridge.connection.transport.ble.impl)
+    implementation(projects.components.bridge.connection.transport.usb.api)
+    implementation(projects.components.bridge.connection.transport.usb.impl)
     implementation(projects.components.bridge.connection.transport.common.api)
     implementation(projects.components.bridge.connection.transport.common.impl)
     implementation(projects.components.bridge.connection.orchestrator.api)
@@ -209,31 +204,8 @@ dependencies {
     implementation(projects.components.bridge.connection.feature.emulate.api)
     implementation(projects.components.bridge.connection.feature.emulate.impl)
 
-    implementation(projects.components.analytics.shake2report.api)
-    if (IS_SENTRY_ENABLED) {
-        implementation(projects.components.analytics.shake2report.impl)
-    } else {
-        implementation(projects.components.analytics.shake2report.noop)
-    }
-
-    implementation(projects.components.analytics.metric.api)
-    if (IS_METRIC_ENABLED) {
-        implementation(projects.components.analytics.metric.impl)
-    } else {
-        implementation(projects.components.analytics.metric.noop)
-    }
-
     implementation(projects.components.nfceditor.api)
     implementation(projects.components.nfceditor.impl)
-
-    implementation(projects.components.wearable.sync.handheld.api)
-    if (IS_GOOGLE_FEATURE_AVAILABLE) {
-        implementation(libs.wear.gms)
-        implementation(projects.components.wearable.sync.handheld.impl)
-        implementation(projects.components.wearable.emulate.handheld.impl)
-    } else {
-        implementation(projects.components.wearable.sync.handheld.noop)
-    }
 
     implementation(projects.components.nfc.mfkey32.api)
     implementation(projects.components.nfc.mfkey32.screen)
@@ -303,33 +275,9 @@ dependencies {
 
     implementation(projects.components.faphub.utils)
 
-    implementation(projects.components.selfupdater.api)
-    implementation(projects.components.selfupdater.impl)
-    when (SOURCE_INSTALL) {
-        SourceInstall.GOOGLE_PLAY ->
-            implementation(projects.components.selfupdater.googleplay)
-
-        SourceInstall.GITHUB -> {
-            implementation(projects.components.selfupdater.thirdparty.api)
-            implementation(projects.components.selfupdater.thirdparty.github)
-        }
-
-        SourceInstall.DEBUG ->
-            implementation(projects.components.selfupdater.debug)
-
-        else ->
-            implementation(projects.components.selfupdater.unknown)
-    }
-
     implementation(projects.components.unhandledexception.api)
     implementation(projects.components.unhandledexception.impl)
 
-    implementation(projects.components.notification.api)
-    if (IS_GOOGLE_FEATURE_AVAILABLE) {
-        implementation(projects.components.notification.impl)
-    } else {
-        implementation(projects.components.notification.noop)
-    }
 
     implementation(libs.ktor.client)
 

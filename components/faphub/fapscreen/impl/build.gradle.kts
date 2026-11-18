@@ -25,7 +25,6 @@ androidDependencies {
     implementation(projects.components.core.ui.decompose)
     implementation(projects.components.core.ui.lifecycle)
 
-    implementation(projects.components.analytics.metric.api)
 
     implementation(projects.components.bridge.dao.api)
 

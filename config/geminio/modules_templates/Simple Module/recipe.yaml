@@ -4,7 +4,7 @@ requiredParams:
 
 predefinedFeatures:
   - enableModuleCreationParams:
-      defaultPackageNamePrefix: com.flipperdevices
+      defaultPackageNamePrefix: dev.namelessnanashi.flipperzero
 
 widgets:
   - booleanParameter:

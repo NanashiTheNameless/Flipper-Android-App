@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">Flipper</string>
+    <string name="app_name">Flipper-Nanashi</string>
+    <string name="other_flipper_app_title">Another app is connected to your Flipper</string>
+    <string name="other_flipper_app_desc">Close the other Flipper app (for example the official one). Using both at once can corrupt files on the Flipper.</string>
 
     <string name="shortcut_find">Find</string>
     <string name="shortcut_find_desc">Find Device</string>

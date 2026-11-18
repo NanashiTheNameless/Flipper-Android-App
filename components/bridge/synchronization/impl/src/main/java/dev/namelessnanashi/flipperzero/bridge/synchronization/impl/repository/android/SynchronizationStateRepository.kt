@@ -1,0 +1,31 @@
+package dev.namelessnanashi.flipperzero.bridge.synchronization.impl.repository.android
+
+import dev.namelessnanashi.flipperzero.bridge.dao.api.delegates.key.UtilsKeyApi
+import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKey
+import dev.namelessnanashi.flipperzero.bridge.synchronization.impl.di.TaskGraph
+import dev.namelessnanashi.flipperzero.core.log.LogTagProvider
+import dev.namelessnanashi.flipperzero.core.log.error
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
+
+interface SynchronizationStateRepository {
+    suspend fun markAsSynchronized(usedKeys: List<FlipperKey>)
+}
+
+@ContributesBinding(TaskGraph::class, binding<SynchronizationStateRepository>())
+class SynchronizationStateRepositoryImpl @Inject constructor(
+    private val utilsKeyApi: UtilsKeyApi
+) : SynchronizationStateRepository, LogTagProvider {
+    override val TAG = "SynchronizationStateRepository"
+
+    override suspend fun markAsSynchronized(usedKeys: List<FlipperKey>) {
+        usedKeys.forEach {
+            try {
+                utilsKeyApi.markAsSynchronized(it.getKeyPath())
+            } catch (throwable: Exception) {
+                error(throwable) { "Error while marked as synchronized" }
+            }
+        }
+    }
+}

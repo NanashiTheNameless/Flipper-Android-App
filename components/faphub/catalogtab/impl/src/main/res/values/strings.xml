@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="faphub_catalog_title">All Apps</string>
+    <string name="faphub_catalog_install_all">Install All</string>
+    <string name="faphub_catalog_install_all_dialog_title">Install all apps?</string>
+    <string name="faphub_catalog_install_all_dialog_text">Queues every catalog app that is not installed yet and can run on your Flipper. Installed and hidden apps are skipped. This can take a long time and use a lot of SD card space. Tap outside to cancel.</string>
+    <string name="faphub_catalog_install_all_dialog_button">Install All</string>
+    <string name="faphub_catalog_install_all_failed">Could not load the app catalog. Check the connection and try again.</string>
+    <plurals name="faphub_catalog_install_all_queued">
+        <item quantity="one">Queued %d app</item>
+        <item quantity="other">Queued %d apps</item>
+    </plurals>
 </resources>

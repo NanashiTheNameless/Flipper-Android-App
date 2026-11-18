@@ -2,8 +2,8 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <capability android:name="actions.intent.OPEN_APP_FEATURE">
         <intent
-                android:targetPackage="com.flipperdevices.app"
-            android:targetClass="com.flipperdevices.singleactivity.impl.SingleActivity">
+                android:targetPackage="dev.namelessnanashi.flipperzero.app"
+            android:targetClass="dev.namelessnanashi.flipperzero.singleactivity.impl.SingleActivity">
         <parameter
             android:name="feature"
             android:key="featureParam"/>

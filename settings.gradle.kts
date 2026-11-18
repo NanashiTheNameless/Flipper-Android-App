@@ -40,7 +40,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
     ":instances:android:app",
-    ":instances:wearable",
     ":components:bridge:synchronization:api",
     ":components:bridge:synchronization:impl",
     ":components:bridge:synchronization:stub",
@@ -166,14 +165,6 @@ include(
     ":components:info:impl",
     ":components:info:shared",
 
-    ":components:analytics:metric:api",
-    ":components:analytics:metric:impl",
-    ":components:analytics:metric:noop",
-
-    ":components:analytics:shake2report:api",
-    ":components:analytics:shake2report:noop",
-    ":components:analytics:shake2report:impl",
-
     ":components:screenstreaming:impl",
     ":components:screenstreaming:api",
     ":components:screenstreaming:noop",
@@ -246,22 +237,6 @@ include(
     ":components:nfceditor:impl",
     ":components:nfceditor:sample",
 
-    ":components:wearable:core:ui:components",
-    ":components:wearable:core:ui:theme",
-
-    ":components:wearable:sync:common",
-    ":components:wearable:sync:wear:api",
-    ":components:wearable:sync:wear:impl",
-    ":components:wearable:sync:handheld:api",
-    ":components:wearable:sync:handheld:impl",
-    ":components:wearable:sync:handheld:noop",
-    ":components:wearable:emulate:wear:api",
-    ":components:wearable:emulate:wear:impl",
-    ":components:wearable:emulate:handheld:impl",
-    ":components:wearable:emulate:common",
-    ":components:wearable:wearrootscreen:api",
-    ":components:wearable:wearrootscreen:impl",
-
     ":components:widget:api",
     ":components:widget:screen",
     ":components:widget:impl",
@@ -270,6 +245,7 @@ include(
     ":components:nfc:mfkey32:screen",
     ":components:nfc:tools:api",
     ":components:nfc:tools:impl",
+    ":components:nfc:tools:jni",
 
     ":components:toolstab:api",
     ":components:toolstab:impl",
@@ -311,20 +287,8 @@ include(
     ":components:faphub:screenshotspreview:api",
     ":components:faphub:screenshotspreview:impl",
 
-    ":components:selfupdater:api",
-    ":components:selfupdater:impl",
-    ":components:selfupdater:googleplay",
-    ":components:selfupdater:unknown",
-    ":components:selfupdater:debug",
-    ":components:selfupdater:thirdparty:api",
-    ":components:selfupdater:thirdparty:github",
-
     ":components:unhandledexception:api",
     ":components:unhandledexception:impl",
-
-    ":components:notification:api",
-    ":components:notification:impl",
-    ":components:notification:noop",
 
     ":components:remote-controls:api-backend",
     ":components:remote-controls:api-backend-flipper",

@@ -5,11 +5,11 @@ plugins {
     id("kotlinx-serialization")
 }
 
-android.namespace = "com.flipperdevices.bridge.connection.sample.android"
+android.namespace = "dev.namelessnanashi.flipperzero.bridge.connection.sample.android"
 
 android {
     defaultConfig {
-        applicationId = "com.flipperdevices.bridge.connection"
+        applicationId = "dev.namelessnanashi.flipperzero.bridge.connection"
     }
 }
 

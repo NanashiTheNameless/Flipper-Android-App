@@ -1,0 +1,7 @@
+package dev.namelessnanashi.flipperzero.bridge.connection.transport.common.api.meta
+
+import kotlinx.coroutines.flow.Flow
+
+interface FTransportMetaInfoApi {
+    fun get(key: TransportMetaInfoKey): Result<Flow<ByteArray?>>
+}

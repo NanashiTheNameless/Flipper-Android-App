@@ -24,7 +24,6 @@ androidDependencies {
     implementation(projects.components.faphub.target.api)
     implementation(projects.components.faphub.errors.api)
 
-    implementation(projects.components.analytics.metric.api)
 
     implementation(projects.components.bridge.dao.api)
 

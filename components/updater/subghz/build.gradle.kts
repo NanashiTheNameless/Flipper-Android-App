@@ -17,7 +17,6 @@ androidDependencies {
     implementation(projects.components.core.ui.lifecycle)
     implementation(projects.components.core.ui.res)
 
-    implementation(projects.components.analytics.metric.api)
 
     implementation(libs.lifecycle.runtime.ktx)
 

@@ -2,7 +2,7 @@ package ${packageName}
 
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.ComponentContext
-import com.flipperdevices.ui.decompose.DecomposeComponent
+import dev.namelessnanashi.flipperzero.ui.decompose.DecomposeComponent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

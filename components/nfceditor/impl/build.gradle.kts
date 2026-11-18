@@ -28,7 +28,6 @@ androidDependencies {
     implementation(projects.components.keyedit.api)
     implementation(projects.components.keyscreen.shared)
 
-    implementation(projects.components.analytics.metric.api)
 
     implementation(libs.appcompat)
 

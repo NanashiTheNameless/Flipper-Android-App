@@ -1,0 +1,22 @@
+package dev.namelessnanashi.flipperzero.keyscreen.api
+
+import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKeyPath
+import dev.namelessnanashi.flipperzero.keyscreen.model.KeyScreenState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.StateFlow
+import uk.kulikov.metro.assisted.AssistedKey
+
+interface KeyStateHelperApi {
+    fun getKeyScreenState(): StateFlow<KeyScreenState>
+    fun setFavorite(isFavorite: Boolean)
+    fun onDelete(onEndAction: () -> Unit)
+    fun onRestore(onEndAction: () -> Unit)
+    fun onOpenEdit(onEndAction: (FlipperKeyPath) -> Unit)
+
+    interface Builder {
+        fun build(
+            @AssistedKey("keyPath") flipperKeyPath: FlipperKeyPath,
+            scope: CoroutineScope
+        ): KeyStateHelperApi
+    }
+}

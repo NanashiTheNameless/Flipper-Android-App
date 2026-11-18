@@ -24,11 +24,8 @@ androidDependencies {
     implementation(projects.components.bridge.connection.feature.common.api)
     implementation(projects.components.bridge.connection.feature.provider.api)
 
-    implementation(projects.components.wearable.sync.handheld.api)
     implementation(projects.components.nfc.mfkey32.api)
 
-    implementation(projects.components.analytics.shake2report.api)
-    implementation(projects.components.analytics.metric.api)
 
     // Compose
 

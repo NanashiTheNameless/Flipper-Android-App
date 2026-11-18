@@ -3,7 +3,7 @@
         >
 
     <application
-            android:name="com.flipperdevices.nfceditor.sample.NfcEditorApplication"
+            android:name="dev.namelessnanashi.flipperzero.nfceditor.sample.NfcEditorApplication"
             android:supportsRtl="true"
             android:theme="@style/FlipperTheme">
         <activity

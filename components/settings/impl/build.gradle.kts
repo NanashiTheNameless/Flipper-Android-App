@@ -14,8 +14,6 @@ androidDependencies {
     implementation(projects.components.core.ktx)
     implementation(projects.components.core.share)
     implementation(projects.components.core.activityholder)
-    implementation(projects.components.analytics.shake2report.api)
-    implementation(projects.components.analytics.metric.api)
     implementation(projects.components.core.ui.res)
     implementation(projects.components.core.ui.ktx)
     implementation(projects.components.core.ui.lifecycle)
@@ -26,11 +24,8 @@ androidDependencies {
 
     implementation(projects.components.debug.api)
     implementation(projects.components.firstpair.api)
-    implementation(projects.components.selfupdater.api)
     implementation(projects.components.nfc.mfkey32.api)
     implementation(projects.components.faphub.installation.all.api)
-    implementation(projects.components.selfupdater.api)
-    implementation(projects.components.notification.api)
     implementation(projects.components.inappnotification.api)
     implementation(projects.components.filemngr.main.api)
 

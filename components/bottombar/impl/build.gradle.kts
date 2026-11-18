@@ -27,7 +27,6 @@ androidDependencies {
     implementation(projects.components.faphub.installedtab.api)
     implementation(projects.components.deeplink.api)
     implementation(projects.components.unhandledexception.api)
-    implementation(projects.components.notification.api)
 
     implementation(libs.kotlin.serialization.json)
 

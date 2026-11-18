@@ -2,7 +2,7 @@ package ${packageName}.composable
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.flipperdevices.core.ui.theme.FlipperThemeInternal
+import dev.namelessnanashi.flipperzero.core.ui.theme.FlipperThemeInternal
 
 @Composable
 internal fun Composable${__formattedModuleName}() {

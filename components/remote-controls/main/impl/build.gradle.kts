@@ -23,7 +23,6 @@ androidDependencies {
 
     implementation(projects.components.deeplink.api)
 
-    implementation(projects.components.analytics.metric.api)
 
     implementation(projects.components.bridge.synchronization.api)
 

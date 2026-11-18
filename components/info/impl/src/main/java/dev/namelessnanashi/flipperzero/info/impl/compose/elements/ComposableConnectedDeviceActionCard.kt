@@ -1,0 +1,92 @@
+package dev.namelessnanashi.flipperzero.info.impl.compose.elements
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import dev.namelessnanashi.flipperzero.bridge.connection.feature.protocolversion.model.FlipperSupportedState
+import dev.namelessnanashi.flipperzero.core.ui.theme.LocalPallet
+import dev.namelessnanashi.flipperzero.info.impl.R
+import dev.namelessnanashi.flipperzero.info.impl.model.DeviceStatus
+import dev.namelessnanashi.flipperzero.info.shared.ButtonElementRow
+import dev.namelessnanashi.flipperzero.info.shared.ComposableInfoDivider
+import dev.namelessnanashi.flipperzero.info.shared.InfoElementCard
+import dev.namelessnanashi.flipperzero.core.ui.res.R as DesignSystem
+
+@Composable
+fun ComposableConnectedDeviceActionCard(
+    deviceStatus: DeviceStatus,
+    supportedState: FlipperSupportedState,
+    requestSynchronize: () -> Unit,
+    alarmOnFlipper: () -> Unit,
+    hasAlarm: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    if (deviceStatus is DeviceStatus.NoDevice) {
+        return
+    }
+
+    val enabled = deviceStatus is DeviceStatus.Connected &&
+        supportedState == FlipperSupportedState.READY
+
+    InfoElementCard(modifier = modifier) {
+        ComposableSynchronize(
+            enabled = enabled,
+            requestSynchronize = requestSynchronize
+        )
+        ComposableInfoDivider()
+        ComposableAlarmElement(
+            enabled = hasAlarm && enabled,
+            alarmOnFlipper = alarmOnFlipper
+        )
+    }
+}
+
+@Composable
+private fun ComposableSynchronize(
+    requestSynchronize: () -> Unit,
+    enabled: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val color = if (enabled) {
+        LocalPallet.current.accentSecond
+    } else {
+        LocalPallet.current.text16
+    }
+
+    ButtonElementRow(
+        modifier = modifier,
+        titleId = R.string.info_device_synchronize,
+        iconId = DesignSystem.drawable.ic_syncing,
+        color = color,
+        onClick = if (enabled) {
+            requestSynchronize
+        } else {
+            null
+        }
+    )
+}
+
+@Composable
+private fun ComposableAlarmElement(
+    enabled: Boolean,
+    alarmOnFlipper: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colorId = if (enabled) {
+        LocalPallet.current.accentSecond
+    } else {
+        LocalPallet.current.text16
+    }
+
+    ButtonElementRow(
+        modifier = modifier,
+        titleId = R.string.info_device_play_alert,
+        iconId = R.drawable.ic_ring,
+        color = colorId,
+        onClick = if (enabled) {
+            alarmOnFlipper
+        } else {
+            null
+        }
+    )
+}

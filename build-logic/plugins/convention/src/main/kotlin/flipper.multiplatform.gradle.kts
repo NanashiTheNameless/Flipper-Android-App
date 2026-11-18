@@ -1,4 +1,4 @@
-import com.flipperdevices.buildlogic.ApkConfig
+import dev.namelessnanashi.flipperzero.buildlogic.ApkConfig
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -10,7 +10,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "com.flipperdevices"
+        namespace = "dev.namelessnanashi.flipperzero"
             .plus(project.path.removePrefix(":components"))
             .replace(":", ".")
             .replace("-", "")

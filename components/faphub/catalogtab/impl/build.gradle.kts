@@ -16,12 +16,14 @@ androidDependencies {
     implementation(projects.components.core.ui.res)
     implementation(projects.components.core.ui.ktx)
     implementation(projects.components.core.ui.lifecycle)
+    implementation(projects.components.core.ui.dialog)
 
     implementation(projects.components.faphub.dao.api)
     implementation(projects.components.faphub.errors.api)
     implementation(projects.components.faphub.appcard.composable)
     implementation(projects.components.faphub.installation.button.api)
     implementation(projects.components.faphub.installation.manifest.api)
+    implementation(projects.components.faphub.installation.all.api)
     implementation(projects.components.faphub.target.api)
 
     implementation(projects.components.bridge.dao.api)

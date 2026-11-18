@@ -7,4 +7,26 @@
     <string name="faphub_installed_empty_desc">You haven\'t installed any apps yet</string>
     <string name="faphub_installed_error_pull_to_refresh">Pull to refresh</string>
     <string name="faphub_installed_error_desc">Unable to browse apps due to network issues</string>
+    <string name="faphub_installed_repair_check">Check &amp; Repair Apps</string>
+    <string name="faphub_installed_repair_title">App check</string>
+    <string name="faphub_installed_repair_none_broken">No broken apps found.</string>
+    <string name="faphub_installed_repair_button">Repair</string>
+    <string name="faphub_installed_repair_ok">OK</string>
+    <string name="faphub_installed_repair_failed">Could not check apps. Make sure the Flipper is connected and the phone is online.</string>
+    <plurals name="faphub_installed_repair_checked">
+        <item quantity="one">Checked %d app.</item>
+        <item quantity="other">Checked %d apps.</item>
+    </plurals>
+    <plurals name="faphub_installed_repair_broken">
+        <item quantity="one">%1$d broken: %2$s. Repair reinstalls it from the catalog.</item>
+        <item quantity="other">%1$d broken: %2$s. Repair reinstalls them from the catalog.</item>
+    </plurals>
+    <plurals name="faphub_installed_repair_uncheckable">
+        <item quantity="one">%d app could not be checked (not in the catalog).</item>
+        <item quantity="other">%d apps could not be checked (not in the catalog).</item>
+    </plurals>
+    <plurals name="faphub_installed_repair_queued">
+        <item quantity="one">Queued %d repair.</item>
+        <item quantity="other">Queued %d repairs.</item>
+    </plurals>
 </resources>

@@ -724,7 +724,7 @@ style:
     active: true
     excludeImports:
       - 'java.util.*'
-      - 'com.flipperdevices.bridge.connection.feature.getinfo.model.FGetInfoApiProperty.DeviceInfo.*'
+      - 'dev.namelessnanashi.flipperzero.bridge.connection.feature.getinfo.model.FGetInfoApiProperty.DeviceInfo.*'
 
 ktlint:
   IfElseBracing:

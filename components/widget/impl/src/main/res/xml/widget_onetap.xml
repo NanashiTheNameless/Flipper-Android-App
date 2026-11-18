@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        android:configure="com.flipperdevices.singleactivity.impl.SingleActivity"
+        android:configure="dev.namelessnanashi.flipperzero.singleactivity.impl.SingleActivity"
         android:description="@string/widget_description_one_tap"
         android:initialLayout="@layout/progress_layout"
         android:minHeight="40dp"

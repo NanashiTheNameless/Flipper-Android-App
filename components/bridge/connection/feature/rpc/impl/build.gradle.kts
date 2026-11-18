@@ -13,7 +13,6 @@ commonDependencies {
 
     implementation(projects.components.bridge.connection.pbutils)
 
-    implementation(projects.components.analytics.shake2report.api)
 
     implementation(projects.components.bridge.connection.feature.common.api)
     implementation(projects.components.bridge.connection.feature.lagsdetector.api)

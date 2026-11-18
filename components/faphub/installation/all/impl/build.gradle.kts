@@ -14,6 +14,12 @@ androidDependencies {
     implementation(projects.components.faphub.installation.manifest.api)
     implementation(projects.components.faphub.target.api)
     implementation(projects.components.faphub.dao.api)
+    implementation(projects.components.bridge.dao.api)
+    implementation(projects.components.bridge.connection.feature.provider.api)
+    implementation(projects.components.bridge.connection.feature.storage.api)
+    implementation(projects.components.bridge.connection.feature.common.api)
+
+    implementation(libs.okio)
 
     implementation(libs.kotlin.coroutines)
     implementation(libs.kotlin.immutable.collections)

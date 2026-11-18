@@ -7,7 +7,6 @@ dependencies {
     implementation(libs.android.gradle)
     implementation(libs.detekt.gradle)
     implementation(libs.kotlin.gradle)
-    implementation(libs.sentry.gradle)
     implementation(libs.wire.gradle)
     implementation(libs.grgit.gradle)
     implementation(libs.kotlin.ksp.gradle)
@@ -25,17 +24,17 @@ gradlePlugin {
         create("flipper.multiplatform-dependencies") {
             id = name
             implementationClass =
-                "com.flipperdevices.buildlogic.plugin.mppdependencies.FlipperMultiplatformDependenciesPlugin"
+                "dev.namelessnanashi.flipperzero.buildlogic.plugin.mppdependencies.FlipperMultiplatformDependenciesPlugin"
         }
         create("flipper.java.version") {
             id = name
             implementationClass =
-                "com.flipperdevices.buildlogic.plugin.JavaVersionPlugin"
+                "dev.namelessnanashi.flipperzero.buildlogic.plugin.JavaVersionPlugin"
         }
         create("flipper.compose-file-accessors") {
             id = name
             implementationClass =
-                "com.flipperdevices.buildlogic.plugin.composefiles.ComposeFileAccessorsPlugin"
+                "dev.namelessnanashi.flipperzero.buildlogic.plugin.composefiles.ComposeFileAccessorsPlugin"
         }
     }
 }

@@ -4,4 +4,5 @@ plugins {
 }
 
 androidDependencies {
+    api(projects.components.faphub.installation.manifest.api)
 }

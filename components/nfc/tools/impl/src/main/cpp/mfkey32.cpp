@@ -6,7 +6,7 @@ extern "C" {
 }
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_flipperdevices_nfc_tools_impl_bindings_MfKey32Binding_tryRecoverKey(
+Java_dev_namelessnanashi_flipperzero_nfc_tools_impl_bindings_MfKey32Binding_tryRecoverKey(
         JNIEnv *env,
         jclass clazz,
         jlong uid,

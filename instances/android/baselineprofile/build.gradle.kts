@@ -1,5 +1,5 @@
-import com.flipperdevices.buildlogic.ApkConfig
-import com.flipperdevices.buildlogic.ApkConfig.TARGET_APP_ID_KEY
+import dev.namelessnanashi.flipperzero.buildlogic.ApkConfig
+import dev.namelessnanashi.flipperzero.buildlogic.ApkConfig.TARGET_APP_ID_KEY
 
 plugins {
     alias(libs.plugins.android.test)

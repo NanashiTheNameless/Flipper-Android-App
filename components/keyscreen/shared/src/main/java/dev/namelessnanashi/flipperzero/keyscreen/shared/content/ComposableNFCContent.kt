@@ -1,0 +1,18 @@
+package dev.namelessnanashi.flipperzero.keyscreen.shared.content
+
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import dev.namelessnanashi.flipperzero.keyparser.api.model.FlipperKeyParsed
+import dev.namelessnanashi.flipperzero.keyscreen.shared.R
+import kotlinx.collections.immutable.persistentListOf
+
+@Composable
+internal fun ColumnScope.ComposableNFCContent(nfc: FlipperKeyParsed.NFC) {
+    ComposableKeyContent(
+        lines = persistentListOf(
+            stringResource(R.string.content_nfc_device_type) to nfc.deviceType,
+            stringResource(R.string.content_nfc_uid) to nfc.uid
+        )
+    )
+}

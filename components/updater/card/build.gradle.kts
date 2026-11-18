@@ -24,7 +24,6 @@ androidDependencies {
     implementation(projects.components.info.shared)
     implementation(projects.components.rootscreen.api)
 
-    implementation(projects.components.analytics.metric.api)
 
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.compose)

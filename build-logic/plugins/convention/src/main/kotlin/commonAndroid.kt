@@ -5,9 +5,8 @@ import com.android.build.api.dsl.ApplicationBuildType
 import com.android.build.api.dsl.BuildType
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.LibraryVariantDimension
-import com.flipperdevices.buildlogic.ApkConfig
-import com.flipperdevices.buildlogic.ApkConfig.VERSION_CODE
-import com.flipperdevices.buildlogic.ApkConfig.VERSION_NAME
+import dev.namelessnanashi.flipperzero.buildlogic.ApkConfig
+import dev.namelessnanashi.flipperzero.buildlogic.ApkConfig.VERSION_NAME
 import org.gradle.api.JavaVersion
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
@@ -19,7 +18,7 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-private const val SPLASH_SCREEN_ACTIVITY = "com.flipperdevices.singleactivity.impl.SingleActivity"
+private const val SPLASH_SCREEN_ACTIVITY = "dev.namelessnanashi.flipperzero.singleactivity.impl.SingleActivity"
 private const val SPLASH_SCREEN_ACTIVITY_KEY = "splashScreenActivity"
 
 fun CommonExtension.commonAndroid(target: Project) {
@@ -39,7 +38,8 @@ private fun CommonExtension.configureDefaultConfig(project: Project) {
 
     if (this is ApplicationExtension) {
         defaultConfig.targetSdk = ApkConfig.TARGET_SDK_VERSION
-        defaultConfig.versionCode = project.VERSION_CODE
+        // Replaced per variant by BuildVersionCode in flipper.android-app
+        defaultConfig.versionCode = 1
         defaultConfig.versionName = project.VERSION_NAME
     }
 

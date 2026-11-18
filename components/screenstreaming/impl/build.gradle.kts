@@ -42,3 +42,7 @@ androidDependencies {
 
     implementation(libs.lifecycle.compose)
 }
+
+androidHostTestDependencies {
+    implementation(libs.junit)
+}

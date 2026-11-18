@@ -28,7 +28,6 @@ androidDependencies {
     implementation(projects.components.bridge.synchronization.api)
     implementation(projects.components.singleactivity.api)
     implementation(projects.components.deeplink.api)
-    implementation(projects.components.analytics.metric.api)
     implementation(projects.components.changelog.api)
 
     implementation(libs.kotlin.immutable.collections)

@@ -18,3 +18,7 @@
 .externalNativeBuild
 .cxx
 .kotlin
+# Fork build setup
+/.android-sdk/
+*.jks
+*.keystore

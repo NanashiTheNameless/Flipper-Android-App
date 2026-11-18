@@ -13,25 +13,16 @@ compose-material = "1.8.3" # https://developer.android.com/jetpack/androidx/rele
 compose-material-icon = "1.7.8" # https://developer.android.com/jetpack/androidx/releases/compose#versions
 compose-foundation = "1.8.3" # https://developer.android.com/jetpack/androidx/releases/compose#versions
 compose-ui = "1.8.3" # https://developer.android.com/jetpack/androidx/releases/compose#versions
-compose-wear = "1.6.2" # https://developer.android.com/jetpack/androidx/releases/wear-compose
-compose-wear-preview = "1.0.0" # https://mvnrepository.com/artifact/androidx.wear/wear-tooling-preview
 compose-accompanist = "0.36.0" # https://github.com/google/accompanist/releases
 compose-placeholder = "2.0.0" # https://github.com/fornewid/placeholder/releases
 compose-constraint = "0.8.0" # https://github.com/Lavmee/constraintlayout-compose-multiplatform/releases
 compose-paging = "3.3.6" # https://developer.android.com/jetpack/androidx/releases/paging
 compose-drag-drop = "0.9.6" # https://github.com/aclassen/ComposeReorderable/releases
 compose-multiplatform = "1.11.1" # https://github.com/JetBrains/compose-multiplatform/releases
-horologist = "0.8.3-alpha" # https://github.com/google/horologist/releases
 serialization-json = "1.11.0" # https://github.com/Kotlin/kotlinx.serialization/releases
-wear = "1.4.0" # https://developer.android.com/jetpack/androidx/releases/wear
-wear-gms = "20.0.1" # https://mvnrepository.com/artifact/com.google.android.gms/play-services-wearable?repo=google
-wear-interaction-phone = "1.1.0" # https://developer.android.com/jetpack/androidx/releases/wear
-wear-interaction-remote = "1.2.0" # https://developer.android.com/jetpack/androidx/releases/wear
 room = "2.8.4" # https://developer.android.com/jetpack/androidx/releases/room
 timber = "5.0.1" # https://github.com/JakeWharton/timber/releases
 timber-treessence = "1.1.2" # https://github.com/bastienpaulfr/Treessence/tags
-sentry-runtime = "8.43.2" # https://github.com/getsentry/sentry-java/releases
-sentry-gradle = "6.11.0" # https://github.com/getsentry/sentry-android-gradle-plugin/releases
 zip4j = "2.11.6" # https://github.com/srikanth-lingala/zip4j/releases
 ktx = "1.19.0" # https://developer.android.com/jetpack/androidx/releases/core
 ktx-activity = "1.13.0" # https://developer.android.com/jetpack/androidx/releases/activity
@@ -57,11 +48,9 @@ markdown = "0.41.0" # https://github.com/mikepenz/multiplatform-markdown-rendere
 ktor = "3.5.0" # https://ktor.io/
 apache-compress = "1.27.1" # https://commons.apache.org/proper/commons-compress/
 apache-codec = "1.18.0" # https://mvnrepository.com/artifact/commons-codec/commons-codec
-countly = "25.4.2" # https://github.com/Countly/countly-sdk-android/releases
 grgit-gradle = "8d818b74b9"
 work = "2.11.2" # https://developer.android.com/jetpack/androidx/releases/work
 coil = "3.3.0" # https://github.com/coil-kt/coil/releases
-play-core = "2.1.0" # https://developer.android.com/guide/playcore#java-kotlin-in-app-update
 decompose = "3.5.0" # https://github.com/arkivanov/Decompose/releases
 essenty = "2.5.0" # https://github.com/arkivanov/Essenty/releases
 zoomable = "2.8.1" #https://github.com/usuiat/Zoomable
@@ -83,17 +72,12 @@ detekt = "2.0.0-alpha.3" # HELD: alpha.4 has broken test-fixtures + unpublished 
 detekt-ruleset-compose = "0.6.0" # matches detekt alpha.3 https://github.com/mrmans0n/compose-rules/releases
 detekt-ruleset-decompose = "2.0.0" # https://github.com/LionZXY/detekt-decompose-rule/releases
 
-# Firebase
-google-gms-gradle = "4.5.0" # https://developers.google.com/android/guides/google-services-plugin
-google-gms-firebase = "25.1.0" # https://firebase.google.com/docs/android/setup#kotlin:~:text=com.google.firebase%3Afirebase%2Dmessaging
-
 # Build Config
 buildkonfig = "6.0.10"
 
 wire = "6.2.0"
 okio = "3.17.0"
 jserial = "2.11.4"
-
 
 [libraries]
 # Gradle - Core
@@ -111,7 +95,6 @@ kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", versi
 grgit-gradle = { module = "com.github.LionZXY:grgit", version.ref = "grgit-gradle" }
 
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx" }
-kotlin-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinx" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx" }
 kotlin-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx" }
 
@@ -143,10 +126,6 @@ compose-material-icons-core = { module = "androidx.compose.material:material-ico
 compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose-material-icon" }
 
 # UI - Wear
-compose-wear-material = { module = "androidx.wear.compose:compose-material", version.ref = "compose-wear" }
-compose-wear-foundation = { module = "androidx.wear.compose:compose-foundation", version.ref = "compose-wear" }
-compose-wear-preview = { module = "androidx.wear:wear-tooling-preview", version.ref = "compose-wear-preview" }
-horologist-layout = { module = "com.google.android.horologist:horologist-compose-layout", version.ref = "horologist" }
 
 # UI - Compose Extension
 compose-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "compose-accompanist" }
@@ -160,7 +139,6 @@ compose-drag-drop = { module = "org.burnoutcrew.composereorderable:reorderable",
 # UI - Compose multiplatform
 compose-multiplatform-gradle = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-multiplatform" }
 compose-gradle = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin-general" }
-
 
 # Coil
 coil = { module = "io.coil-kt.coil3:coil", version.ref = "coil" }
@@ -185,11 +163,7 @@ metro-utils-ksp = { module = "uk.kulikov.metro:compiler", version.ref = "metro-u
 # Bug report dependencies
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 timber-tressence = { module = "com.github.bastienpaulfr:Treessence", version.ref = "timber-treessence" }
-sentry = { module = "io.sentry:sentry-android", version.ref = "sentry-runtime" }
-sentry-gradle = { module = "io.sentry:sentry-android-gradle-plugin", version.ref = "sentry-gradle" }
-sentry-timber = { module = "io.sentry:sentry-android-timber", version.ref = "sentry-runtime" }
 zip4j = { module = "net.lingala.zip4j:zip4j", version.ref = "zip4j" }
-countly = { module = "ly.count.android:sdk", version.ref = "countly" }
 slf4j = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 slf4j-timber = { group = "com.arcao", name = "slf4j-timber", version.ref = "slf4j-timber" }
 
@@ -248,18 +222,9 @@ benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro
 profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 
 # Wear
-wear = { module = "androidx.wear:wear", version.ref = "wear" }
-wear-gms = { module = "com.google.android.gms:play-services-wearable", version.ref = "wear-gms" }
-wear-interaction-phone = { module = "androidx.wear:wear-phone-interactions", version.ref = "wear-interaction-phone" }
-wear-interaction-remote = { module = "androidx.wear:wear-remote-interactions", version.ref = "wear-interaction-remote" }
 
 # Work manager
 work-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
-
-# Google play core
-app-update = { module = "com.google.android.play:app-update", version.ref = "play-core" }
-app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "play-core" }
-gms-firebase = { module = "com.google.firebase:firebase-messaging", version.ref = "google-gms-firebase" }
 
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-jetpack = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
@@ -285,7 +250,6 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-ge
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-general" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
-google-gms = { id = "com.google.gms.google-services", version.ref = "google-gms-gradle" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-general" }
 buildkonfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildkonfig" }

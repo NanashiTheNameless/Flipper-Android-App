@@ -16,4 +16,9 @@
     <string name="control_unlock">Back</string>
     <string name="screenshot_export_title">Share screenshot of flipper…</string>
     <string name="flipper_display">Flipper display</string>
+    <string name="control_options_keyboard">Keyboard</string>
+    <string name="control_keyboard_title">Type on the Flipper</string>
+    <string name="control_keyboard_hint">Text to type</string>
+    <string name="control_keyboard_send">Send</string>
+    <string name="control_keyboard_failed">Could not type on the Flipper. Typing needs Momentum firmware and a screen with text input.</string>
 </resources>

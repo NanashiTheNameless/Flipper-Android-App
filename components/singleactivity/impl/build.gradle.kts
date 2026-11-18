@@ -6,6 +6,7 @@ plugins {
 
 androidDependencies {
     implementation(projects.components.core.di)
+    implementation(projects.components.bridge.connection.transport.usb.api)
     implementation(projects.components.core.log)
     implementation(projects.components.core.ktx)
     implementation(projects.components.core.ui.decompose)
@@ -16,11 +17,9 @@ androidDependencies {
 
     implementation(projects.components.deeplink.api)
     implementation(projects.components.singleactivity.api)
-    implementation(projects.components.selfupdater.api)
     implementation(projects.components.unhandledexception.api)
     implementation(projects.components.rootscreen.api)
 
-    implementation(projects.components.analytics.metric.api)
     implementation(projects.components.bridge.synchronization.api)
 
     implementation(libs.annotations)

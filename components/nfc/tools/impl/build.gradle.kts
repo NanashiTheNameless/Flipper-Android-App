@@ -6,6 +6,7 @@ plugins {
 
 androidDependencies {
     implementation(projects.components.nfc.tools.api)
+    implementation(projects.components.nfc.tools.jni)
     implementation(projects.components.core.di)
     implementation(projects.components.core.log)
 }

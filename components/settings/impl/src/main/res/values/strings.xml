@@ -9,8 +9,6 @@
     <string name="app_theme_options_dark">Dark</string>
     <string name="app_theme_options_unknown">Unknown</string>
     <string name="app_title">App</string>
-    <string name="app_notification_title">Push Notifications</string>
-    <string name="app_notification_desc">Notify about new firmware releases</string>
     <string name="app_vibration_title">Vibration</string>
     <string name="app_vibration_desc">Vibration feedback in the app</string>
 
@@ -27,7 +25,6 @@
     <string name="debug_subghz_provisioning_ignore_desc">Not provisioning SubGhz region when hardware region 0</string>
     <string name="debug_restart_rpc">Restart RPC</string>
     <string name="debug_skip_autosync">Skip auto synchronization in Debug mode</string>
-    <string name="debug_selfupdater">Suggest self update in debug mode</string>
     <string name="debug_application_catalog_dev">Use dev catalog</string>
     <string name="debug_application_show_remote_controls">Show remote controls</string>
     <string name="debug_application_installall_dev">Install all app</string>
@@ -45,20 +42,15 @@
     <string name="experimental_application_catalog">Enable Apps in Hub</string>
 
     <string name="other_github_open">GitHub</string>
-    <string name="other_github_url">https://github.com/flipperdevices/Flipper-Android-App</string>
+    <string name="other_github_url">https://github.com/NanashiTheNameless/Flipper-Android-App</string>
     <string name="other_forum_open">Forum</string>
     <string name="other_forum_url">https://forum.flipperzero.one/</string>
-    <string name="other_shake2report_open">Report Bug</string>
     <string name="export_keys">Backup keys</string>
     <string name="export_keys_picker_title">Save the zip with the keys…</string>
     <string name="version_name_app">Flipper Mobile App</string>
     <string name="version">Version</string>
 
-    <string name="check_updates_text">Flipper Mobile App</string>
-    <string name="check_updates_desc">Version from %1$s: %2$s</string>
-    <string name="check_updates_button">Check Updates</string>
-    <string name="check_no_updates_button">Got It</string>
-    <string name="check_no_updates_title">No Updates</string>
-    <string name="check_no_updates_text">No updates available for mobile app yet. You’re up-to-date!</string>
+    <string name="check_updates_text">Flipper-Nanashi</string>
+    <string name="app_version_desc">Unofficial personal fork, not affiliated with Flipper Devices. Version: %1$s</string>
 
 </resources>

@@ -4,7 +4,7 @@ requiredParams:
 
 predefinedFeatures:
   - enableModuleCreationParams:
-      defaultPackageNamePrefix: com.flipperdevices
+      defaultPackageNamePrefix: dev.namelessnanashi.flipperzero
 
 widgets:
   - booleanParameter:
@@ -62,16 +62,16 @@ recipe:
 
   - instantiate:
       from: root/src/app_package/api/FeatureEntry.kt.ftl
-      to: api/src/main/kotlin/com/flipperdevices/${__moduleName}/api/${__formattedModuleName}FeatureEntry.kt
+      to: api/src/main/kotlin/dev/namelessnanashi/flipperzero/${__moduleName}/api/${__formattedModuleName}FeatureEntry.kt
 
   - instantiate:
       from: root/src/app_package/api/FeatureEntryImpl.kt.ftl
-      to: impl/src/main/kotlin/com/flipperdevices/${__moduleName}/impl/api/${__formattedModuleName}FeatureEntryImpl.kt
+      to: impl/src/main/kotlin/dev/namelessnanashi/flipperzero/${__moduleName}/impl/api/${__formattedModuleName}FeatureEntryImpl.kt
 
   - instantiate:
       from: root/src/app_package/composable/ComposableBlank.kt.ftl
-      to: impl/src/main/kotlin/com/flipperdevices/${__moduleName}/impl/composable/Composable${__formattedModuleName}.kt
+      to: impl/src/main/kotlin/dev/namelessnanashi/flipperzero/${__moduleName}/impl/composable/Composable${__formattedModuleName}.kt
 
   - instantiate:
       from: root/src/app_package/viewmodel/ViewModelBlank.kt.ftl
-      to: impl/src/main/kotlin/com/flipperdevices/${__moduleName}/impl/viewmodel/${__formattedModuleName}ViewModel.kt
+      to: impl/src/main/kotlin/dev/namelessnanashi/flipperzero/${__moduleName}/impl/viewmodel/${__formattedModuleName}ViewModel.kt

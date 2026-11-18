@@ -1,0 +1,7 @@
+{
+  "id": "dev.namelessnanashi.flipperzero",
+  "url": "https://github.com/NanashiTheNameless/Flipper-Android-App",
+  "author": "NanashiTheNameless",
+  "name": "Flipper-Nanashi",
+  "additionalSettings": "{\"includePrereleases\":false,\"filterReleaseTitlesByRegEx\":\"^Nightly-Rolling\",\"apkFilterRegEx\":\"^Flipper-Nanashi-nightly\\\\.apk$\",\"useLatestAssetDateAsReleaseDate\":true,\"releaseDateAsVersion\":true,\"versionDetection\":false}"
+}

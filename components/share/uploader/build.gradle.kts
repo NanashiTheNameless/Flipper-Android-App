@@ -5,7 +5,6 @@ plugins {
 }
 
 androidDependencies {
-    implementation(projects.components.analytics.metric.api)
     implementation(projects.components.share.api)
     implementation(projects.components.bridge.dao.api)
     implementation(projects.components.keyparser.api)
