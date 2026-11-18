@@ -1,5 +1,6 @@
 package dev.namelessnanashi.flipperzero.app.di
 
+import dev.namelessnanashi.flipperzero.app.background.ConnectionKeepAlive
 import dev.namelessnanashi.flipperzero.bridge.connection.service.api.FConnectionService
 import dev.namelessnanashi.flipperzero.bridge.connection.transport.usb.api.FUsbFlipperSwitcherApi
 import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationApi
@@ -16,4 +17,5 @@ interface MainComponent {
     val fConnectionService: Provider<FConnectionService>
     val usbFlipperSwitcher: Provider<FUsbFlipperSwitcherApi>
     val otherFlipperAppWarning: Provider<OtherFlipperAppWarning>
+    val connectionKeepAlive: Provider<ConnectionKeepAlive>
 }

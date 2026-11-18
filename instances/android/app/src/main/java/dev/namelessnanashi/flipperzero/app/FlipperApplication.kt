@@ -60,6 +60,7 @@ class FlipperApplication : Application(), SingletonImageLoader.Factory, LogTagPr
         component.fConnectionService.invoke().onApplicationInit()
         component.usbFlipperSwitcher.invoke().start()
         component.otherFlipperAppWarning.invoke().start()
+        component.connectionKeepAlive.invoke().start()
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {

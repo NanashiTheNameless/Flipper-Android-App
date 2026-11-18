@@ -3,6 +3,13 @@
     <string name="other_flipper_app_title">Another app is connected to your Flipper</string>
     <string name="other_flipper_app_desc">Close the other Flipper app (for example the official one). Using both at once can corrupt files on the Flipper.</string>
 
+    <string name="connection_notification_channel">Flipper connection</string>
+    <string name="connection_notification_flipper">Flipper</string>
+    <string name="connection_notification_connected">Connected to %1$s</string>
+    <string name="connection_notification_connecting">Connecting to %1$s…</string>
+    <string name="connection_notification_syncing">Syncing with %1$s</string>
+    <string name="connection_notification_disconnect">Disconnect</string>
+
     <string name="shortcut_find">Find</string>
     <string name="shortcut_find_desc">Find Device</string>
 </resources>

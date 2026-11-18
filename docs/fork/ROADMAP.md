@@ -33,6 +33,7 @@ Requested 2026-10-28.
 | 22 | Dark launcher icon with the Momentum M | done (2026-11-18; check on the launcher) |
 | 23 | "Not installed" filter in the app lists | built (2026-11-18; untested on device) |
 | 24 | Key export named `Flipper-<name>-Keys.zip` | done (2026-11-18; tests pass) |
+| 25 | Keep working in the background (especially sync) | built (2026-11-18; untested on device) |
 
 Remaining work (updated 2026-11-18):
 1. Items 15-18 build and the full unit-test suite passes (2026-11-18); still untested
@@ -159,6 +160,19 @@ debug build syncing at once) was wrong; see "Storage write corruption" below.
     name comes from the paired BLE device (works offline); over USB, where the stored name
     is just "USB", the Flipper is asked for `hardware.name` (3 s limit). Unsafe characters
     become `_`; with no name it is `Flipper-Keys.zip`. Test: `KeysArchiveNameTest`.
+25. Background (requested 2026-11-18). Upstream deleted its Android service with the old
+    bridge (#1017) and never replaced it, so nothing kept the process alive once the app left
+    the screen: Android froze or killed it, dropping the connection, sync and transfers.
+    `ConnectionKeepAlive` (app module) runs `FlipperConnectionService`, a `connectedDevice`
+    foreground service, while a Flipper is connecting/connected or a sync is in progress,
+    plus 15 s after a drop so the automatic reconnect survives too. Ongoing notification:
+    "Connected to / Syncing with <Flipper>" with sync progress, tap to open, Disconnect
+    action (force disconnect, so it does not reconnect). Permissions:
+    FOREGROUND_SERVICE_CONNECTED_DEVICE, POST_NOTIFICATIONS (asked once), CHANGE_NETWORK_STATE
+    (Android 14 prerequisite for USB-only use). Android 12+ refuses to start it while the
+    app is already in the background (e.g. woken by the widget); that is logged, and the
+    next connect with the app open starts it.
+    Test on the phone: start a sync, switch apps / lock the screen, confirm it finishes.
 
 ## Storage write corruption (found 2026-10-29)
 
