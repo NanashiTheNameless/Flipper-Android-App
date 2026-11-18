@@ -30,6 +30,8 @@ androidDependencies {
     implementation(projects.components.filemngr.main.api)
 
     implementation(projects.components.bridge.dao.api)
+    implementation(projects.components.bridge.connection.config.api)
+    implementation(projects.components.bridge.connection.feature.getinfo.api)
     implementation(projects.components.bridge.connection.feature.common.api)
     implementation(projects.components.bridge.connection.feature.provider.api)
     implementation(projects.components.bridge.connection.feature.restartrpc.api)
@@ -47,4 +49,8 @@ androidDependencies {
 
     implementation(libs.kotlin.serialization.json)
     implementation(libs.kotlin.immutable.collections)
+}
+
+androidHostTestDependencies {
+    implementation(libs.junit)
 }

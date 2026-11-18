@@ -26,6 +26,9 @@ fun ComposableFapHubCategory(
     sortType: SortType,
     categoryName: String,
     onSelectSortType: (SortType) -> Unit,
+    onlyNotInstalled: Boolean,
+    onToggleOnlyNotInstalled: (Boolean) -> Unit,
+    hiddenIds: Set<String>,
     modifier: Modifier = Modifier,
     installationButton: @Composable (FapItemShort?, Modifier) -> Unit
 ) {
@@ -43,7 +46,9 @@ fun ComposableFapHubCategory(
                         ComposableSortChoice(
                             title = null,
                             sortType = sortType,
-                            onSelectSortType = onSelectSortType
+                            onSelectSortType = onSelectSortType,
+                            onlyNotInstalled = onlyNotInstalled,
+                            onToggleOnlyNotInstalled = onToggleOnlyNotInstalled
                         )
                     }
                 }
@@ -53,7 +58,8 @@ fun ComposableFapHubCategory(
                     onOpenFapItem = onOpenFapItem,
                     installationButton = installationButton,
                     errorsRenderer = errorsRenderer,
-                    defaultFapErrorSize = FapErrorSize.FULLSCREEN
+                    defaultFapErrorSize = FapErrorSize.FULLSCREEN,
+                    hiddenIds = hiddenIds
                 )
             }
         }

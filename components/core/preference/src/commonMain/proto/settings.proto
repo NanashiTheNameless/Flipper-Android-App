@@ -78,4 +78,6 @@ message Settings {
   bool infrared_remotes_tab_shown = 34;
   // Fork: experimental functions are on unless switched off (proto3 bools default to false)
   bool disabled_experimental_functions = 35;
+  // Fork: app catalog lists show only apps that are not installed
+  bool faphub_only_not_installed = 36;
 }

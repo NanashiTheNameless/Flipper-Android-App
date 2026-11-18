@@ -2,12 +2,14 @@ package dev.namelessnanashi.flipperzero.faphub.appcard.composable.paging
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -35,7 +37,9 @@ fun ComposableSortChoice(
     title: String?,
     sortType: SortType,
     onSelectSortType: (SortType) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onlyNotInstalled: Boolean? = null,
+    onToggleOnlyNotInstalled: (Boolean) -> Unit = {}
 ) = Row(
     modifier = modifier
         .fillMaxWidth()
@@ -54,7 +58,34 @@ fun ComposableSortChoice(
         Spacer(Modifier.weight(1f))
     }
 
+    if (onlyNotInstalled != null) {
+        ComposableNotInstalledChip(onlyNotInstalled, onToggleOnlyNotInstalled)
+        Spacer(Modifier.width(8.dp))
+    }
     ComposableFapsChoice(sortType, onSelectSortType)
+}
+
+/**
+ * Fork: shows only apps that are not installed on the Flipper. Filled while on.
+ */
+@Composable
+private fun ComposableNotInstalledChip(
+    isOn: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
+    val shape = RoundedCornerShape(16.dp)
+    val pallet = LocalPallet.current
+    Text(
+        modifier = Modifier
+            .clip(shape)
+            .border(BorderStroke(1.dp, if (isOn) pallet.text100 else pallet.text8), shape)
+            .background(if (isOn) pallet.text100 else pallet.background)
+            .clickableRipple { onToggle(!isOn) }
+            .padding(vertical = 5.dp, horizontal = 12.dp),
+        text = stringResource(R.string.faphub_catalog_filter_not_installed),
+        style = LocalTypography.current.subtitleM12,
+        color = if (isOn) pallet.background else pallet.fapHubSortedColor
+    )
 }
 
 @Composable

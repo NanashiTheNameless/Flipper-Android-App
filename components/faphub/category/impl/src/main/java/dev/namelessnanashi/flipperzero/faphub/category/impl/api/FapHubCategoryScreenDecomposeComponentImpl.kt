@@ -41,6 +41,8 @@ class FapHubCategoryScreenDecomposeComponentImpl @AssistedInject constructor(
         }
         val fapsList = categoryViewModel.getFapsFlow().collectAsLazyPagingItems()
         val sortType by categoryViewModel.getSortTypeFlow().collectAsState()
+        val onlyNotInstalled by categoryViewModel.getOnlyNotInstalledFlow().collectAsState()
+        val hiddenIds by categoryViewModel.getHiddenIdsFlow().collectAsState()
 
         ComposableFapHubCategory(
             onBack = onBack::invoke,
@@ -62,7 +64,10 @@ class FapHubCategoryScreenDecomposeComponentImpl @AssistedInject constructor(
             categoryName = fapCategory.name,
             onSelectSortType = categoryViewModel::onSelectSortType,
             fapsList = fapsList,
-            sortType = sortType
+            sortType = sortType,
+            onlyNotInstalled = onlyNotInstalled,
+            onToggleOnlyNotInstalled = categoryViewModel::onToggleOnlyNotInstalled,
+            hiddenIds = hiddenIds
         )
     }
 

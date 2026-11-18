@@ -23,6 +23,7 @@ androidDependencies {
     implementation(projects.components.faphub.appcard.composable)
     implementation(projects.components.faphub.fapscreen.api)
     implementation(projects.components.faphub.installation.button.api)
+    implementation(projects.components.faphub.installation.manifest.api)
     implementation(projects.components.faphub.target.api)
     implementation(projects.components.faphub.errors.api)
 
@@ -32,6 +33,7 @@ androidDependencies {
     // Compose
     implementation(libs.bundles.decompose)
     implementation(libs.compose.paging)
+    implementation(libs.kotlin.immutable.collections)
 
     implementation(libs.kotlin.serialization.json)
 }

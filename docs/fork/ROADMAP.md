@@ -30,7 +30,9 @@ Requested 2026-10-28.
 | 19 | Faster installed-apps lookup | built (2026-11-18; tests pass; untested on device) |
 | 20 | Updated apps still showing "Update" | fixed (2026-11-18; tests pass; untested on device) |
 | 21 | Remove the forum link; experimental features on by default | done (2026-11-18) |
-| 22 | Dark launcher icon with the Momentum M | done (uncommitted; builds; check on the launcher) |
+| 22 | Dark launcher icon with the Momentum M | done (2026-11-18; check on the launcher) |
+| 23 | "Not installed" filter in the app lists | built (2026-11-18; untested on device) |
+| 24 | Key export named `Flipper-<name>-Keys.zip` | done (2026-11-18; tests pass) |
 
 Remaining work (updated 2026-11-18):
 1. Items 15-18 build and the full unit-test suite passes (2026-11-18); still untested
@@ -148,6 +150,15 @@ debug build syncing at once) was wrong; see "Storage write corruption" below.
     ~43dp of the 108dp canvas so it stays inside the 66dp safe zone under every mask. The
     monochrome (themed icon) layer uses the same M. The unused `mipmap-*dpi` foreground
     PNGs were removed (minSdk 26 always uses the adaptive icon).
+23. "Not installed" chip next to the sort chip in the catalog tab and category lists
+    (requested 2026-11-18), saved as `faphub_only_not_installed = 36`. The list skips
+    apps whose uid is in the installed manifest instead of rebuilding the pager, so
+    toggling it or installing an app keeps the scroll position. Hidden items are still
+    read so paging keeps loading; the empty state shows when every loaded app is hidden.
+24. Settings > Export keys writes `Flipper-<flipper name>-Keys.zip` (was `keys.zip`). The
+    name comes from the paired BLE device (works offline); over USB, where the stored name
+    is just "USB", the Flipper is asked for `hardware.name` (3 s limit). Unsafe characters
+    become `_`; with no name it is `Flipper-Keys.zip`. Test: `KeysArchiveNameTest`.
 
 ## Storage write corruption (found 2026-10-29)
 

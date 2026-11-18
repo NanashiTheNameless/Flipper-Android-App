@@ -42,6 +42,8 @@ fun ComposableCatalogTabScreen(
 ) {
     val fapsList = fapsListViewModel.getFapsFlow().collectAsLazyPagingItems()
     val sortType by fapsListViewModel.getSortTypeFlow().collectAsState()
+    val onlyNotInstalled by fapsListViewModel.getOnlyNotInstalledFlow().collectAsState()
+    val hiddenIds by fapsListViewModel.getHiddenIdsFlow().collectAsState()
     val categoriesLoadState by categoriesViewModel.getCategoriesLoadState().collectAsState()
     val installAllState by installAllViewModel.getState().collectAsState()
 
@@ -80,7 +82,9 @@ fun ComposableCatalogTabScreen(
                     ComposableSortChoice(
                         title = stringResource(R.string.faphub_catalog_title),
                         sortType = sortType,
-                        onSelectSortType = fapsListViewModel::onSelectSortType
+                        onSelectSortType = fapsListViewModel::onSelectSortType,
+                        onlyNotInstalled = onlyNotInstalled,
+                        onToggleOnlyNotInstalled = fapsListViewModel::onToggleOnlyNotInstalled
                     )
                 }
             }
@@ -90,7 +94,8 @@ fun ComposableCatalogTabScreen(
                 errorsRenderer = errorsRenderer,
                 installationButton = installationButton,
                 defaultFapErrorSize = FapErrorSize.IN_LIST,
-                shouldDisplayError = categoriesFapHubError == null
+                shouldDisplayError = categoriesFapHubError == null,
+                hiddenIds = hiddenIds
             )
 
             categoriesFapHubError?.let { categoriesFapHubError ->

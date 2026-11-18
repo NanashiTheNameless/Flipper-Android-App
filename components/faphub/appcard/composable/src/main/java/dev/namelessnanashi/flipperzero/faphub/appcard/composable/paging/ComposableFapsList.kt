@@ -32,7 +32,8 @@ fun LazyListScope.ComposableFapsList(
     errorsRenderer: FapHubComposableErrorsRenderer,
     defaultFapErrorSize: FapErrorSize,
     installationButton: @Composable (FapItemShort?, Modifier) -> Unit,
-    shouldDisplayError: Boolean = true
+    shouldDisplayError: Boolean = true,
+    hiddenIds: Set<String> = emptySet()
 ) {
     val elementModifier = Modifier
         .fillMaxWidth()
@@ -59,7 +60,9 @@ fun LazyListScope.ComposableFapsList(
             )
         }
         return
-    } else if (faps.loadState.append.endOfPaginationReached && faps.itemCount == 0) {
+    } else if (faps.loadState.append.endOfPaginationReached &&
+        faps.itemSnapshotList.items.none { it.id !in hiddenIds }
+    ) {
         item {
             ComposableEmpty(
                 modifier = elementModifier.fillParentMaxSize()
@@ -71,7 +74,8 @@ fun LazyListScope.ComposableFapsList(
     ComposableLoadedFapsList(
         faps = faps,
         onOpenFapItem = onOpenFapItem,
-        installationButton = installationButton
+        installationButton = installationButton,
+        hiddenIds = hiddenIds
     )
     faps.loadState.append.let { loadState ->
         when (loadState) {
@@ -97,7 +101,8 @@ fun LazyListScope.ComposableFapsList(
 private fun LazyListScope.ComposableLoadedFapsList(
     faps: LazyPagingItems<FapItemShort>,
     onOpenFapItem: (FapItemShort) -> Unit,
-    installationButton: @Composable (FapItemShort?, Modifier) -> Unit
+    installationButton: @Composable (FapItemShort?, Modifier) -> Unit,
+    hiddenIds: Set<String>
 ) {
     val lastIndex = faps.itemCount - 1
     items(
@@ -105,7 +110,9 @@ private fun LazyListScope.ComposableLoadedFapsList(
         key = faps.itemKey { it.id },
         contentType = faps.itemContentType()
     ) { index ->
-        val item = faps[index]
+        // Read every item, hidden or not: reading is what makes paging load the next page.
+        // Hidden items take no space, so the filter needs no reload and keeps the scroll position.
+        val item = faps[index]?.takeIf { it.id !in hiddenIds }
         item?.let {
             AppCard(
                 modifier = Modifier

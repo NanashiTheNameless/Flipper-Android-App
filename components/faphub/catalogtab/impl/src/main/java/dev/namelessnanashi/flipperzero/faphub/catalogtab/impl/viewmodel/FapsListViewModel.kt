@@ -25,6 +25,11 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import dev.namelessnanashi.flipperzero.faphub.installation.manifest.model.FapManifestState
 import dev.zacsweers.metro.Inject
 
 class FapsListViewModel @Inject constructor(
@@ -45,6 +50,32 @@ class FapsListViewModel @Inject constructor(
     }
 
     fun getSortTypeFlow() = sortStateFlow.asStateFlow()
+
+    private val onlyNotInstalledFlow = dataStoreSettings.data
+        .map { it.faphub_only_not_installed }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    // Ids of installed apps while the "Not installed" filter is on; the list skips them
+    private val hiddenIdsFlow = combine(
+        onlyNotInstalledFlow,
+        fapManifestApi.getManifestFlow()
+    ) { onlyNotInstalled, manifest ->
+        if (onlyNotInstalled && manifest is FapManifestState.Loaded) {
+            manifest.items.mapTo(HashSet()) { it.uid }
+        } else {
+            emptySet()
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+
+    fun getOnlyNotInstalledFlow(): StateFlow<Boolean> = onlyNotInstalledFlow
+
+    fun getHiddenIdsFlow(): StateFlow<Set<String>> = hiddenIdsFlow
+
+    fun onToggleOnlyNotInstalled(value: Boolean) {
+        viewModelScope.launch {
+            dataStoreSettings.updateData { it.copy(faphub_only_not_installed = value) }
+        }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val faps = combine(
