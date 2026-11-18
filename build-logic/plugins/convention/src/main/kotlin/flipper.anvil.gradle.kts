@@ -20,7 +20,7 @@ pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
     }
 }
 
-pluginManager.withPlugin("org.jetbrains.kotlin.android") {
+pluginManager.withPlugin("com.android.application") {
     dependencies {
         "implementation"(metroAnnotations)
     }

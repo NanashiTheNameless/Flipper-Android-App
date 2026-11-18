@@ -3,7 +3,6 @@ import dev.namelessnanashi.flipperzero.buildlogic.ApkConfig.TARGET_APP_ID_KEY
 
 plugins {
     alias(libs.plugins.android.test)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.baselineprofile)
 }
 

@@ -10,8 +10,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-pluginManager.apply("org.jetbrains.kotlin.android")
-
 /**
  * Release signing: environment first (CI), then a properties file next to the repo
  * (never inside it). Missing values build an unsigned release.
