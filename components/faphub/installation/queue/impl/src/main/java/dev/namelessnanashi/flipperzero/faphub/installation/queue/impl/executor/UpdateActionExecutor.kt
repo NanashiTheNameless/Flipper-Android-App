@@ -45,7 +45,9 @@ class UpdateActionExecutor @Inject constructor(
                 fullName = request.applicationName,
                 versionUid = request.toVersion.id,
                 iconBase64 = iconBase64Request.getOrNull() ?: request.from.iconBase64,
-                sdkApi = getSdkApi(request.applicationUid, request.toVersion)
+                sdkApi = getSdkApi(request.applicationUid, request.toVersion),
+                // The hash of the replaced .fim no longer describes this manifest
+                sourceFileHash = null
             )
         )
         info { "Fap manifest added by request $request" }

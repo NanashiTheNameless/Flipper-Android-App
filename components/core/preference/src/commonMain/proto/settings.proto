@@ -51,10 +51,10 @@ message Settings {
   reserved 20; // Already unused faphub_new_switch
   reserved 21; // Already unused application_catalog
   reserved 24; // Already unused use_new_infrared
+  reserved 4; // Fork: was enabled_experimental_functions, replaced by disabled_experimental_functions
 
   bool used_foreground_service = 2;
   bool enabled_debug_settings = 3;
-  bool enabled_experimental_functions = 4;
   SelectedTab selected_tab = 5;
   bool ignore_unsupported_version = 6;
   bool always_update = 8;
@@ -76,4 +76,6 @@ message Settings {
   bool show_hidden_files_on_flipper = 32;
   bool disabled_vibration = 33;
   bool infrared_remotes_tab_shown = 34;
+  // Fork: experimental functions are on unless switched off (proto3 bools default to false)
+  bool disabled_experimental_functions = 35;
 }

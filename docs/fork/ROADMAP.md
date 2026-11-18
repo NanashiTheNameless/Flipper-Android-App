@@ -27,6 +27,9 @@ Requested 2026-10-28.
 | 16 | Momentum screen colours in screen streaming, phone keyboard | built (2026-11-18; untested on device) |
 | 17 | Faster file reads (was "file-manager download pipelining") | built (2026-11-18; tests pass) |
 | 18 | Faster app installs | built (2026-11-18; untested on device) |
+| 19 | Faster installed-apps lookup | built (2026-11-18; tests pass; untested on device) |
+| 20 | Updated apps still showing "Update" | fixed (2026-11-18; tests pass; untested on device) |
+| 21 | Remove the forum link; experimental features on by default | done (2026-11-18) |
 
 Remaining work (updated 2026-11-18):
 1. Items 15-18 build and the full unit-test suite passes (2026-11-18); still untested
@@ -119,6 +122,26 @@ debug build syncing at once) was wrong; see "Storage write corruption" below.
       a `.part` file; the body is written through one stream (upstream reopened and stat'ed
       the file per 8 KiB packet).
     - Install/Update executors fetch the icon in parallel with the upload.
+19. Faster installed-apps lookup (requested 2026-11-18). The catalog side is already one
+    batched request (~0.2 s, HTTP/2); the time goes on Flipper round trips. Manifests were
+    already md5-cached and read 4 at a time. `FapExistChecker` lists each app's category
+    folder to confirm the .fap exists, but held one lock across the listing, so the folders
+    were listed one after another. It now keeps one pending listing per folder (parallel
+    across folders, shared within one; a cancelled listing is retried by its waiters).
+    `FapManifestsLoader` prefetches the folders of all cached manifests at once and runs
+    the check inside the parallel manifest reads. Test: `FapExistCheckerTest`.
+20. Updated apps still said "Update" (reported 2026-11-18). `FapManifestApiImpl.add()`
+    patched the in-memory manifest list, but a manifest reload already running (app start,
+    opening the catalog list, pull-to-refresh, reconnect) then emitted the `.fim` contents it
+    had read before the update and overwrote the patch. Installs/updates/deletes are now kept
+    as local changes and applied on top of every reload until a reload starts after them;
+    they are dropped on disconnect. `UpdateActionExecutor` also stopped copying the old
+    manifest's `sourceFileHash`. Ruled out: the SDK check (catalog returns the build for the
+    Flipper's API, Momentum 87.1, and that is what gets recorded). Test:
+    `FapManifestApiImplTest` (fails without the fix).
+21. Settings: the Forum link (and its string/icon) is gone. Experimental functions are on by
+    default: proto field 4 `enabled_experimental_functions` is reserved and replaced by
+    `disabled_experimental_functions = 35`, so existing installs switch to enabled too.
 
 ## Storage write corruption (found 2026-10-29)
 

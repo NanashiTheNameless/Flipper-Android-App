@@ -46,9 +46,9 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import okio.buffer
 
-@Suppress("LongParameterList")
 private const val PARALLEL_MANIFEST_LOADS = 4
 
+@Suppress("LongParameterList")
 class FapManifestsLoader @AssistedInject constructor(
     @Assisted private val scope: CoroutineScope,
     private val parser: FapManifestParser,
@@ -143,9 +143,12 @@ class FapManifestsLoader @AssistedInject constructor(
         val cacheResult = cacheLoader.loadCache()
         info { "Cache load result is toLoad: ${cacheResult.toLoadNames}, cached: ${cacheResult.cachedNames}" }
         val fapItemsList = mutableListOf<FapManifestItem>()
-        cacheResult.cachedNames.mapNotNull { (file, name) ->
+        val cachedManifests = cacheResult.cachedNames.mapNotNull { (file, name) ->
             parser.parse(file.readBytes(), name)
-        }.filter { fapExistChecker.checkExist(it.path) }
+        }
+        // List every category folder at once instead of one per first check
+        fapExistChecker.prefetch(cachedManifests.map { it.path })
+        cachedManifests.filter { fapExistChecker.checkExist(it.path) }
             .filter { it.isDevCatalog == isUseDevCatalog }
             .forEach {
                 fapItemsList.add(it)
@@ -163,16 +166,17 @@ class FapManifestsLoader @AssistedInject constructor(
             val loadPermits = Semaphore(PARALLEL_MANIFEST_LOADS)
             cacheResult.toLoadNames.map { name ->
                 async(FlipperDispatchers.workStealingDispatcher) {
-                    loadPermits.withPermit {
+                    val content = loadPermits.withPermit {
                         loadManifestFile(filePath = File(FAP_MANIFESTS_FOLDER_ON_FLIPPER, name).absolutePath)
                             ?.let { byteArray -> parser.parse(byteArray, name) }
+                    }
+                    // Checked here, in parallel, rather than one by one in the ordered loop below
+                    content?.takeIf {
+                        it.isDevCatalog == isUseDevCatalog && fapExistChecker.checkExist(it.path)
                     }
                 }
             }.forEach { loading ->
                 val content = loading.await() ?: return@forEach
-                if (!fapExistChecker.checkExist(content.path) || content.isDevCatalog != isUseDevCatalog) {
-                    return@forEach
-                }
                 fapItemsList.add(content)
                 manifestLoaderState.emit(
                     FapManifestLoaderState.Loaded(

@@ -53,7 +53,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             dataStoreSettings.updateData {
                 it.copy(
-                    enabled_experimental_functions = value
+                    disabled_experimental_functions = !value
                 )
             }
         }

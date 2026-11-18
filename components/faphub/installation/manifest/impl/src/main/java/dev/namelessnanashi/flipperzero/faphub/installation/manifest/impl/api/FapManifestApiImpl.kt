@@ -53,6 +53,16 @@ class FapManifestApiImpl @Inject constructor(
     private var job: Job? = null
     private val jobInvalidateMutex = Mutex()
 
+    /**
+     * Installs, updates and deletes made by this app, by application uid (null item = deleted).
+     * A reload that was already reading manifests when one of them finished emits the old .fim
+     * contents and used to overwrite it, so an updated app showed "Update" again. They are
+     * applied on top of every reload until a reload starts after them (it then reads them from
+     * the Flipper), and dropped when the Flipper disconnects. Guarded by [mutex].
+     */
+    private val localChanges = mutableMapOf<String, LocalChange>()
+    private var loadGeneration = 0L
+
     init {
         invalidateAsync()
     }
@@ -66,6 +76,7 @@ class FapManifestApiImpl @Inject constructor(
         info { "Add $pathToFap to $fapManifestItem " }
 
         manifestUploader.save(pathToFap, fapManifestItem)
+        localChanges[fapManifestItem.uid] = LocalChange(fapManifestItem, loadGeneration)
         fapManifestStateFlow.update { fapManifestState ->
             if (fapManifestState is FapManifestState.Loaded) {
                 fapManifestState.copy(
@@ -92,6 +103,7 @@ class FapManifestApiImpl @Inject constructor(
         if (toRemoveManifests.isNullOrEmpty()) {
             return@withLock
         }
+        localChanges[applicationUid] = LocalChange(item = null, generation = loadGeneration)
 
         fapManifestStateFlow.update { fapManifestState ->
             if (fapManifestState is FapManifestState.Loaded) {
@@ -114,13 +126,37 @@ class FapManifestApiImpl @Inject constructor(
         val oldJob = job
         job = scope.launch {
             oldJob?.cancelAndJoin()
+            withLock(mutex, "new_generation") {
+                // Changes finished before this reload starts are on the Flipper: it reads them
+                loadGeneration++
+                localChanges.values.removeAll { it.generation < loadGeneration }
+            }
             loader.invalidate()
             loader.getManifestLoaderState()
                 .collectLatest { manifestLoaderState ->
                     withLock(mutex, "invalidate") {
-                        fapManifestStateFlow.emit(manifestLoaderState.toManifestState())
+                        val state = manifestLoaderState.toManifestState()
+                        if (state is FapManifestState.NotLoaded) {
+                            // Disconnected: the next load reads everything from the Flipper again
+                            localChanges.clear()
+                        }
+                        fapManifestStateFlow.emit(state.withLocalChanges())
                     }
                 }
         }
     }
+
+    private fun FapManifestState.withLocalChanges(): FapManifestState {
+        if (this !is FapManifestState.Loaded || localChanges.isEmpty()) {
+            return this
+        }
+        return copy(
+            items = items
+                .filter { it.uid !in localChanges }
+                .plus(localChanges.values.mapNotNull { it.item })
+                .toPersistentList()
+        )
+    }
+
+    private class LocalChange(val item: FapManifestItem?, val generation: Long)
 }
