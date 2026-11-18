@@ -34,21 +34,24 @@ Requested 2026-10-28.
 | 23 | "Not installed" filter in the app lists | built (2026-11-18; untested on device) |
 | 24 | Key export named `Flipper-<name>-Keys.zip` | done (2026-11-18; tests pass) |
 | 25 | Keep working in the background (especially sync) | built (2026-11-18; untested on device) |
+| 26 | Fix "no SD card" on install after a reconnect | built (2026-11-18; untested on device) |
 
 Remaining work (updated 2026-11-18):
-1. Items 15-18 build and the full unit-test suite passes (2026-11-18); still untested
-   on the device.
-2. On the device with the Flipper, storage-fix first: sync, one app install, one
+1. On the device with the Flipper, storage-fix first: sync, one app install, one
    favorite change; confirm no truncated files and an intact `favorites.txt`.
-3. Then, on the device: USB speed (large file download), Install All, Check & Repair,
-   verified installs, mfkey32 key recovery, keyboard and Momentum screen colours.
-4. Screenshots of items 5 and 11 in the dark and light themes; fix what looks wrong.
-5. Items 8/10: release key `~/.android-keys/flipper-nanashi-release.jks` created
-   2026-11-18 (password in `../flipper-nanashi-keystore.properties`; back both up
-   offline). Secrets and `RELEASE_CERT_SHA256` (`5A:0E:09:DE:...:E8:D8`) are set. The
-   nightly steps were rehearsed locally (tests, signed release, V3 verify, pin match).
-6. Decide on the "Card inputs" debug log line in `UpdateCardViewModel`.
-Then the user cleans up the docs and everything goes in one commit.
+2. Then, on the device: background sync (item 25), USB speed (large file download),
+   Install All / Update All, "Update" state after updating (20), "Not installed" filter
+   (23), faster installs and lookup (18, 19), Check & Repair, verified installs, mfkey32
+   key recovery, other-app warning (15), keyboard and Momentum screen colours (16), key
+   export name (24), launcher icon (22).
+3. Screenshots of items 5 and 11 in the dark and light themes; fix what looks wrong.
+
+Settled 2026-11-18:
+- Items 8/10: release key `~/.android-keys/flipper-nanashi-release.jks` (password in
+  `../flipper-nanashi-keystore.properties`) is backed up offline. Secrets and
+  `RELEASE_CERT_SHA256` (`5A:0E:09:DE:...:E8:D8`) are set; nightlies publish signed APKs.
+- The "Card inputs" info log in `UpdateCardViewModel` stays.
+- Work is committed and pushed to `dev` as it is finished (each push builds a nightly).
 
 ## Where work stopped (2026-10-28, paused by the user)
 
@@ -173,6 +176,13 @@ debug build syncing at once) was wrong; see "Storage write corruption" below.
     app is already in the background (e.g. woken by the widget); that is logged, and the
     next connect with the app open starts it.
     Test on the phone: start a sync, switch apps / lock the screen, confirm it finishes.
+26. Installing any app said "no SD card" while the device page showed it (reported
+    2026-11-18). `FapManifestsLoader` took the `FStorageInfoFeatureApi` once per catalog
+    refresh (`getSync`), but feature APIs are per connection: after a reconnect (background
+    keep-alive, BLE -> USB switch) it kept watching the old instance, whose storage info
+    never reached `Ready(Loaded)`, so every app got `NO_SD_CARD`. It now follows the current
+    instance (`get()` + `flatMapLatest`), and storage info that is still loading waits
+    instead of throwing `NoSdCardException`. Untested on device.
 
 ## Storage write corruption (found 2026-10-29)
 

@@ -2,6 +2,8 @@ package dev.namelessnanashi.flipperzero.faphub.installation.manifest.impl.utils
 
 import androidx.datastore.core.DataStore
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.provider.api.FFeatureProvider
+import dev.namelessnanashi.flipperzero.bridge.connection.feature.provider.api.FFeatureStatus
+import dev.namelessnanashi.flipperzero.bridge.connection.feature.provider.api.get
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.provider.api.getSync
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.rpcinfo.model.FlipperInformationStatus
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.storage.api.FStorageFeatureApi
@@ -40,6 +42,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
@@ -80,16 +84,33 @@ class FapManifestsLoader @AssistedInject constructor(
                     isLoading = true
                 )
             )
-            val fStorageInfoApi = fFeatureProvider.getSync<FStorageInfoFeatureApi>()
-            if (fStorageInfoApi == null) {
-                error { "#invalidate could not find FStorageInfoFeatureApi" }
-                return@launch
-            }
-            fStorageInfoApi.invalidate(scope = scope)
+            // Feature APIs belong to one connection: every reconnect (background keep-alive,
+            // BLE -> USB switch) makes a new one. Follow the current one, or the loader keeps
+            // watching a dead instance whose storage info never loads and reports "no SD card".
+            val storageInformationFlow = fFeatureProvider.get<FStorageInfoFeatureApi>()
+                .flatMapLatest { status ->
+                    when (status) {
+                        is FFeatureStatus.Supported -> {
+                            status.featureApi.invalidate(scope = scope)
+                            status.featureApi.getStorageInformationFlow()
+                        }
+
+                        FFeatureStatus.Retrieving -> flowOf(FlipperStorageInformation())
+                        FFeatureStatus.NotFound,
+                        FFeatureStatus.Unsupported -> {
+                            error { "#invalidate could not find FStorageInfoFeatureApi" }
+                            flowOf(
+                                FlipperStorageInformation(
+                                    externalStorageStatus = FlipperInformationStatus.Ready(null)
+                                )
+                            )
+                        }
+                    }
+                }
 
             combine(
                 fDeviceOrchestrator.getState(),
-                fStorageInfoApi.getStorageInformationFlow()
+                storageInformationFlow
             ) { connectionState, flipperStorageInformation ->
                 connectionState to flipperStorageInformation
             }.distinctUntilChangedBy { (connectionState, flipperStorageInformation) ->
@@ -97,8 +118,11 @@ class FapManifestsLoader @AssistedInject constructor(
                 // abandons the md5 listing of the manifests folder, which the Flipper still streams in full
                 val externalStorage = flipperStorageInformation.externalStorageStatus
                     as? FlipperInformationStatus.Ready<StorageStats?>
-                (connectionState is FDeviceConnectStatus.Connected) to
-                    (externalStorage?.data is StorageStats.Loaded)
+                Triple(
+                    connectionState is FDeviceConnectStatus.Connected,
+                    externalStorage != null,
+                    externalStorage?.data is StorageStats.Loaded
+                )
             }.collectLatest { (connectionState, flipperStorageInformation) ->
                 runCatching {
                     loadInternal(
@@ -130,7 +154,17 @@ class FapManifestsLoader @AssistedInject constructor(
         }
         val externalStorageStatus = storageInformation.externalStorageStatus
             as? FlipperInformationStatus.Ready<StorageStats?>
-        if (externalStorageStatus == null || externalStorageStatus.data !is StorageStats.Loaded) {
+        if (externalStorageStatus == null) {
+            // Storage info still loading (fresh connection): not an answer yet, keep waiting
+            manifestLoaderState.emit(
+                FapManifestLoaderState.Loaded(
+                    items = persistentListOf(),
+                    isLoading = true
+                )
+            )
+            return
+        }
+        if (externalStorageStatus.data !is StorageStats.Loaded) {
             throw NoSdCardException()
         }
         manifestLoaderState.emit(
