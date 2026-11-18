@@ -30,6 +30,7 @@ Requested 2026-10-28.
 | 19 | Faster installed-apps lookup | built (2026-11-18; tests pass; untested on device) |
 | 20 | Updated apps still showing "Update" | fixed (2026-11-18; tests pass; untested on device) |
 | 21 | Remove the forum link; experimental features on by default | done (2026-11-18) |
+| 22 | Dark launcher icon with the Momentum M | done (uncommitted; builds; check on the launcher) |
 
 Remaining work (updated 2026-11-18):
 1. Items 15-18 build and the full unit-test suite passes (2026-11-18); still untested
@@ -142,6 +143,11 @@ debug build syncing at once) was wrong; see "Storage write corruption" below.
 21. Settings: the Forum link (and its string/icon) is gone. Experimental functions are on by
     default: proto field 4 `enabled_experimental_functions` is reserved and replaced by
     `disabled_experimental_functions = 35`, so existing installs switch to enabled too.
+22. Launcher icon (requested 2026-11-18): true-black background and a white Momentum "M"
+    (vector traced from Next-Flip/v2.momentum-fw.dev `public/logos/logo.svg`), sized to
+    ~43dp of the 108dp canvas so it stays inside the 66dp safe zone under every mask. The
+    monochrome (themed icon) layer uses the same M. The unused `mipmap-*dpi` foreground
+    PNGs were removed (minSdk 26 always uses the adaptive icon).
 
 ## Storage write corruption (found 2026-10-29)
 
