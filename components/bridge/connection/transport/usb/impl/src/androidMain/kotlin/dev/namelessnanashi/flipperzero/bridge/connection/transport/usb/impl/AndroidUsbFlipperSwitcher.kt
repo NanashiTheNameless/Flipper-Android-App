@@ -49,22 +49,33 @@ class AndroidUsbFlipperSwitcher @Inject constructor(
     private var previousDeviceId: String? = null
     private val usbManager by lazy { context.getSystemService(UsbManager::class.java) }
 
-    private val detachReceiver = object : BroadcastReceiver() {
+    private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(receiverContext: Context, intent: Intent) {
-            if (intent.action == UsbManager.ACTION_USB_DEVICE_DETACHED) {
-                scope.launch { mutex.withLock { onDetachedLocked() } }
+            when (intent.action) {
+                UsbManager.ACTION_USB_DEVICE_ATTACHED -> {
+                    info { "USB device attached" }
+                    rescan()
+                }
+                UsbManager.ACTION_USB_DEVICE_DETACHED -> {
+                    info { "USB device detached" }
+                    scope.launch { mutex.withLock { onDetachedLocked() } }
+                }
             }
         }
     }
 
     override fun start() {
         if (!isStarted.compareAndSet(false, true)) return
-        // USB_DEVICE_ATTACHED only reaches activities (manifest filter -> rescan());
-        // DETACHED is a regular broadcast
+        // The system broadcasts both while the process runs; the manifest filter on the
+        // activity (-> rescan()) additionally starts the app when it is not running.
+        // Both are protected system broadcasts, so RECEIVER_NOT_EXPORTED still gets them.
         ContextCompat.registerReceiver(
             context,
-            detachReceiver,
-            IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED),
+            usbReceiver,
+            IntentFilter().apply {
+                addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
+                addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+            },
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
         rescan()
@@ -75,11 +86,15 @@ class AndroidUsbFlipperSwitcher @Inject constructor(
             mutex.withLock {
                 runCatching {
                     val flipper = usbManager.deviceList.values.firstOrNull { it.isFlipper() }
-                    if (flipper != null) switchToUsbLocked(flipper)
+                    if (flipper != null) switchToUsbLocked(flipper) else onDetachedLocked()
                 }.onFailure { error(it) { "Failed to switch to USB" } }
             }
         }
     }
+
+    override fun isFlipperAttached(): Boolean = runCatching {
+        usbManager.deviceList.values.any { it.isFlipper() }
+    }.getOrElse { false }
 
     private suspend fun switchToUsbLocked(device: UsbDevice) {
         val current = devicePersistedStorage.getCurrentDevice().first()

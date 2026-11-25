@@ -14,6 +14,7 @@ import dev.namelessnanashi.flipperzero.core.log.error
 import dev.namelessnanashi.flipperzero.core.log.info
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -96,6 +97,8 @@ class FZeroDeviceApiImpl @AssistedInject constructor(
                     connectedDevice = connectedDevice
                 )
                 featureApi?.onReady()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (e: Throwable) {
                 error(e) { "Failed init on ready device factory $factory" }
             }

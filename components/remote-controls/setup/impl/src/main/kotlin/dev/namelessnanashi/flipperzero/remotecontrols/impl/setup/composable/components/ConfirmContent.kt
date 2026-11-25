@@ -187,23 +187,6 @@ fun AnimatedConfirmContent(
 @Preview(
     showSystemUi = true,
     showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Composable
-private fun ComposableConfirmContentLightPreview() {
-    FlipperThemeInternal {
-        ConfirmContent(
-            text = "Super mega text of preview confirm element",
-            onPositiveClick = {},
-            onNegativeClick = {},
-            onSkipClick = {}
-        )
-    }
-}
-
-@Preview(
-    showSystemUi = true,
-    showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES
 )
 @Composable

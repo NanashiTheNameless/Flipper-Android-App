@@ -103,15 +103,9 @@ class UpdaterViewModel @Inject constructor(
     fun cancelUpdate() = launchWithLock(mutex, viewModelScope, "cancel") {
         updaterJob?.cancelAndJoin()
         updaterJob = null
-        updaterScreenStateFlow.emit(UpdaterScreenState.CancelingUpdate)
         updaterApi.cancel()
-
-        info { "Wait until updating end" }
-
-        // Wait until update is really canceled
-        updaterApi.getState()
-            .filter { it.state.isFinalState }
-            .first()
+        // Fork: leave the screen at once; the updater stops in the background and a new update
+        // waits for it (see the start check above)
         updaterScreenStateFlow.emit(UpdaterScreenState.Finish)
     }
 

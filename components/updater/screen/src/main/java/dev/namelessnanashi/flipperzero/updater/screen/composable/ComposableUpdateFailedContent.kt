@@ -6,7 +6,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -100,11 +99,7 @@ fun ComposableFailedDownloadContent(
 @Composable
 fun ComposableOutdatedApp() {
     ComposableUpdateFailedContent(
-        imageId = if (MaterialTheme.colors.isLight) {
-            DesignSystem.drawable.ic_firmware_application_deprecated
-        } else {
-            DesignSystem.drawable.ic_firmware_application_deprecated_dark
-        },
+        imageId = DesignSystem.drawable.ic_firmware_application_deprecated_dark,
         titleId = R.string.update_screen_failed_outdated_app_title,
         descriptionId = R.string.update_screen_failed_outdated_app_desc
     ) {

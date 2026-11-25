@@ -95,3 +95,32 @@ fun ComposableAllKeysTitle(
         style = LocalTypography.current.buttonB16
     )
 }
+
+@Suppress("FunctionName")
+fun LazyListScope.ComposableFavoritePathsGrid(
+    paths: List<FlipperKeyPath>,
+    knownKeys: List<FlipperKey>,
+    synchronizationUiApi: SynchronizationUiApi,
+    synchronizationState: SynchronizationState,
+    onKeyOpen: (FlipperKeyPath) -> Unit,
+    onManageFavorites: () -> Unit
+) {
+    val known = knownKeys.associateBy { it.path.pathToKey }
+    items(paths.windowed(GRID_WIDTH, GRID_WIDTH, partialWindows = true)) { row ->
+        Row(Modifier.padding(horizontal = 7.dp).fillMaxWidth()) {
+            row.forEach { path ->
+                val key = known[path.path.pathToKey]
+                ComposableKeySmall(
+                    modifier = Modifier.weight(GRID_ROW_WEIGHT),
+                    keyPath = path,
+                    synchronizationContent = {
+                        if (key != null) synchronizationUiApi.RenderSynchronizationState(key.synchronized, synchronizationState, false)
+                        else Text(path.path.extension.uppercase().takeIf { it.length <= 8 }.orEmpty(), style = LocalTypography.current.subtitleM10, color = LocalPallet.current.text60)
+                    },
+                    onOpenKey = { if (key != null) onKeyOpen(path) else onManageFavorites() }
+                )
+            }
+            repeat(GRID_WIDTH - row.size) { Box(Modifier.weight(GRID_ROW_WEIGHT)) }
+        }
+    }
+}

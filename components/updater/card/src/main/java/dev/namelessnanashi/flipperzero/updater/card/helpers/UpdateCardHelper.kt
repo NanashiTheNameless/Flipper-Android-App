@@ -47,7 +47,10 @@ class UpdateCardHelper(
             updateChannel == FirmwareChannel.UNKNOWN
         if (isUpdateAvailable) return processUpdateAvailable(latestVersionFromNetwork)
 
-        return processNoUpdate()
+        return UpdateCardState.NoUpdate(
+            flipperVersion = checkNotNull(firmwareVersion),
+            reinstall = (processUpdateAvailable(latestVersionFromNetwork) as UpdateCardState.UpdateAvailable).update
+        )
     }
 
     private fun processNetworkException(exception: Throwable): UpdateCardState {

@@ -8,7 +8,8 @@
     <string name="archive_sync_progress">Syncing with Flipper…</string>
     <string name="archive_sync_percent">Syncing %1$s</string>
     <string name="archive_sync_cancel">Cancel</string>
-    <string name="archive_speed">Speed: %s/s</string>
+    <string name="archive_status_working">Working: %s/s</string>
+    <string name="archive_status_waiting">Waiting for the Flipper…</string>
     <string name="archive_updating">Syncing: %s</string>
     <string name="archive_syncing">Syncing</string>
     <string name="archive_preparing">Preparing sync: getting files from flipper</string>
@@ -16,4 +17,21 @@
     <string name="archive_hashes">Preparing sync: %s</string>
     <string name="archive_card_file_manager_title">File Manager</string>
     <string name="archive_card_file_manager_desc">Manage files and assets on your Flipper Zero</string>
+    <string name="archive_sync_show_status">Show status</string>
+    <string name="archive_edit_favorites">Edit favorites</string>
+    <string name="archive_favorites_hint">Add or remove keys, then use the arrows to change their order. Changes sync to your Flipper when connected.</string>
+    <string name="archive_favorites_syncing">Wait for syncing to finish before saving favorites.</string>
+    <string name="archive_favorites_empty">No favorites. Add keys below.</string>
+    <string name="archive_favorites_add">Add keys</string>
+    <string name="archive_favorites_search">Search keys</string>
+    <string name="archive_favorites_no_matches">No matching keys</string>
+    <string name="archive_favorites_save">Save</string>
+    <string name="archive_favorites_cancel">Cancel</string>
+    <string name="archive_favorites_error">Could not save favorites. Please try again.</string>
+    <string name="archive_favorites_move_up">Move %s up</string>
+    <string name="archive_favorites_move_down">Move %s down</string>
+    <string name="archive_favorites_remove">Remove %s from favorites</string>
+    <string name="archive_favorites_add_key">Add %s to favorites</string>
+    <string name="archive_favorites_path">File, folder, or app shortcut path</string>
+    <string name="archive_favorites_add_path">Add path</string>
 </resources>

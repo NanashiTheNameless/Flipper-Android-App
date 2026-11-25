@@ -9,7 +9,8 @@ import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKeyContent
 import dev.namelessnanashi.flipperzero.bridge.synchronization.impl.di.TaskGraph
 import dev.namelessnanashi.flipperzero.core.log.LogTagProvider
 import dev.zacsweers.metro.ContributesBinding
-import kotlinx.coroutines.coroutineScope
+import dev.namelessnanashi.flipperzero.core.ktx.jre.FlipperDispatchers
+import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
 import dev.zacsweers.metro.Inject
@@ -25,7 +26,8 @@ class FlipperKeyStorage @Inject constructor(
     override val TAG = "FlipperKeyStorage"
 
     override suspend fun loadFile(filePath: FlipperFilePath): FlipperKeyContent {
-        val responseBytes = coroutineScope {
+        // Blocking read: keep it off the shared pool
+        val responseBytes = withContext(FlipperDispatchers.blockingDispatcher) {
             fileDownloadApi.source(
                 pathOnFlipper = filePath.getPathOnFlipper(),
                 priority = StorageRequestPriority.BACKGROUND,

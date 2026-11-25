@@ -27,6 +27,7 @@ import dev.namelessnanashi.flipperzero.info.impl.compose.elements.ComposableOpti
 import dev.namelessnanashi.flipperzero.info.impl.compose.elements.ComposablePairDeviceActionCard
 import dev.namelessnanashi.flipperzero.info.impl.compose.elements.ComposableScreenStreamingCard
 import dev.namelessnanashi.flipperzero.info.impl.compose.info.ComposableInfoCard
+import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationUiApi
 import dev.namelessnanashi.flipperzero.info.impl.model.DeviceStatus
 import dev.namelessnanashi.flipperzero.info.impl.model.FlipperBasicInfo
 import dev.namelessnanashi.flipperzero.info.impl.viewmodel.ConnectViewModel
@@ -38,6 +39,7 @@ import dev.namelessnanashi.flipperzero.updater.model.UpdateRequest
 @Suppress("NonSkippableComposable", "LongMethod")
 fun ComposableDeviceInfoScreen(
     updaterCardApi: UpdaterCardApi,
+    synchronizationUiApi: SynchronizationUiApi,
     componentContext: ComponentContext,
     deeplink: Deeplink.BottomBar.DeviceTab.WebUpdate?,
     deviceStatus: DeviceStatus,
@@ -71,6 +73,7 @@ fun ComposableDeviceInfoScreen(
                 .verticalScroll(scrollState)
         ) {
             ComposableDeviceBar(deviceStatus, hardwareColor)
+            synchronizationUiApi.RenderSynchronizationStatus()
             updaterCardApi.ComposableUpdaterCard(
                 modifier = Modifier.padding(top = 14.dp),
                 onStartUpdateRequest = onStartUpdateRequest,
@@ -107,7 +110,10 @@ fun ComposableDeviceInfoScreen(
                 modifier = Modifier.padding(top = 14.dp),
                 deviceStatus = deviceStatus,
                 supportedState = supportedState,
-                requestSynchronize = connectViewModel::requestSynchronize,
+                requestSynchronize = {
+                    synchronizationUiApi.showSynchronizationDialog()
+                    connectViewModel.requestSynchronize()
+                },
                 alarmOnFlipper = alarmOnFlipper,
                 hasAlarm = hasAlarm
             )

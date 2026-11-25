@@ -21,3 +21,9 @@ commonDependencies {
     implementation(libs.kotlin.immutable.collections)
     implementation(libs.kotlin.coroutines)
 }
+
+androidHostTestDependencies {
+    implementation(libs.junit)
+    implementation(libs.mockk)
+    implementation(libs.kotlin.coroutines.test)
+}

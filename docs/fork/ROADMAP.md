@@ -35,6 +35,24 @@ Requested 2026-10-28.
 | 24 | Key export named `Flipper-<name>-Keys.zip` | done (2026-11-18; tests pass) |
 | 25 | Keep working in the background (especially sync) | built (2026-11-18; untested on device) |
 | 26 | Fix "no SD card" on install after a reconnect | built (2026-11-18; untested on device) |
+| 27 | Connection guide for Bluetooth and USB | built (2026-11-25; untested on device) |
+| 28 | Less running in the background | built (2026-11-25; untested on device) |
+| 29 | Every feature over USB, faster than Bluetooth | built (2026-11-25; untested with a Flipper on the cable) |
+| 30 | Hold "No updates" to reinstall ("Update anyway") | built (2026-11-25; untested) |
+| 31 | Unofficial-build notice on every clean launch (switch in Options) | written (2026-11-25; not built) |
+| 32 | Cancel/Stop as real buttons that cancel immediately | written (2026-11-25; not built) |
+| 33 | 0xProto font everywhere | written (2026-11-25; not built) |
+| 34 | Download and install shown as separate steps on app buttons | written (2026-11-25; not built) |
+| 35 | Sync screen throbber and working/waiting status | written (2026-11-25; not built) |
+| 36 | Launch splash: new icon and the fork's credit | written (2026-11-25; not built) |
+| 37 | Dismissible sync popup, automatic on sync start, Device-tab status/open button | built (2026-11-25; latest device verification pending) |
+| 38 | Edit and reorder all Momentum favorite paths, including remote .txt files | built (2026-11-25; regression tests pass; final phone verification deferred) |
+| 39 | Remove obsolete policy acceptance state | built (2026-11-25; migration test passes) |
+| 40 | Reconnect after manual disconnect and USB replug | built (2026-11-25; reconnect regression tests pass; final phone verification deferred) |
+| 41 | Parallel app downloads with live DL percentages | built (2026-11-25; eight prefetch downloads; sequential installs; regression test passes) |
+| 42 | Check & Repair progress popup, Dismiss and Cancel | built (2026-11-25; latest device verification pending) |
+| 43 | USB icon during firmware upload; black outlined action buttons | built (2026-11-25; latest device verification pending) |
+| 44 | OLED dark theme as the only supported theme | built (2026-11-25; final debug APK builds; phone verification deferred) |
 
 Remaining work (updated 2026-11-18):
 1. On the device with the Flipper, storage-fix first: sync, one app install, one
@@ -44,7 +62,7 @@ Remaining work (updated 2026-11-18):
    (23), faster installs and lookup (18, 19), Check & Repair, verified installs, mfkey32
    key recovery, other-app warning (15), keyboard and Momentum screen colours (16), key
    export name (24), launcher icon (22).
-3. Screenshots of items 5 and 11 in the dark and light themes; fix what looks wrong.
+3. Screenshots of items 5 and 11 in the sole supported OLED dark theme; fix what looks wrong.
 
 Settled 2026-11-18:
 - Items 8/10: release key `~/.android-keys/flipper-nanashi-release.jks` (password in
@@ -52,6 +70,48 @@ Settled 2026-11-18:
   `RELEASE_CERT_SHA256` (`5A:0E:09:DE:...:E8:D8`) are set; nightlies publish signed APKs.
 - The "Card inputs" info log in `UpdateCardViewModel` stays.
 - Work is committed and pushed to `dev` as it is finished (each push builds a nightly).
+
+
+## Current continuation (2026-11-25)
+
+- Sync opens its progress popup by default when work starts on a connected Flipper. It
+  does not cover pairing, the fork notice, or firmware flashing. Dismiss keeps sync
+  running; both Archive and the Device tab expose status and a button to reopen it.
+  Shared Compose strings use indexed placeholders for file names and transfer speed.
+- Favorites use the complete ordered path list, rather than only the key database.
+  This includes `subghz/remote/BedRoom.txt`, `subghz/remote/WorkRoom.txt`, scripts,
+  directories, internal files, and Momentum `/app:` shortcuts. Absolute targets are
+  preserved. Favorites absent from the key cache remain visible in Archive and the
+  editor; tapping one opens management instead of a key screen that cannot load it.
+  The editor supports search, add/remove, move up/down, adding a path, Save and Cancel.
+  Order-only changes synchronize both ways; file writes are read back and verified.
+- Removed the old `tos_passed` field and acceptance APIs. Its protobuf tag/name remain
+  reserved; migration removes the retired field while keeping setup and device data.
+  The fork notice uses process state and the existing hide-notice option.
+- Connect always issues a retry, including after manual Disconnect. Device status uses
+  the saved selection for USB-only setups; opening pairing again skips a notice already
+  shown in this process. The USB setup button clears the manual-disconnect state.
+- USB open drops DTR before raising it, requires a CLI/RPC handshake, and never reports
+  Connected if that handshake fails. Missing USB devices are removed on rescan.
+  Automatic retries wait one second and use the current selection instead of an old
+  USB path. Feature requests cancel initialization from a previous connection.
+- Eight queued app bundles download concurrently into the phone cache. Per-bundle locks
+  prevent duplicate writes. Live progress reaches queued DL labels, including DL 100%
+  when waiting to install. Flipper installs remain sequential.
+- Check & Repair shows the current app, checked count, stage, download percentage, and
+  overall progress in a dismissible popup. Dismiss keeps work running; the installed-tab
+  button reopens it. Cancel stops checking or queueing.
+- Firmware upload uses a USB icon for USB connections. Download progress and action
+  buttons use matching text/borders on black instead of filled blocks.
+- Only the OLED dark theme is supported, including previews, splash/system bars, and
+  error illustrations. Android API-specific style overrides also use the dark parent
+  and light system-bar icons. The light palette, conditional artwork selection, theme
+  selector, light preview, and stored selection field were removed (old protobuf
+  tag/name reserved).
+- Validation: 120 focused regression tests passed and the Android debug APK built.
+  Final phone checks are deferred at the user's request; no firmware was flashed.
+  Earlier phone checks verified formatted sync status, Dismiss, and favorites draft
+  reorder/Cancel before the latest full-path favorites and dark-theme cleanup.
 
 ## Where work stopped (2026-10-28, paused by the user)
 
@@ -163,7 +223,7 @@ debug build syncing at once) was wrong; see "Storage write corruption" below.
     name comes from the paired BLE device (works offline); over USB, where the stored name
     is just "USB", the Flipper is asked for `hardware.name` (3 s limit). Unsafe characters
     become `_`; with no name it is `Flipper-Keys.zip`. Test: `KeysArchiveNameTest`.
-25. Background (requested 2026-11-18). Upstream deleted its Android service with the old
+25. Background (requested 2026-11-18; narrowed by item 28). Upstream deleted its Android service with the old
     bridge (#1017) and never replaced it, so nothing kept the process alive once the app left
     the screen: Android froze or killed it, dropping the connection, sync and transfers.
     `ConnectionKeepAlive` (app module) runs `FlipperConnectionService`, a `connectedDevice`
@@ -183,6 +243,144 @@ debug build syncing at once) was wrong; see "Storage write corruption" below.
     never reached `Ready(Loaded)`, so every app got `NO_SD_CARD`. It now follows the current
     instance (`get()` + `flatMapLatest`), and storage info that is still loading waits
     instead of throwing `NoSdCardException`. Untested on device.
+27. Connection guide (requested 2026-11-25). The first-pair "Help" screen (Bluetooth only,
+    still linking Google Play) is replaced by `ConnectionGuideDecomposeComponent` (api in
+    `firstpair/api`, impl in `firstpair/impl`): Bluetooth, USB cable and "Still not working?"
+    sections, numbered steps, links (flipp.dev, momentum-fw.dev, the fork's GitHub releases)
+    and a Bluetooth-settings shortcut. Opened from the first-pair "Guide" button and from
+    Settings > Connection Guide. The first-pair screen itself has a "Connect with USB cable"
+    button above "Skip Connection" (same action). During first setup the guide has a "Use USB" button: if a Flipper is
+    on the cable (`FUsbFlipperSwitcherApi.isFlipperAttached()`), setup finishes without BLE
+    pairing (USB-only users no longer have to pair or press Skip); otherwise it says none was
+    found. Check on device: wording of the Flipper menu paths on Momentum.
+    2026-11-25: the first launch screen (was "Turn On Bluetooth on your Flipper" + Flipper
+    Devices' ToS/privacy links) is now an "Unofficial fork" notice with an "I understand"
+    button; the search screen below it explains Bluetooth and USB in two lines. The
+    `pic_connecting` / `pic_flipper_instruction` drawables were removed.
+28. Less in the background (requested 2026-11-25). Changes item 25: the foreground service no
+    longer runs for the whole connection, only while work is in flight: a sync, queued/running
+    FapHub installs, or any RPC request waiting for an answer (file transfers, firmware upload;
+    `FLagsDetectorFeature.hasPendingRequests()`, from the lags detector's pending counter). It
+    stops 5 s after the work ends (15 s after a link drop, so a reconnect mid-work survives).
+    An idle connection lets Android cache/freeze the app as usual. The notification is
+    `FOREGROUND_SERVICE_DEFERRED`, so work shorter than ~10 s shows none; titles are
+    "Syncing with / Installing apps on / Transferring files with / Reconnecting to <name>".
+    Limitation: Android 12+ can't start the service from the background, so work must start
+    while the app is open (as before). Also: the BLE and USB `SpeedMeter`s (two per link) woke
+    every second for the whole connection; they now tick only while bytes flow.
+29. USB parity and speed (requested 2026-11-25, after the device screen showed firmware
+    "1.0.0 fakeusb0"). Upstream's USB transport implemented `FTransportMetaInfoApi` with a
+    fake (`FakeTransportMetaInfoApi`, now deleted): name "USB Flipper", firmware
+    "1.0.0 fakeusb0", protocol 0.24, battery 0 % (the 0 % also blocked firmware updates,
+    which check the battery). USB devices no longer implement it; instead:
+    - `FVersionFeatureFactoryImpl` falls back to `RpcApiVersionMetaInfoApi`
+      (`system_protobuf_version_request`, 5 tries), so features gated on the API version use
+      the real one.
+    - `FGattInfoFeatureFactoryImpl` falls back to `RpcGattMetaInfoApi`: `devinfo` read once
+      (name, hardware ver, software revision rebuilt as "<commit> <version> <branch num>
+      <date>" for `FirmwareVersionBuilderApi`), `pwrinfo` polled every 30 s while observed
+      (charge level, charging).
+    - Device screen name falls back to the Flipper's reported name when setup was USB-only;
+      the device picture colour comes from `hardware.color` for USB devices.
+    - Speed: `FAndroidUSBSerialDeviceApi.sendBytes` queues; one writer joins queued RPC
+      messages into transfers of up to 16 KiB (was one USB transfer per <= 512-byte message).
+      Idle read timeout 100 -> 500 ms (returns immediately on data).
+    - Footer on the first setup screen no longer claims Flipper Devices' ToS/privacy policy;
+      it states the fork is unofficial, collects no data, and which Flipper servers it uses.
+    - Reads: measured ~1 KB/s on the phone (motorola edge 2024). Answers arrived in bursts,
+      17 s for a 166 byte file: on that phone a USB IN transfer completed only when its
+      buffer (16 KiB) was full, not on the short packet that ends an answer. The read loop
+      (`AndroidCdcAcmPort.readLoop`) now queues 32 one-packet (64 byte) `UsbRequest`s and
+      passes data on after a short packet, 1 ms without a packet, or 16 KiB. Confirmed over
+      USB: Momentum reports `firmware.branch.name=dev`, `firmware.version=mntm-dev`.
+    - Stall after the app-catalog listing (2026-11-25, log): answers arrived but were never
+      parsed and USB reads stopped. The RPC send/receive/parse loops block threads but ran on
+      `FlipperDispatchers.workStealingDispatcher` (one thread per core) together with app work
+      (loading ~600 manifests); with all threads busy nothing drained the received bytes. They
+      now run on `FlipperDispatchers.blockingDispatcher` (Dispatchers.IO). Untested.
+    - Real cause of the sync hang ("stuck on Garage.sub"), from a jdb thread dump: all 8
+      `workStealingDispatcher` threads sat in `FFlipperSource.read` -> `runBlocking`
+      (4 sync key reads in `FlipperKeyStorage`, 4 manifest reads in `FapManifestsLoader`),
+      waiting for `ReaderRequestLooper`, whose coroutine also needed that pool: deadlock.
+      The looper (and `WriteRequestLooper`) now run on `blockingDispatcher`, and the blocking
+      readers/upload/download run there too. Also affects Bluetooth.
+    - App updates stuck at 0 % over USB (log: `Receive package without id ... command_id=709,
+      ERROR_STORAGE_EXIST`): `FRpcFeatureApiImpl.requestOnce` / `request(flow)` registered the
+      answer listener in a dispatched `async` and sent the request right away; over USB the
+      answer (~3 ms) could arrive first and was dropped, so the caller waited forever. The
+      async now starts `UNDISPATCHED`, registering the listener before the send.
+    - Disconnect / unplug left the app showing "Connected": the USB transport reported
+      Connecting and Connected but never Disconnected (the orchestrator's state only changes
+      on transport updates). `AndroidUSBDeviceConnectionApiImpl` now reports Disconnected once
+      when the connection scope ends (Disconnect, device switch) or the read loop ends (cable
+      pulled, `FAndroidUSBSerialDeviceApi.onLinkLost`).
+    - Bottom bar "Connected" tab showed the Bluetooth glyph over USB: new `ic_connected_usb`
+      (+ filled) with a USB trident, picked when the current device is the USB model.
+    - Not a transport problem: `FapManifestsLoader` lists `/ext/apps_manifests` with
+      `include_md5`, so the Flipper hashes ~600 files (17-42 s) and every other request waits
+      behind it (the Flipper answers one at a time). That made sync look like ~1 KB/s.
+    Still noop over USB: RPC restart after a hang (lags detector), so a hung session needs a
+    replug. To check with the Flipper on the cable (use wireless adb): device screen values,
+    battery, Momentum update offer, file transfer speed vs Bluetooth, app installs.
+
+30. "Update anyway" (requested 2026-11-25). `UpdateCardState.NoUpdate` carries the channel's
+    latest build (`reinstall`); holding the NO UPDATES button (haptic) asks "Update anyway?"
+    and then runs the normal update request flow with that build.
+
+31. Start-up notice (requested 2026-11-25). The first-launch "Unofficial fork" screen
+    (`ComposableTOS`) also opens on top of the main screen once per process start
+    (`RootScreenConfig.ForkNotice`, `FirstPairApi.consumeForkNoticeOnStart`), so a cold
+    launch shows it and returning from the background, recents or a restored process does
+    not. First setup counts as shown. Options > "Unofficial build notice" switches it off
+    (`hide_fork_notice_on_start = 37`).
+    "I understand" sits at the end of the scrolling content, so the notice has to be scrolled
+    through before it can be dismissed.
+
+32. Cancel buttons (requested 2026-11-25). New `ComposableCancelButton` (core/ui/ktx: outlined
+    full-width pill) replaces the text links on the file-manager upload/download/editor
+    progress screen (`FileTransferFullScreenComposable`), archive sync progress, the firmware
+    updater screen and the Installed tab's "Cancel updating". Dialog buttons were already
+    buttons. Immediate: upload/download view models cancel the job and update the screen at
+    once (no `cancelAndJoin`; cancelled jobs can no longer report Uploaded/Error afterwards);
+    the FapHub queue clears the current task at once and no longer reports a cancel as a
+    failure; the updater screen finishes right after `cancel()` (a new update still waits
+    for the old one); `SynchronizationApi.stop()` reports Finished at once. Editing screens'
+    app-bar "Cancel" (key edit, infrared edit) stay app-bar text actions.
+33. Font (requested 2026-11-25). Every `FlipperTypography` style and Material's default
+    typography use 0xProto 2.502 (Regular/Bold/Italic, copied from the upstream release; SIL
+    OFL, `docs/fork/licenses/0xProto-OFL.txt`). The Roboto, Roboto Mono and Flipper pixel
+    fonts (`flipper`, `flipper_bold`, `flipper_action`) were removed. Not changed: system
+    UI such as the notification and home-screen widgets, which use the system font.
+
+34. Install steps (requested 2026-11-25). Install/update progress was one number (0-10 %
+    downloading the bundle from the catalog, 10-99 % uploading to the Flipper). The shared
+    boundary is `FAP_DOWNLOAD_PROGRESS_SHARE` (queue api); the in-progress app button shows
+    "DOWNLOADING n%" then "INSTALLING n%" / "UPDATING n%" (compact: DL / INST / UPD), each
+    step with its own 0-100 % and progress bar. A cached bundle skips straight to installing.
+
+35. Sync screen activity (requested 2026-11-25). `ArchiveProgressScreen` shows a spinning
+    throbber and a status dot under the step text: bright and "Working: n/s" while data moves
+    (rx + tx > 0), dimmed with a hollow dot and "Waiting for the Flipper…" when nothing moved
+    for a second (e.g. the Flipper hashing files). Replaces the "Speed:" line.
+
+36. Splash (requested 2026-11-25). Was the Flipper dolphin, the Furippa lettering and the
+    Flipper Devices wordmark (removed). Android 12+: the launcher foreground (Momentum "M") on
+    the launcher's black icon background, branding image `ic_splashscreen_credit`. Older:
+    `splash_screen.xml` layer-list with `pic_splashscreen_icon` (black rounded square + M) and
+    the same credit. The credit ("Unofficial fork / by NamelessNanashi") is 0xProto glyph
+    outlines generated with fontTools, colour `splash_credit` (dark/light).
+
+Found while testing on the phone (2026-11-25):
+- App install needed a second tap: the queue prefetch and the install downloaded the same
+  bundle at once and the second deleted the first's `.part` ("incomplete: 0 of 33820
+  bytes", install failed, button back to Install). `FapDownloadApiImpl` was not a singleton,
+  so its per-bundle lock map (item 18) was per instance; it is now `@SingleIn` and the map
+  is process-wide.
+- Firmware update button: white label on the dark theme's light grey (and on the bright
+  update green) was unreadable; the label is now black or white by the button's luminance.
+- Verified over USB on the phone: first setup with "Connect with USB cable", device screen
+  (name, battery 100 %, firmware "Dev d3f89dfe", build date, SD card), protocol 0.25 read
+  over RPC, a full sync with no hang, app install (upload + md5 verify ~3.4 s for 33 KB).
 
 ## Storage write corruption (found 2026-10-29)
 

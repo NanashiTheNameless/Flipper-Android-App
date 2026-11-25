@@ -11,4 +11,9 @@ interface FUsbFlipperSwitcherApi {
      * Looks for an attached Flipper again, e.g. after the system delivered USB_DEVICE_ATTACHED
      */
     fun rescan()
+
+    /**
+     * True when a Flipper is plugged into the phone right now
+     */
+    fun isFlipperAttached(): Boolean
 }

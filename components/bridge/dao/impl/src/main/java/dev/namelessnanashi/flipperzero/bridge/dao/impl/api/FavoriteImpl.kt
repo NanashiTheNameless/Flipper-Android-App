@@ -1,5 +1,9 @@
 package dev.namelessnanashi.flipperzero.bridge.dao.impl.api
 
+import androidx.datastore.core.DataStore
+import dev.namelessnanashi.flipperzero.core.preference.pb.Settings
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import androidx.room.withTransaction
 import dev.namelessnanashi.flipperzero.bridge.dao.api.delegates.FavoriteApi
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperFile
@@ -17,6 +21,8 @@ import dev.namelessnanashi.flipperzero.core.ktx.jre.FlipperDispatchers
 import dev.zacsweers.metro.ContributesBinding
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provider
@@ -27,15 +33,20 @@ import dev.zacsweers.metro.SingleIn
 class FavoriteImpl @Inject constructor(
     favoriteDaoProvider: Provider<FavoriteDao>,
     keyDaoProvider: Provider<KeyDao>,
-    databaseProvider: Provider<AppDatabase>
+    databaseProvider: Provider<AppDatabase>,
+    private val settingsStore: DataStore<Settings>
 ) : FavoriteApi {
+    private val favoritesMutex = Mutex()
+    private suspend fun <T> mutateFavorites(block: suspend () -> T): T =
+        withContext(FlipperDispatchers.workStealingDispatcher) { favoritesMutex.withLock { block() } }
+
     private val favoriteDao by favoriteDaoProvider
     private val keyDao by keyDaoProvider
     private val database by databaseProvider
 
     override suspend fun updateFavorites(
         keys: List<FlipperKeyPath>
-    ): List<FlipperKeyPath> = withContext(FlipperDispatchers.workStealingDispatcher) {
+    ): List<FlipperKeyPath> = mutateFavorites {
         database.withTransaction {
             favoriteDao.deleteAll()
 
@@ -55,36 +66,30 @@ class FavoriteImpl @Inject constructor(
             favoriteDao.insert(favoriteKeys)
             return@withTransaction flipperKeys
         }.map { it.getFlipperKeyPath() }
+        val allPaths = keys.distinctBy { it.path.pathToKey }.filter { !it.deleted }
+        settingsStore.updateData { it.copy(favorite_paths = allPaths.map { key -> key.path.pathToKey }) }
+        allPaths
     }
 
-    override suspend fun isFavorite(keyPath: FlipperKeyPath) =
-        withContext(FlipperDispatchers.workStealingDispatcher) {
-            val favoritesResponse = favoriteDao.isFavorite(keyPath.path.pathToKey, keyPath.deleted)
-            return@withContext favoritesResponse.isNotEmpty()
-        }
+    override suspend fun isFavorite(keyPath: FlipperKeyPath): Boolean =
+        getFavoritePaths().any { it.path.pathToKey == keyPath.path.pathToKey && it.deleted == keyPath.deleted }
 
     override suspend fun setFavorite(
         keyPath: FlipperKeyPath,
         isFavorite: Boolean
-    ) = withContext(FlipperDispatchers.workStealingDispatcher) {
-        val uid =
-            keyDao.getByPath(keyPath.path.pathToKey, keyPath.deleted)?.uid ?: return@withContext
-        val favoriteKey = favoriteDao.getFavoriteByKeyId(uid)
-        if (favoriteKey != null) {
-            if (!isFavorite) {
-                favoriteDao.delete(favoriteKey)
-            } // else do nothing
-            return@withContext
+    ): Unit = mutateFavorites {
+        val pathsBefore = getFavoritePaths()
+        val uid = keyDao.getByPath(keyPath.path.pathToKey, keyPath.deleted)?.uid
+        if (uid != null) {
+            val favoriteKey = favoriteDao.getFavoriteByKeyId(uid)
+            if (!isFavorite && favoriteKey != null) favoriteDao.delete(favoriteKey)
+            if (isFavorite && favoriteKey == null) {
+                favoriteDao.insert(listOf(FavoriteKey(keyId = uid, order = favoriteDao.maxOrderCount() + 1)))
+            }
         }
-
-        favoriteDao.insert(
-            listOf(
-                FavoriteKey(
-                    keyId = uid,
-                    order = favoriteDao.maxOrderCount() + 1
-                )
-            )
-        )
+        val updated = if (isFavorite) (pathsBefore + keyPath).distinctBy { it.path.pathToKey } else pathsBefore.filterNot { it.path.pathToKey == keyPath.path.pathToKey }
+        settingsStore.updateData { it.copy(favorite_paths = updated.map { key -> key.path.pathToKey }) }
+        Unit
     }
 
     override fun getFavoritesFlow(): Flow<List<FlipperKey>> {
@@ -119,4 +124,11 @@ class FavoriteImpl @Inject constructor(
                     )
                 }.sortedBy { (order, _) -> order }.map { it.second }
         }
+    override fun getFavoritePathsFlow(): Flow<List<FlipperKeyPath>> =
+        combine(getFavoritesFlow(), settingsStore.data) { known, settings ->
+            mergeFavoritePaths(known.map { it.getKeyPath() }, settings.favorite_paths)
+        }
+
+    override suspend fun getFavoritePaths(): List<FlipperKeyPath> = getFavoritePathsFlow().first()
+
 }

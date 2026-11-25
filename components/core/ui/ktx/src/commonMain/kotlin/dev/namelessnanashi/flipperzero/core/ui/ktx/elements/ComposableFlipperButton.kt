@@ -2,6 +2,7 @@ package dev.namelessnanashi.flipperzero.core.ui.ktx.elements
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import dev.namelessnanashi.flipperzero.core.ui.ktx.clickableRipple
 import dev.namelessnanashi.flipperzero.core.ui.ktx.placeholderByLocalProvider
 import dev.namelessnanashi.flipperzero.core.ui.theme.LocalPallet
-import dev.namelessnanashi.flipperzero.core.ui.theme.LocalPalletV2
 import dev.namelessnanashi.flipperzero.core.ui.theme.LocalTypography
 
 @Composable
@@ -46,7 +46,8 @@ fun ComposableFlipperButton(
         modifier = modifier
             .clip(RoundedCornerShape(size = 30.dp))
             .placeholderByLocalProvider()
-            .background(background)
+            .background(LocalPallet.current.background)
+            .border(1.5.dp, background, RoundedCornerShape(30.dp))
             .clickableRipple(onClick = onClick, enabled = enabled && !isLoading),
         contentAlignment = Alignment.Center
     ) {
@@ -56,7 +57,7 @@ fun ComposableFlipperButton(
             content = { animatedIsLoading ->
                 if (animatedIsLoading) {
                     CircularProgressIndicator(
-                        color = LocalPalletV2.current.action.blue.icon.onColor,
+                        color = background,
                         modifier = Modifier.padding(textPadding).size(22.dp),
                         strokeCap = StrokeCap.Round,
                         strokeWidth = 2.dp
@@ -65,7 +66,7 @@ fun ComposableFlipperButton(
                     Text(
                         modifier = Modifier.padding(textPadding),
                         text = text,
-                        color = LocalPallet.current.onFlipperButton,
+                        color = background,
                         style = LocalTypography.current.buttonB16.merge(textStyle)
                     )
                 }

@@ -1,5 +1,6 @@
 package dev.namelessnanashi.flipperzero.app
 
+import androidx.appcompat.app.AppCompatDelegate
 import android.app.Application
 import coil3.ImageLoader
 import coil3.PlatformContext
@@ -28,6 +29,7 @@ class FlipperApplication : Application(), SingletonImageLoader.Factory, LogTagPr
     private val applicationScope = CoroutineScope(SupervisorJob() + FlipperDispatchers.workStealingDispatcher)
     override fun onCreate() {
         super.onCreate()
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
         CurrentActivityHolder.register(this)
 

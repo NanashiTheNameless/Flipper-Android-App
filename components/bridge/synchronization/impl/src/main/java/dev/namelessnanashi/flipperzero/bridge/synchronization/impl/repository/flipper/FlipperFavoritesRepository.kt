@@ -20,6 +20,12 @@ private val FAVORITES_PATH = FlipperFilePath("/", "favorites.txt")
 
 interface FlipperFavoritesRepository {
     suspend fun getFavorites(flipperKeyStorage: FlipperKeyStorage): List<FlipperFilePath>
+    suspend fun reorderFavorites(
+        flipperKeyStorage: FlipperKeyStorage,
+        oldFavorites: List<FlipperFilePath>,
+        orderedKeys: List<FlipperFilePath>
+    ): List<FlipperFilePath>
+
     suspend fun applyDiff(
         flipperKeyStorage: FlipperKeyStorage,
         oldFavorites: List<FlipperFilePath>,
@@ -35,17 +41,7 @@ class FlipperFavoritesRepositoryImpl @Inject constructor() :
 
     override suspend fun getFavorites(flipperKeyStorage: FlipperKeyStorage): List<FlipperFilePath> {
         val favoritesPaths = getFavoritesFromFlipper(flipperKeyStorage)
-        return favoritesPaths.map {
-            val relativePath = it.replace("/any/", "").replace("/ext/", "")
-            return@map relativePath.substringBefore("/") to relativePath.substringAfter("/")
-        }.filter { (keyFolder, keyName) ->
-            keyFolder.trim().isNotEmpty() || keyName.trim().isNotEmpty()
-        }.map { (keyFolder, keyName) ->
-            return@map FlipperFilePath(
-                folder = keyFolder,
-                nameWithExtension = keyName
-            )
-        }
+        return favoritesPaths.filter { it.isNotBlank() }.map(FlipperFilePath::fromFavoritePath)
     }
 
     private suspend fun getFavoritesFromFlipper(
@@ -88,9 +84,30 @@ class FlipperFavoritesRepositoryImpl @Inject constructor() :
             error { "Refusing to replace ${oldFavorites.size} favorites with an empty list" }
             return oldFavorites
         }
-        val newFavoritesFile = resultFavoritesList.joinToString("\n") {
-            it.getPathOnFlipper()
-        } + "\n"
+        writeFavorites(flipperKeyStorage, resultFavoritesList)
+        return resultFavoritesList
+    }
+
+    override suspend fun reorderFavorites(
+        flipperKeyStorage: FlipperKeyStorage,
+        oldFavorites: List<FlipperFilePath>,
+        orderedKeys: List<FlipperFilePath>
+    ): List<FlipperFilePath> {
+        // Permute only known keys. Keep firmware-only favorites in their original slots.
+        val existing = oldFavorites.toSet()
+        val ordered = orderedKeys.distinct().filter { it in existing }
+        val known = ordered.toSet()
+        val iterator = ordered.iterator()
+        val result = oldFavorites.map { if (it in known) iterator.next() else it }
+        if (result != oldFavorites) writeFavorites(flipperKeyStorage, result)
+        return result
+    }
+
+    private suspend fun writeFavorites(
+        flipperKeyStorage: FlipperKeyStorage,
+        favorites: List<FlipperFilePath>
+    ) {
+        val newFavoritesFile = favorites.joinToString("\n") { it.getPathOnFlipper() } + "\n"
         val newFavoritesBytes = newFavoritesFile.toByteArray()
         flipperKeyStorage.saveFile(
             FAVORITES_PATH,
@@ -100,6 +117,5 @@ class FlipperFavoritesRepositoryImpl @Inject constructor() :
         check(writtenBytes.contentEquals(newFavoritesBytes)) {
             "favorites.txt on the Flipper has ${writtenBytes.size} bytes after writing ${newFavoritesBytes.size}"
         }
-        return resultFavoritesList
     }
 }

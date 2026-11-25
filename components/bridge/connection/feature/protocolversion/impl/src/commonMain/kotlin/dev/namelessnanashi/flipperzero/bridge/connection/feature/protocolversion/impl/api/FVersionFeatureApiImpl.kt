@@ -15,6 +15,7 @@ import dev.namelessnanashi.flipperzero.core.preference.pb.Settings
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -85,6 +86,8 @@ class FVersionFeatureApiImpl @AssistedInject constructor(
                     .filterNotNull()
                     .first()
             }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (exception: Throwable) {
             error(exception) { "Failed receive flipper version" }
             return false

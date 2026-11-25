@@ -38,7 +38,7 @@ class PeripheralResponseReader @AssistedInject constructor(
 
     private suspend fun initialize() = withLock(mutex, "initialize") {
         responseReaderJob?.cancelAndJoin()
-        responseReaderJob = scope.launch(FlipperDispatchers.workStealingDispatcher) {
+        responseReaderJob = scope.launch(FlipperDispatchers.blockingDispatcher) {
             val byteInputStreamLocal = ByteEndlessInputStream(this)
             byteInputStream = byteInputStreamLocal
             parseLoopJob(byteInputStreamLocal)
@@ -55,7 +55,7 @@ class PeripheralResponseReader @AssistedInject constructor(
         while (this.isActive) {
             try {
                 val main = Main.ADAPTER.decodeDelimitedPackage(byteInputStream)
-                scope.launch(FlipperDispatchers.workStealingDispatcher) {
+                scope.launch(FlipperDispatchers.blockingDispatcher) {
                     responses.emit(main)
                 }
             } catch (ignored: CancellationException) {

@@ -12,7 +12,6 @@ import dev.namelessnanashi.flipperzero.archive.impl.composable.ComposableArchive
 import dev.namelessnanashi.flipperzero.archive.impl.model.ArchiveNavigationConfig
 import dev.namelessnanashi.flipperzero.archive.impl.viewmodel.CategoryViewModel
 import dev.namelessnanashi.flipperzero.archive.impl.viewmodel.GeneralTabViewModel
-import dev.namelessnanashi.flipperzero.archive.impl.viewmodel.SpeedViewModel
 import dev.namelessnanashi.flipperzero.bottombar.handlers.ResetTabDecomposeHandler
 import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationUiApi
 import dev.namelessnanashi.flipperzero.core.ui.lifecycle.viewModelWithFactory
@@ -32,7 +31,6 @@ class ArchiveScreenDecomposeComponentImpl @AssistedInject constructor(
     private val synchronizationUiApi: SynchronizationUiApi,
     private val generalTabviewModelProvider: Provider<GeneralTabViewModel>,
     private val categoryViewModelProvider: Provider<CategoryViewModel>,
-    private val speedViewModelProvider: Provider<SpeedViewModel>,
 ) : ScreenDecomposeComponent(componentContext), ResetTabDecomposeHandler {
     private val requestScrollToTopFlow = MutableStateFlow(false)
 
@@ -45,18 +43,16 @@ class ArchiveScreenDecomposeComponentImpl @AssistedInject constructor(
 
         val keys by tabViewModel.getKeys().collectAsState()
         val favoriteKeys by tabViewModel.getFavoriteKeys().collectAsState()
+        val favoritePaths by tabViewModel.getFavoritePaths().collectAsState()
         val synchronizationState by tabViewModel.getSynchronizationState().collectAsState()
+        val favoriteSaveState by tabViewModel.favoriteSaveState.collectAsState()
 
         val categoryViewModel = viewModelWithFactory(key = null) {
             categoryViewModelProvider.invoke()
         }
-        val speedViewModel = viewModelWithFactory(key = null) {
-            speedViewModelProvider.invoke()
-        }
 
         val categories by categoryViewModel.getCategoriesFlow().collectAsState()
         val deletedCategory by categoryViewModel.getDeletedFlow().collectAsState()
-        val speed by speedViewModel.speedFlow.collectAsState(null)
 
         val lazyListState = rememberLazyListState()
         val requestScrollToTop by requestScrollToTopFlow.collectAsState()
@@ -83,12 +79,13 @@ class ArchiveScreenDecomposeComponentImpl @AssistedInject constructor(
             keys = keys,
             synchronizationState = synchronizationState,
             favoriteKeys = favoriteKeys,
+            favoritePaths = favoritePaths,
             onRefresh = tabViewModel::refresh,
-            cancelSynchronization = tabViewModel::cancelSynchronization,
+            favoriteSaveState = favoriteSaveState,
+            onSaveFavorites = tabViewModel::saveFavorites,
             categories = categories,
             deletedCategory = deletedCategory,
             lazyListState = lazyListState,
-            speed = speed,
         )
     }
 

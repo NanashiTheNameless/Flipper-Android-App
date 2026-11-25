@@ -19,7 +19,9 @@ fun ComposableUpdateAllButton(
         FapBatchUpdateButtonState.NoUpdates -> {}
 
         FapBatchUpdateButtonState.Loading -> ComposableCancelAllButton(
-            modifier.placeholderConnecting()
+            onClick = {},
+            modifier = modifier.placeholderConnecting(),
+            enabled = false
         )
 
         is FapBatchUpdateButtonState.ReadyToUpdate ->
@@ -30,7 +32,8 @@ fun ComposableUpdateAllButton(
 
         FapBatchUpdateButtonState.UpdatingInProgress ->
             ComposableCancelAllButton(
-                modifier = modifier.clickableRipple(onClick = onCancelAll)
+                onClick = onCancelAll,
+                modifier = modifier
             )
     }
 }

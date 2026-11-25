@@ -22,7 +22,7 @@ class ByteEndlessInputStream(
     private var balancer = 0
 
     init {
-        scope.launch(FlipperDispatchers.workStealingDispatcher) {
+        scope.launch(FlipperDispatchers.blockingDispatcher) {
             try {
                 awaitCancellation()
             } finally {

@@ -29,6 +29,8 @@ androidDependencies {
     implementation(libs.ble.scan)
 
     implementation(projects.components.bridge.connection.config.api)
+    implementation(projects.components.bridge.connection.service.api)
+    implementation(projects.components.bridge.connection.transport.usb.api)
 
     implementation(libs.appcompat)
 

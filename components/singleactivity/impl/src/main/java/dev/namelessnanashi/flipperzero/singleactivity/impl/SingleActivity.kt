@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
@@ -95,12 +94,11 @@ class SingleActivity : AppCompatActivity(), LogTagProvider {
                 content = {
                     // enableEdgeToEdge picks icon colours from the system theme, not the app theme;
                     // with dark headers that left the status bar icons invisible
-                    val isLightTheme = MaterialTheme.colors.isLight
                     val view = LocalView.current
                     SideEffect {
                         WindowCompat.getInsetsController(window, view).apply {
-                            isAppearanceLightStatusBars = isLightTheme
-                            isAppearanceLightNavigationBars = isLightTheme
+                            isAppearanceLightStatusBars = false
+                            isAppearanceLightNavigationBars = false
                         }
                     }
                     CompositionLocalProvider(

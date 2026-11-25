@@ -19,6 +19,11 @@ commonDependencies {
     api(libs.datastore)
 }
 
+androidHostTestDependencies {
+    implementation(libs.junit)
+    implementation(libs.kotlin.coroutines.test)
+}
+
 tasks.withType<Detekt> {
     enabled = false
 }

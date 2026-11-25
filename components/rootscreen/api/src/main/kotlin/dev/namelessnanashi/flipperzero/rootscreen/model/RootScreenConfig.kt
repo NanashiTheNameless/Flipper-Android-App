@@ -20,6 +20,10 @@ sealed class RootScreenConfig {
     @Serializable
     data object ScreenStreaming : RootScreenConfig()
 
+    // Fork: unofficial-build notice on app start
+    @Serializable
+    data object ForkNotice : RootScreenConfig()
+
     @Serializable
     data class WidgetOptions(val widgetId: Int) : RootScreenConfig()
 

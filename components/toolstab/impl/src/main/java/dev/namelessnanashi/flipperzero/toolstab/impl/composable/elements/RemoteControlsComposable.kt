@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -76,11 +75,7 @@ private fun RemoteControls(
             .padding(start = 12.dp, bottom = 6.dp, top = 6.dp)
             .size(64.dp),
         painter = painterResource(
-            if (MaterialTheme.colors.isLight) {
-                R.drawable.pic_remotes_library_light
-            } else {
-                R.drawable.pic_remotes_library_dark
-            }
+            R.drawable.pic_remotes_library_dark
         ),
         contentDescription = stringResource(R.string.remotes_library_title)
     )

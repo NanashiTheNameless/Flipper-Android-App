@@ -25,6 +25,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -64,9 +66,12 @@ class DownloadViewModel @Inject constructor(
                 }
             }
         ).onFailure { exception ->
+            // Cancelled by the user: the screen already went back
+            if (!currentCoroutineContext().isActive) return@onFailure
             error(exception) { "Can't download $flipperFileFullPath" }
             _state.emit(State.Error)
         }.onSuccess {
+            if (!currentCoroutineContext().isActive) return@onSuccess
             withContext(Dispatchers.Main) {
                 platformShareHelper.shareFile(
                     file = pathOnAndroid,
@@ -79,12 +84,9 @@ class DownloadViewModel @Inject constructor(
     }
 
     fun onCancel() {
-        viewModelScope.launch {
-            println("DownloadViewModel cancelling")
-            _featureJob?.cancelAndJoin()
-            println("DownloadViewModel cancelled")
-            _state.emit(State.Pending)
-        }
+        // Fork: the screen reacts at once; the download stops in the background
+        _featureJob?.cancel()
+        _state.value = State.Pending
     }
 
     fun tryDownload(file: DownloadableFile) {

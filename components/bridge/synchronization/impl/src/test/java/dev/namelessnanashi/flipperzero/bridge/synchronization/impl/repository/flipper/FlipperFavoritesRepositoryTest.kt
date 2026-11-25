@@ -79,4 +79,34 @@ class FlipperFavoritesRepositoryTest {
 
         underTest.applyDiff(storage, listOf(garage), listOf(diff(gate, KeyAction.ADD)))
     }
+    @Test
+    fun `reorder writes the full list and keeps unknown favorites in place`() = runTest {
+        val unknown = FlipperFilePath("apps", "Unknown.fap")
+        val (storage, written) = storageRemembering()
+
+        val result = underTest.reorderFavorites(storage, listOf(garage, unknown, gate), listOf(gate, garage))
+
+        Assert.assertEquals(listOf(gate, unknown, garage), result)
+        Assert.assertEquals("/ext/subghz/Gate.sub\n/ext/apps/Unknown.fap\n/ext/subghz/Garage.sub\n", written()?.decodeToString())
+    }
+
+    @Test
+    fun `unchanged order never rewrites favorites`() = runTest {
+        val storage = mockk<FlipperKeyStorage>(relaxed = true)
+
+        Assert.assertEquals(listOf(garage, gate), underTest.reorderFavorites(storage, listOf(garage, gate), listOf(garage, gate)))
+
+        coVerify(exactly = 0) { storage.saveFile(any(), any()) }
+    }
+
+    @Test
+    fun `reorder cannot remove favorites or introduce missing keys`() = runTest {
+        val storage = mockk<FlipperKeyStorage>(relaxed = true)
+        val missing = FlipperFilePath("nfc", "Missing.nfc")
+
+        Assert.assertEquals(listOf(garage, gate), underTest.reorderFavorites(storage, listOf(garage, gate), listOf(missing, gate)))
+
+        coVerify(exactly = 0) { storage.saveFile(any(), any()) }
+    }
+
 }

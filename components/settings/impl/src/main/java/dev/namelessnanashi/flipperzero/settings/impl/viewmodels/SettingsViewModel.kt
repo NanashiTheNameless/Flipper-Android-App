@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import dev.namelessnanashi.flipperzero.core.log.LogTagProvider
 import dev.namelessnanashi.flipperzero.core.log.error
-import dev.namelessnanashi.flipperzero.core.preference.pb.SelectedTheme
 import dev.namelessnanashi.flipperzero.core.preference.pb.Settings
 import dev.namelessnanashi.flipperzero.core.share.ShareHelper
 import dev.namelessnanashi.flipperzero.core.ui.lifecycle.DecomposeViewModel
@@ -77,21 +76,21 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun onChangeSelectedTheme(theme: SelectedTheme) {
-        viewModelScope.launch {
-            dataStoreSettings.updateData {
-                it.copy(
-                    selected_theme = theme
-                )
-            }
-        }
-    }
-
     fun onExpertModeActivate() {
         viewModelScope.launch {
             dataStoreSettings.updateData {
                 it.copy(
                     expert_mode = true
+                )
+            }
+        }
+    }
+
+    fun onSwitchForkNotice(show: Boolean) {
+        viewModelScope.launch {
+            dataStoreSettings.updateData {
+                it.copy(
+                    hide_fork_notice_on_start = !show
                 )
             }
         }

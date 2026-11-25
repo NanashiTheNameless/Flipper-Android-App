@@ -1,8 +1,6 @@
 package dev.namelessnanashi.flipperzero.firstpair.impl.storage
 
 interface FirstPairStorage {
-    fun isTosPassed(): Boolean
     fun isDeviceSelected(): Boolean
-    fun markTosPassed()
     fun markDeviceSelected(deviceId: String?, deviceName: String?, address: String?)
 }

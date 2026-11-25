@@ -30,8 +30,9 @@ private const val ACTION_DISCONNECT = "dev.namelessnanashi.flipperzero.action.DI
 private const val PERCENT = 100
 
 /**
- * Foreground service (type `connectedDevice`) that keeps the app process alive while a Flipper
- * is connected or syncing, so leaving the app no longer freezes or kills the connection. It
+ * Foreground service (type `connectedDevice`) that keeps the app process alive while work with
+ * the Flipper is in flight (sync, app installs, transfers), so leaving the app mid-work no longer
+ * freezes or kills it. An idle connection does not keep it running. It
  * follows [ConnectionKeepAlive.getStatus] and stops itself when that becomes null.
  */
 class FlipperConnectionService : Service(), LogTagProvider {
@@ -105,8 +106,9 @@ class FlipperConnectionService : Service(), LogTagProvider {
         val name = status?.deviceName ?: getString(R.string.connection_notification_flipper)
         val title = when (status?.phase) {
             KeepAliveStatus.Phase.SYNCING -> getString(R.string.connection_notification_syncing, name)
-            KeepAliveStatus.Phase.CONNECTED -> getString(R.string.connection_notification_connected, name)
-            KeepAliveStatus.Phase.CONNECTING, null ->
+            KeepAliveStatus.Phase.INSTALLING -> getString(R.string.connection_notification_installing, name)
+            KeepAliveStatus.Phase.TRANSFERRING -> getString(R.string.connection_notification_transferring, name)
+            KeepAliveStatus.Phase.RECONNECTING, null ->
                 getString(R.string.connection_notification_connecting, name)
         }
         val openApp = packageManager.getLaunchIntentForPackage(packageName)?.let {
@@ -126,7 +128,8 @@ class FlipperConnectionService : Service(), LogTagProvider {
             .setOnlyAlertOnce(true)
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            // Android 12+ holds the notification back for ~10 s, so short work never shows one
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFERRED)
             .addAction(0, getString(R.string.connection_notification_disconnect), disconnect)
             .apply {
                 val progress = status?.progress

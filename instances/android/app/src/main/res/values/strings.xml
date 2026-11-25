@@ -5,9 +5,10 @@
 
     <string name="connection_notification_channel">Flipper connection</string>
     <string name="connection_notification_flipper">Flipper</string>
-    <string name="connection_notification_connected">Connected to %1$s</string>
-    <string name="connection_notification_connecting">Connecting to %1$s…</string>
+    <string name="connection_notification_connecting">Reconnecting to %1$s…</string>
     <string name="connection_notification_syncing">Syncing with %1$s</string>
+    <string name="connection_notification_installing">Installing apps on %1$s</string>
+    <string name="connection_notification_transferring">Transferring files with %1$s</string>
     <string name="connection_notification_disconnect">Disconnect</string>
 
     <string name="shortcut_find">Find</string>

@@ -32,3 +32,9 @@ androidDependencies {
 
     implementation(libs.coil)
 }
+
+androidHostTestDependencies {
+    implementation(libs.junit)
+    implementation(libs.mockk)
+    implementation(libs.kotlin.coroutines.test)
+}

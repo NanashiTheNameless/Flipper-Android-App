@@ -2,7 +2,6 @@ package dev.namelessnanashi.flipperzero.connection.impl.dialog
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,11 +43,7 @@ fun ComposableUnsupportedDialog(
             val url = stringResource(R.string.dialog_unsupported_application_link)
             val context = LocalContext.current
             FlipperDialogAndroid(
-                imageId = if (MaterialTheme.colors.isLight) {
-                    DesignSystem.drawable.ic_firmware_application_deprecated
-                } else {
-                    DesignSystem.drawable.ic_firmware_application_deprecated_dark
-                },
+                imageId = DesignSystem.drawable.ic_firmware_application_deprecated_dark,
                 titleId = R.string.dialog_unsupported_application_title,
                 textId = R.string.dialog_unsupported_application_description,
                 buttonTextId = R.string.dialog_unsupported_application_btn,

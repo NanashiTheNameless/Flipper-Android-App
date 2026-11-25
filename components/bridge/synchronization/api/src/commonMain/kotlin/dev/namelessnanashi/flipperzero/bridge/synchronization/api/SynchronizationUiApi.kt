@@ -8,6 +8,14 @@ import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKeyPath
 @Immutable
 interface SynchronizationUiApi {
     @Composable
+    fun RenderSynchronizationDialog()
+
+    @Composable
+    fun RenderSynchronizationStatus()
+
+    fun showSynchronizationDialog()
+
+    @Composable
     fun RenderSynchronizationState(
         componentContext: ComponentContext,
         keyPath: FlipperKeyPath,

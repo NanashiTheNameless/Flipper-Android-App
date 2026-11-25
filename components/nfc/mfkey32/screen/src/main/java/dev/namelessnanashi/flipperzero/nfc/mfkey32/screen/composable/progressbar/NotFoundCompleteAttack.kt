@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,11 +37,7 @@ fun NotFoundCompleteAttack(
     Image(
         modifier = Modifier.padding(horizontal = 18.dp),
         painter = painterResource(
-            if (MaterialTheme.colors.isLight) {
-                R.drawable.pic_shrug_white
-            } else {
-                R.drawable.pic_shrug_black
-            }
+            R.drawable.pic_shrug_black
         ),
         contentDescription = stringResource(R.string.mfkey32_complete_not_found_title)
     )

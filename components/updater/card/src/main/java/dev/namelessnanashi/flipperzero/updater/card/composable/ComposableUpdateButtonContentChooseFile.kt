@@ -27,6 +27,6 @@ fun ComposableUpdateButtonContentChooseFile(
         buttonModifier = modifier.clickableRipple { launcher.launch("*/*") },
         textId = R.string.updater_card_updater_button_choose_file,
         descriptionId = R.string.updater_card_updater_button_choose_file_desc,
-        color = LocalPallet.current.accent
+        color = LocalPallet.current.text100
     )
 }

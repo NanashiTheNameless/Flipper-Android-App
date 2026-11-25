@@ -4,6 +4,7 @@ import dev.namelessnanashi.flipperzero.bridge.connection.feature.common.api.FDev
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.common.api.FDeviceFeatureApi
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.common.api.FDeviceFeatureQualifier
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.common.api.FUnsafeDeviceFeatureApi
+import dev.namelessnanashi.flipperzero.bridge.connection.feature.getinfo.api.FGetInfoFeatureApi
 import dev.namelessnanashi.flipperzero.bridge.connection.transport.common.api.FConnectedDeviceApi
 import dev.namelessnanashi.flipperzero.bridge.connection.transport.common.api.meta.FTransportMetaInfoApi
 import dev.namelessnanashi.flipperzero.core.di.AppGraph
@@ -25,7 +26,11 @@ class FGattInfoFeatureFactoryImpl @Inject constructor(
         scope: CoroutineScope,
         connectedDevice: FConnectedDeviceApi
     ): FDeviceFeatureApi? {
-        val metaInfoApi = connectedDevice as? FTransportMetaInfoApi ?: return null
+        // USB has no GATT services: read the same information over RPC
+        val metaInfoApi = connectedDevice as? FTransportMetaInfoApi
+            ?: unsafeFeatureDeviceApi.getUnsafe(FGetInfoFeatureApi::class)
+                ?.let { RpcGattMetaInfoApi(it, scope) }
+            ?: return null
 
         return factory(
             metaInfoApi = metaInfoApi,

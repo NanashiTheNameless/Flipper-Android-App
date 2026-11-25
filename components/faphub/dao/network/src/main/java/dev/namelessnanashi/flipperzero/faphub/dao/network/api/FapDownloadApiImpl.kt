@@ -23,10 +23,19 @@ import java.io.File
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.binding
 
 private const val BUNDLE_CACHE_DIR = "fap_bundles"
 
+// The install queue prefetches bundles while another app uploads, so the same bundle can be
+// requested twice at once; one lock per bundle file keeps them from sharing a .part file.
+// Process-wide: the class was not a singleton, so a per-instance map gave the prefetch and the
+// install separate locks, and the second download deleted the first one's .part file
+// ("incomplete: 0 of N bytes", the install failed and had to be tapped again).
+private val bundleLocks = ConcurrentHashMap<String, Mutex>()
+
+@SingleIn(AppGraph::class)
 @ContributesBinding(AppGraph::class, binding<FapDownloadApi>())
 class FapDownloadApiImpl @Inject constructor(
     private val bundleApi: FapNetworkBundleApi,
@@ -34,9 +43,6 @@ class FapDownloadApiImpl @Inject constructor(
 ) : FapDownloadApi, LogTagProvider {
     override val TAG = "FapDownloadApi"
 
-    // The install queue prefetches bundles while another app uploads, so the same bundle can be
-    // requested twice at once; one lock per bundle file keeps them from sharing a .part file
-    private val bundleLocks = ConcurrentHashMap<String, Mutex>()
 
     /**
      * Downloads the whole bundle into the cache before anything is uploaded. A bundle is only
@@ -63,6 +69,7 @@ class FapDownloadApiImpl @Inject constructor(
     ): File {
         if (bundleFile.length() > 0) {
             info { "Use cached bundle for $versionUid: ${bundleFile.path}" }
+            listener?.onProgress(1f)
             return bundleFile
         }
         info { "Start download bundle for $versionUid and $target" }

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,10 +40,7 @@ fun ListingTitleComposable(
             Icon(
                 modifier = Modifier.size(24.dp),
                 painter = painterResource(
-                    when {
-                        MaterialTheme.colors.isLight -> FR.drawable.ic_sd_card_ok_black
-                        else -> FR.drawable.ic_sd_card_ok_white
-                    }
+                    FR.drawable.ic_sd_card_ok_white
                 ),
                 tint = Color.Unspecified,
                 contentDescription = null,

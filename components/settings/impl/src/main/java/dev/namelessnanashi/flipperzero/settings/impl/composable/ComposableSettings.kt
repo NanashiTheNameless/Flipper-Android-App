@@ -58,8 +58,6 @@ fun ComposableSettings(
         ) {
             OrangeAppBar(R.string.options, onBack = onBack)
             AppCategory(
-                theme = settings.selected_theme,
-                onSelectTheme = settingsViewModel::onChangeSelectedTheme,
                 vibrationState = !settings.disabled_vibration,
                 onSwitchVibration = settingsViewModel::onSwitchVibration
             )
@@ -80,9 +78,14 @@ fun ComposableSettings(
                 exportState = exportState,
                 onExport = { settingsViewModel.onMakeExport(context) }
             )
-            OtherSettingsCategory()
+            OtherSettingsCategory(
+                showForkNotice = !settings.hide_fork_notice_on_start,
+                onSwitchForkNotice = settingsViewModel::onSwitchForkNotice,
+                onOpenConnectionGuide = { onOpen(SettingsNavigationConfig.ConnectionGuide) }
+            )
             @Suppress("ViewModelForwarding")
             VersionCategory(
+                isExpertMode = settings.expert_mode,
                 onActivateExpertMode = settingsViewModel::onExpertModeActivate,
                 versionViewModel = versionViewModel
             )

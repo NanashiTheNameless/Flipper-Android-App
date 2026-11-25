@@ -8,22 +8,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import flipperapp.components.core.ui.theme.generated.resources.Res
-import flipperapp.components.core.ui.theme.generated.resources.flipper
-import flipperapp.components.core.ui.theme.generated.resources.flipper_action
-import flipperapp.components.core.ui.theme.generated.resources.flipper_bold
-import flipperapp.components.core.ui.theme.generated.resources.roboto_black
-import flipperapp.components.core.ui.theme.generated.resources.roboto_black_italic
-import flipperapp.components.core.ui.theme.generated.resources.roboto_bold
-import flipperapp.components.core.ui.theme.generated.resources.roboto_bold_italic
-import flipperapp.components.core.ui.theme.generated.resources.roboto_italic
-import flipperapp.components.core.ui.theme.generated.resources.roboto_light
-import flipperapp.components.core.ui.theme.generated.resources.roboto_light_italic
-import flipperapp.components.core.ui.theme.generated.resources.roboto_medium
-import flipperapp.components.core.ui.theme.generated.resources.roboto_medium_italic
-import flipperapp.components.core.ui.theme.generated.resources.roboto_mono_medium
-import flipperapp.components.core.ui.theme.generated.resources.roboto_regular
-import flipperapp.components.core.ui.theme.generated.resources.roboto_thin
-import flipperapp.components.core.ui.theme.generated.resources.roboto_thin_italic
+import flipperapp.components.core.ui.theme.generated.resources.oxproto_bold
+import flipperapp.components.core.ui.theme.generated.resources.oxproto_italic
+import flipperapp.components.core.ui.theme.generated.resources.oxproto_regular
 import org.jetbrains.compose.resources.Font
 
 @Stable
@@ -199,80 +186,78 @@ fun getTypography(): FlipperTypography {
         ),
         updateButton40 = TextStyle(
             fontSize = 40.sp,
-            fontFamily = FontFamily(Font(Res.font.flipper_bold)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W500
         ),
         updateText40 = TextStyle(
             fontSize = 40.sp,
-            fontFamily = FontFamily(Font(Res.font.flipper)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W400
         ),
         flipperAction = TextStyle(
             fontSize = 24.sp,
-            fontFamily = FontFamily(Font(Res.font.flipper_action)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W500
         ),
         monoSpaceM14 = TextStyle(
             fontSize = 14.sp,
-            fontFamily = FontFamily(Font(Res.font.roboto_mono_medium)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W500
         ),
         monoSpaceM10 = TextStyle(
             fontSize = 10.sp,
-            fontFamily = FontFamily(Font(Res.font.roboto_mono_medium)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W500
         ),
         monoSpaceM12 = TextStyle(
             fontSize = 12.sp,
-            fontFamily = FontFamily(Font(Res.font.roboto_mono_medium)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W500
         ),
         monoSpaceM16 = TextStyle(
             fontSize = 16.sp,
-            fontFamily = FontFamily(Font(Res.font.roboto_mono_medium)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W500
         ),
         monoSpaceR12 = TextStyle(
             fontSize = 12.sp,
-            fontFamily = FontFamily(Font(Res.font.roboto_mono_medium)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W400
         ),
         notificationB8 = TextStyle(
             fontSize = 8.sp,
-            fontFamily = FontFamily(Font(Res.font.roboto_mono_medium)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W700
         ),
         fapHubButtonText = TextStyle(
             fontSize = 18.sp,
-            fontFamily = FontFamily(Font(Res.font.flipper_action)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W500
         ),
         fapHubButtonProgressText = TextStyle(
             fontSize = 18.sp,
-            fontFamily = FontFamily(Font(Res.font.flipper)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W500
         ),
         infraredEditButton = TextStyle(
             fontSize = 32.sp,
-            fontFamily = FontFamily(Font(Res.font.flipper)),
+            fontFamily = robotoFamily,
             fontWeight = FontWeight.W400
         ),
     )
 }
 
+/**
+ * Fork: every text style uses 0xProto (https://github.com/0xType/0xProto, SIL OFL 1.1, see
+ * docs/fork/licenses/0xProto-OFL.txt), including the former pixel fonts and Roboto Mono.
+ * It ships Regular, Bold and Italic; lighter and medium weights fall back to Regular.
+ */
 @Composable
-@Suppress("LongMethod")
-private fun getRobotoFamily() = FontFamily(
-    Font(Res.font.roboto_regular, FontWeight.W400),
-    Font(Res.font.roboto_italic, FontWeight.W400, FontStyle.Italic),
-    Font(Res.font.roboto_black, FontWeight.W900),
-    Font(Res.font.roboto_black_italic, FontWeight.W900, FontStyle.Italic),
-    Font(Res.font.roboto_light, FontWeight.W300),
-    Font(Res.font.roboto_light_italic, FontWeight.W300, FontStyle.Italic),
-    Font(Res.font.roboto_medium, FontWeight.W500),
-    Font(Res.font.roboto_medium_italic, FontWeight.W500, FontStyle.Italic),
-    Font(Res.font.roboto_bold, FontWeight.W700),
-    Font(Res.font.roboto_bold_italic, FontWeight.W700, FontStyle.Italic),
-    Font(Res.font.roboto_thin, FontWeight.W100),
-    Font(Res.font.roboto_thin_italic, FontWeight.W100, FontStyle.Italic)
+fun getOxProtoFamily() = FontFamily(
+    Font(Res.font.oxproto_regular, FontWeight.W400),
+    Font(Res.font.oxproto_italic, FontWeight.W400, FontStyle.Italic),
+    Font(Res.font.oxproto_bold, FontWeight.W700)
 )
+
+@Composable
+private fun getRobotoFamily() = getOxProtoFamily()

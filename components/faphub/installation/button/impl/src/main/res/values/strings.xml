@@ -6,6 +6,12 @@
     <string name="faphub_installation_opening">OPENING</string>
     <string name="faphub_installation_update">UPDATE</string>
     <string name="faphub_installation_canceling">Canceling</string>
+    <string name="faphub_installation_step_download">DOWNLOADING</string>
+    <string name="faphub_installation_step_download_compact">DL</string>
+    <string name="faphub_installation_step_install">INSTALLING</string>
+    <string name="faphub_installation_step_install_compact">INST</string>
+    <string name="faphub_installation_step_update">UPDATING</string>
+    <string name="faphub_installation_step_update_compact">UPD</string>
     <string name="faphub_installation_cancel_desc">Cancel</string>
 
     <string name="faphub_installation_dialog_flipper_not_connected_title">Flipper Not Connected</string>

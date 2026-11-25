@@ -1,5 +1,7 @@
 package dev.namelessnanashi.flipperzero.faphub.installation.button.impl.composable.elements
 
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +35,8 @@ fun ComposableFlipperButton(
     onClick: (() -> Unit)? = null,
 ) {
     var buttonModifier = modifier
+        .clip(RoundedCornerShape(6.dp))
+        .background(LocalPallet.current.background)
         .border(2.dp, color, RoundedCornerShape(6.dp))
     if (onClick != null) {
         buttonModifier = buttonModifier

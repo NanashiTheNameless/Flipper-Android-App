@@ -6,8 +6,13 @@ import androidx.compose.runtime.Immutable
 sealed class UpdateCardState {
     data object InProgress : UpdateCardState()
 
+    /**
+     * @param reinstall the latest build of the channel, offered on long press as
+     * "Update anyway" (fork); null when the channel has none
+     */
     data class NoUpdate(
-        val flipperVersion: FirmwareVersion
+        val flipperVersion: FirmwareVersion,
+        val reinstall: UpdateRequest? = null
     ) : UpdateCardState()
 
     data class UpdateAvailable(

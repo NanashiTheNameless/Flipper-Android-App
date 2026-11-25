@@ -10,6 +10,7 @@ import dev.namelessnanashi.flipperzero.core.ktx.jre.FlipperDispatchers
 import dev.namelessnanashi.flipperzero.core.log.LogTagProvider
 import dev.namelessnanashi.flipperzero.core.log.warn
 import dev.zacsweers.metro.ContributesBinding
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -35,7 +37,8 @@ class FConnectionServiceImpl @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + FlipperDispatchers.workStealingDispatcher)
     private val mutex = Mutex()
-    private val isForceDisconnected = MutableStateFlow(false)
+    private data class ConnectionRequest(val forceDisconnected: Boolean = false, val retry: Long = 0)
+    private val connectionRequest = MutableStateFlow(ConnectionRequest())
 
     private fun getBrokenConnectionReconnectJob(scope: CoroutineScope): Job {
         return orchestrator.getState()
@@ -46,9 +49,14 @@ class FConnectionServiceImpl @Inject constructor(
                     DisconnectStatus.REPORTED_BY_TRANSPORT -> Unit
                     DisconnectStatus.ERROR_UNKNOWN -> Unit
                 }
-                if (isForceDisconnected.first()) return@onEach
-                val currentDevice = status.device ?: return@onEach
-                orchestrator.disconnectCurrent()
+                if (connectionRequest.value.forceDisconnected) return@onEach
+                // A stale USB path must not spin in a tight retry loop after unplugging.
+                delay(1000)
+                if (connectionRequest.value.forceDisconnected) return@onEach
+                if (orchestrator.getState().value != status) return@onEach
+                val currentDevice = fDevicePersistedStorage.getCurrentDevice().first() ?: return@onEach
+                if (currentDevice.uniqueId != status.device?.uniqueId) return@onEach
+                // Use the current selection: USB enumeration can change its path after replugging.
                 orchestrator.connect(currentDevice)
             }.launchIn(scope)
     }
@@ -56,10 +64,10 @@ class FConnectionServiceImpl @Inject constructor(
     private fun getConnectionJob(scope: CoroutineScope): Job {
         return combine(
             flow = fDevicePersistedStorage.getCurrentDevice(),
-            flow2 = isForceDisconnected,
-            transform = { currentDevice, isForceDisconnected ->
+            flow2 = connectionRequest,
+            transform = { currentDevice, request ->
                 when {
-                    isForceDisconnected -> orchestrator.disconnectCurrent()
+                    request.forceDisconnected -> orchestrator.disconnectCurrent()
                     currentDevice == null -> orchestrator.disconnectCurrent()
 
                     else -> orchestrator.connect(currentDevice)
@@ -84,13 +92,11 @@ class FConnectionServiceImpl @Inject constructor(
     }
 
     override fun forceReconnect() {
-        scope.launch { isForceDisconnected.emit(false) }
+        connectionRequest.update { it.copy(forceDisconnected = false, retry = it.retry + 1) }
     }
 
     override fun disconnect(force: Boolean) {
-        scope.launch {
-            isForceDisconnected.emit(force)
-        }
+        connectionRequest.update { it.copy(forceDisconnected = force) }
     }
 
     override fun forgetCurrentDevice() {
@@ -105,7 +111,7 @@ class FConnectionServiceImpl @Inject constructor(
 
     override fun connectIfNotForceDisconnect() {
         scope.launch {
-            if (isForceDisconnected.first()) return@launch
+            if (connectionRequest.value.forceDisconnected) return@launch
             val currentDevice = fDevicePersistedStorage.getCurrentDevice()
                 .first()
                 ?: return@launch

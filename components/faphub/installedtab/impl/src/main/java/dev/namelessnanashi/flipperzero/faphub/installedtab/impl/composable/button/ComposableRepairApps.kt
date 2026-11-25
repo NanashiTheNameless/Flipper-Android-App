@@ -1,6 +1,23 @@
 package dev.namelessnanashi.flipperzero.faphub.installedtab.impl.composable.button
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.Surface
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.window.Dialog
+import dev.namelessnanashi.flipperzero.core.ui.ktx.elements.ComposableCancelButton
+import dev.namelessnanashi.flipperzero.core.ktx.jre.roundPercentToString
+import dev.namelessnanashi.flipperzero.faphub.installation.all.api.FapRepairProgress
+import dev.namelessnanashi.flipperzero.faphub.installation.all.api.FapRepairStage
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -30,34 +47,35 @@ fun ComposableRepairApps(
     onCheck: () -> Unit,
     onRepair: () -> Unit,
     onDismiss: () -> Unit,
+    onCancel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isBusy = state == RepairAppsState.Checking || state == RepairAppsState.Repairing
+    val isBusy = state is RepairAppsState.Checking || state is RepairAppsState.Repairing
+    var showProgress by remember { mutableStateOf(true) }
+    LaunchedEffect(isBusy) { if (isBusy) showProgress = true }
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .border(1.dp, LocalPallet.current.text40, RoundedCornerShape(8.dp))
-            .clickableRipple(onClick = onCheck),
+            .clickableRipple(onClick = { if (isBusy) showProgress = true else onCheck() }),
         contentAlignment = Alignment.Center
     ) {
-        if (isBusy) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .padding(vertical = 9.dp)
-                    .size(24.dp),
-                strokeWidth = 2.dp,
-                color = LocalPallet.current.text100
-            )
-        } else {
-            Text(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
-                text = stringResource(R.string.faphub_installed_repair_check),
-                textAlign = TextAlign.Center,
-                style = LocalTypography.current.fapHubButtonText.copy(fontSize = 18.sp),
-                color = LocalPallet.current.text100
-            )
+        Text(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+            text = stringResource(if (isBusy) R.string.faphub_installed_repair_show_progress else R.string.faphub_installed_repair_check),
+            textAlign = TextAlign.Center,
+            style = LocalTypography.current.fapHubButtonText.copy(fontSize = 18.sp),
+            color = LocalPallet.current.text100
+        )
+    }
+    if (isBusy && showProgress) {
+        val progress = when (state) {
+            is RepairAppsState.Checking -> state.progress
+            is RepairAppsState.Repairing -> state.progress
+            else -> FapRepairProgress()
         }
+        ComposableRepairProgressDialog(progress, { showProgress = false }, onCancel)
     }
 
     when (state) {
@@ -133,5 +151,34 @@ private fun ComposableRepairResultDialog(
             onClickButton = onRepair,
             onDismissRequest = onDismiss
         )
+    }
+}
+
+@Composable
+private fun ComposableRepairProgressDialog(progress: FapRepairProgress, onDismiss: () -> Unit, onCancel: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = RoundedCornerShape(24.dp), color = LocalPallet.current.background) {
+            Column(
+                Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(stringResource(R.string.faphub_installed_repair_title), style = LocalTypography.current.titleB18, color = LocalPallet.current.text100)
+                CircularProgressIndicator(color = LocalPallet.current.text100, strokeWidth = 2.dp)
+                Text(progress.fraction.roundPercentToString(), color = LocalPallet.current.text100)
+                Text(stringResource(when (progress.stage) {
+                    FapRepairStage.PREPARING -> R.string.faphub_installed_repair_preparing
+                    FapRepairStage.CHECKING -> R.string.faphub_installed_repair_checking
+                    FapRepairStage.DOWNLOADING -> R.string.faphub_installed_repair_downloading
+                    FapRepairStage.QUEUING -> R.string.faphub_installed_repair_queuing
+                }), color = LocalPallet.current.text100)
+                if (progress.total > 0) Text(stringResource(R.string.faphub_installed_repair_count, progress.completed, progress.total), color = LocalPallet.current.text60)
+                progress.appName?.let { Text(it, color = LocalPallet.current.text100, textAlign = TextAlign.Center) }
+                if (progress.stage == FapRepairStage.DOWNLOADING) Text(stringResource(R.string.faphub_installed_repair_download_percent, progress.downloadProgress.roundPercentToString()), color = LocalPallet.current.text60)
+                Text(stringResource(R.string.faphub_installed_repair_dismiss_hint), color = LocalPallet.current.text60, textAlign = TextAlign.Center)
+                ComposableCancelButton(stringResource(R.string.faphub_installed_repair_dismiss), onDismiss)
+                ComposableCancelButton(stringResource(R.string.faphub_installed_repair_cancel), onCancel)
+            }
+        }
     }
 }

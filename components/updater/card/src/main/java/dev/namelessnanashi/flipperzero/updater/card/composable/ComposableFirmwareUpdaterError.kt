@@ -3,7 +3,6 @@ package dev.namelessnanashi.flipperzero.updater.card.composable
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -90,19 +89,11 @@ fun getDescriptionByUpdateError(type: UpdateErrorType): Int {
 
 @Composable
 fun getImageByUpdateError(type: UpdateErrorType): Int {
-    return if (isSystemInDarkTheme()) {
-        when (type) {
+    return when (type) {
             UpdateErrorType.NO_INTERNET -> DesignSystem.drawable.ic_no_internet_dark
             UpdateErrorType.UNABLE_TO_SERVER -> DesignSystem.drawable.ic_server_error_dark
             UpdateErrorType.NO_SD_CARD -> DesignSystem.drawable.ic_no_sd_dark
         }
-    } else {
-        when (type) {
-            UpdateErrorType.NO_INTERNET -> DesignSystem.drawable.ic_no_internet
-            UpdateErrorType.UNABLE_TO_SERVER -> DesignSystem.drawable.ic_server_error
-            UpdateErrorType.NO_SD_CARD -> DesignSystem.drawable.ic_no_sd
-        }
-    }
 }
 
 @Preview(

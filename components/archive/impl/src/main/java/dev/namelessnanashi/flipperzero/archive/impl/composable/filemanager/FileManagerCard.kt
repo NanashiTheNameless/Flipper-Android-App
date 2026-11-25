@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -50,11 +49,7 @@ fun FileManagerCard(
                 ) {
                     Icon(
                         painter = painterResource(
-                            if (MaterialTheme.colors.isLight) {
-                                R.drawable.ic_file_dark
-                            } else {
-                                R.drawable.ic_file_light
-                            }
+                            R.drawable.ic_file_light
                         ),
                         contentDescription = null,
                         tint = Color.Unspecified

@@ -12,7 +12,11 @@ import dev.namelessnanashi.flipperzero.core.ui.theme.LocalPallet
 object ConnectionTabStateMapper {
     @Composable
     @Suppress("LongMethod")
-    fun getConnectionTabState(connectionState: ConnectionStatusState): TabState {
+    fun getConnectionTabState(
+        connectionState: ConnectionStatusState,
+        // Fork: a Flipper on the USB cable shows a USB glyph instead of the Bluetooth one
+        isUsb: Boolean = false
+    ): TabState {
         return when (connectionState) {
             ConnectionStatusState.NoDevice -> TabState.Static(
                 selectedIcon = R.drawable.ic_no_device_filled,
@@ -54,8 +58,8 @@ object ConnectionTabStateMapper {
                 unselectedColor = LocalPallet.current.bottomBarUnselected,
             )
             ConnectionStatusState.Connected -> TabState.Static(
-                selectedIcon = R.drawable.ic_connected_filled,
-                notSelectedIcon = R.drawable.ic_connected,
+                selectedIcon = if (isUsb) R.drawable.ic_connected_usb_filled else R.drawable.ic_connected_filled,
+                notSelectedIcon = if (isUsb) R.drawable.ic_connected_usb else R.drawable.ic_connected,
                 text = stringResource(id = R.string.connection_status_connected),
                 selectedColor = LocalPallet.current.accentSecond,
                 selectedColorIcon = Color.Unspecified,

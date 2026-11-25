@@ -33,8 +33,9 @@ update it when an item's status or a decision changes.
 - `components/bridge/connection/transport/usb` - USB serial transport: `desktopMain` uses jSerialComm, `androidMain`
   talks CDC-ACM through the Android USB host API and auto-switches to USB when a Flipper is plugged in.
 - `components/core/ui/theme` - Compose theme: V1 `FlipperPallet.kt` + `FlipperPalletProvider.kt` and generated V2
-  `pallet/generated/{Dark,Light}Pallet.kt`. Accents are monochrome (fork). New per-theme V1 colours must be
-  constructor parameters AND listed in `AnimatedFlipperPalletProvider.toAnimatePallet`, or the dark value is lost.
+  `pallet/generated/DarkPallet.kt`. Only the fork's OLED dark theme is supported; no theme selector or
+  system/light variant. Accents are monochrome (fork). New V1 colours must be constructor parameters
+  AND listed in `AnimatedFlipperPalletProvider.toAnimatePallet`, or the value is lost.
 - `components/updater/downloader` - firmware directory URL (`DownloaderApiImpl.kt`, Momentum's `up.momentum-fw.dev`).
 - `components/faphub/**` - app catalog (`catalog.flipperzero.one`).
 - `build-logic/plugins/convention` - convention plugins; `ApkConfig.kt` holds app id, SDK levels and feature flags.

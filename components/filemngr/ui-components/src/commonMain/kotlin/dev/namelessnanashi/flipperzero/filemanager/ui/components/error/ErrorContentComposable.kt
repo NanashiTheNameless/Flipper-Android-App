@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,10 +30,7 @@ fun ErrorContentComposable(
     modifier: Modifier = Modifier,
     onRetry: (() -> Unit)? = null,
     painter: Painter = painterResource(
-        when {
-            MaterialTheme.colors.isLight -> Res.drawable.ic__no_files_white
-            else -> Res.drawable.ic__no_files_black
-        }
+        Res.drawable.ic__no_files_black
     ),
 ) {
     Column(

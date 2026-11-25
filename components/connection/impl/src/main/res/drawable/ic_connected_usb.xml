@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fork: "Connected" tab icon for a Flipper on the USB cable (ic_connected has a Bluetooth glyph) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="42dp"
+        android:height="24dp"
+        android:viewportWidth="42"
+        android:viewportHeight="24">
+    <path
+            android:fillColor="#00000000"
+            android:pathData="M6.9788,4.2105C7.5803,3.2987 8.5995,2.75 9.6918,2.75H34.4303C35.5326,2.75 36.5597,3.3087 37.1586,4.234L40.7283,9.7489C41.0688,10.275 41.25,10.8883 41.25,11.5149V18C41.25,19.7949 39.7949,21.25 38,21.25H9.3474C8.4131,21.25 7.524,20.8479 6.907,20.1463L2.5807,15.2272C1.6129,14.1268 1.5013,12.5147 2.3082,11.2914L6.9788,4.2105Z"
+            android:strokeColor="#8C8C8C"
+            android:strokeWidth="1.5" />
+    <!-- USB trident in the 12 x 12 box at (16,6) -->
+    <path
+            android:fillColor="#00000000"
+            android:pathData="M22,8.2V16M22,13.4L19.3,11.6V10.2M22,12.2L24.7,10.4V9.2"
+            android:strokeColor="#8C8C8C"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:strokeWidth="1.1" />
+    <path
+            android:fillColor="#8C8C8C"
+            android:pathData="M22,6.2L23.3,8.4H20.7Z M20.9,16.6a1.1,1.1 0,1 0,2.2 0a1.1,1.1 0,1 0,-2.2 0Z M18.5,9.6a0.8,0.8 0,1 0,1.6 0a0.8,0.8 0,1 0,-1.6 0Z M24.05,7.9H25.35V9.2H24.05Z" />
+</vector>

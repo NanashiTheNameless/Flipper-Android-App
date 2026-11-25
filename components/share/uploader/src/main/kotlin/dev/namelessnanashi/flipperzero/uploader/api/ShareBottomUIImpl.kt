@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
@@ -47,11 +46,7 @@ class ShareBottomUIImpl @Inject constructor(
             uploaderViewModelFactory(provideFlipperKeyPath)
         }
 
-        val scrimColor = if (MaterialTheme.colors.isLight) {
-            LocalPallet.current.shareSheetScrimColor
-        } else {
-            Color.Transparent
-        }
+        val scrimColor = Color.Transparent
 
         val sheetState = rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,

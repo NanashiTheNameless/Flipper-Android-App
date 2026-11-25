@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -55,10 +54,7 @@ fun LoadedContent(
                     PointFlipperComposable()
                     Icon(
                         painter = painterResource(
-                            when (MaterialTheme.colors.isLight) {
-                                true -> SetupR.drawable.ic_long_arrow_light
-                                false -> SetupR.drawable.ic_long_arrow_dark
-                            }
+                            SetupR.drawable.ic_long_arrow_dark
                         ),
                         contentDescription = null,
                         modifier = Modifier

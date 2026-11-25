@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="faphub_installed_update_all">UPDATE ALL</string>
-    <string name="faphub_installed_update_cancel">CANCEL UPDATING</string>
+    <string name="faphub_installed_update_cancel">Cancel updating</string>
     <string name="faphub_installed_offline">Connect to the internet to see available updates</string>
     <string name="faphub_installed_offline_btn">INSTALLED</string>
     <string name="faphub_installed_empty_desc">You haven\'t installed any apps yet</string>
@@ -29,4 +29,14 @@
         <item quantity="one">Queued %d repair.</item>
         <item quantity="other">Queued %d repairs.</item>
     </plurals>
+    <string name="faphub_installed_repair_show_progress">Show check &amp; repair status</string>
+    <string name="faphub_installed_repair_preparing">Loading installed apps…</string>
+    <string name="faphub_installed_repair_checking">Checking files on Flipper…</string>
+    <string name="faphub_installed_repair_downloading">Downloading reference app…</string>
+    <string name="faphub_installed_repair_queuing">Queueing repairs…</string>
+    <string name="faphub_installed_repair_count">%1$d of %2$d apps</string>
+    <string name="faphub_installed_repair_download_percent">Download %1$s</string>
+    <string name="faphub_installed_repair_dismiss_hint">Work continues when you dismiss this popup.</string>
+    <string name="faphub_installed_repair_dismiss">Dismiss</string>
+    <string name="faphub_installed_repair_cancel">Cancel</string>
 </resources>

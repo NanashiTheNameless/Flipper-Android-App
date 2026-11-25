@@ -32,7 +32,8 @@ internal class WriteRequestLooper(
     private val result = MutableStateFlow<Result<Main>?>(null)
 
     init {
-        scope.launch(FlipperDispatchers.workStealingDispatcher) {
+        // Fork: writers block in writeSync/awaitResult; see ReaderRequestLooper
+        scope.launch(FlipperDispatchers.blockingDispatcher) {
             result.emit(
                 rpcFeatureApi.request(
                     commandFlow = commands.consumeAsFlow(),

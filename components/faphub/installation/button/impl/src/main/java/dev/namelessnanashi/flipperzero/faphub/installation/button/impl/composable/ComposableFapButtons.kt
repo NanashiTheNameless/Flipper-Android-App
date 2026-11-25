@@ -135,12 +135,16 @@ fun ComposableFapInstallingButton(
     percent: Float,
     fapButtonSize: FapButtonSize,
     onCancel: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backgroundDownload: Boolean = false
 ) {
     ComposableInProgressFapButton(
         fapButtonModifier = modifier,
         percent = percent,
+        backgroundDownload = backgroundDownload,
         color = LocalPallet.current.accent,
+        installLabelCompact = R.string.faphub_installation_step_install_compact,
+        installLabelLarge = R.string.faphub_installation_step_install,
         fapButtonSize = fapButtonSize,
         onCancel = onCancel
     )
@@ -151,12 +155,16 @@ fun ComposableFapUpdatingButton(
     percent: Float,
     fapButtonSize: FapButtonSize,
     onCancel: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backgroundDownload: Boolean = false
 ) {
     ComposableInProgressFapButton(
         fapButtonModifier = modifier,
         percent = percent,
+        backgroundDownload = backgroundDownload,
         color = LocalPallet.current.updateProgressGreen,
+        installLabelCompact = R.string.faphub_installation_step_update_compact,
+        installLabelLarge = R.string.faphub_installation_step_update,
         fapButtonSize = fapButtonSize,
         onCancel = onCancel
     )

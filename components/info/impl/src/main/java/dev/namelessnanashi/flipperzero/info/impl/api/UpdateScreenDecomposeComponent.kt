@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationUiApi
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.StackNavigator
 import com.arkivanov.decompose.router.stack.pushToFront
@@ -37,6 +38,7 @@ class UpdateScreenDecomposeComponent @AssistedInject constructor(
     @Assisted private val deeplink: Deeplink.BottomBar.DeviceTab.WebUpdate?,
     @Assisted private val navigator: StackNavigator<DeviceScreenNavigationConfig>,
     private val updaterCardApi: UpdaterCardApi,
+    private val synchronizationUiApi: SynchronizationUiApi,
     private val deviceStatusViewModelProvider: Provider<DeviceStatusViewModel>,
     private val connectViewModelProvider: Provider<ConnectViewModel>,
     private val flipperColorProvider: Provider<FlipperColorViewModel>,
@@ -85,6 +87,7 @@ class UpdateScreenDecomposeComponent @AssistedInject constructor(
 
         ComposableDeviceInfoScreen(
             updaterCardApi = updaterCardApi,
+            synchronizationUiApi = synchronizationUiApi,
             onOpenFullDeviceInfo = {
                 navigator.pushToFront(DeviceScreenNavigationConfig.FullInfo)
             },

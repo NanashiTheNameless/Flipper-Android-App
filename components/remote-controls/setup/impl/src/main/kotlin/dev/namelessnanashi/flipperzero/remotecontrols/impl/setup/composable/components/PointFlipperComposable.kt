@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -41,10 +40,7 @@ fun PointFlipperComposable(modifier: Modifier = Modifier) {
         )
         Image(
             painter = painterResource(
-                id = when (MaterialTheme.colors.isLight) {
-                    true -> R.drawable.img_setup_remote_light
-                    false -> R.drawable.img_setup_remote_dark
-                }
+                id = R.drawable.img_setup_remote_dark
             ),
             contentDescription = null,
             modifier = Modifier

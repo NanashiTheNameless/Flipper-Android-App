@@ -30,7 +30,7 @@ class FFileDownloadApiImpl(
         fileOnAndroid: Path,
         priority: StorageRequestPriority,
         progressListener: FixedProgressListener?
-    ) = withContext(FlipperDispatchers.workStealingDispatcher) {
+    ) = withContext(FlipperDispatchers.blockingDispatcher) {
         info { "Start download file $pathOnFlipper to $fileOnAndroid" }
 
         runCatching {

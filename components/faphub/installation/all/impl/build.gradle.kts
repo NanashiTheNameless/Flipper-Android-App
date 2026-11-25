@@ -9,6 +9,7 @@ androidDependencies {
 
     implementation(projects.components.core.di)
     implementation(projects.components.core.log)
+    implementation(projects.components.core.progress)
 
     implementation(projects.components.faphub.installation.queue.api)
     implementation(projects.components.faphub.installation.manifest.api)

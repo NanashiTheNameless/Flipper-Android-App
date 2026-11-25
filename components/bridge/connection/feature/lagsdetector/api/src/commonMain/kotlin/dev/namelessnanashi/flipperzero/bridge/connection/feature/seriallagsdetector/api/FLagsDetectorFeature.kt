@@ -3,6 +3,7 @@ package dev.namelessnanashi.flipperzero.bridge.connection.feature.seriallagsdete
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.common.api.FDeviceFeatureApi
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.rpc.model.FlipperRequest
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 /**
  * This service is designed to detect a flipper hangup and restart the connection.
@@ -22,4 +23,10 @@ interface FLagsDetectorFeature : FDeviceFeatureApi {
     fun <T> wrapPendingAction(request: FlipperRequest?, flow: Flow<T>): Flow<T>
 
     fun notifyAboutAction()
+
+    /**
+     * True while a request waits for its answer (file transfers, sync, installs). Fork: lets
+     * the background keep-alive run only while work is in flight.
+     */
+    fun hasPendingRequests(): Flow<Boolean> = flowOf(false)
 }

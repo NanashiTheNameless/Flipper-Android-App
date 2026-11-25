@@ -1,5 +1,7 @@
 package dev.namelessnanashi.flipperzero.faphub.installation.queue.impl.executor
 
+import dev.namelessnanashi.flipperzero.faphub.installation.queue.api.model.FAP_DOWNLOAD_PROGRESS_SHARE
+
 import dev.namelessnanashi.flipperzero.core.data.SemVer
 import dev.namelessnanashi.flipperzero.core.log.LogTagProvider
 import dev.namelessnanashi.flipperzero.core.log.info
@@ -11,7 +13,7 @@ import dev.namelessnanashi.flipperzero.faphub.dao.api.model.FapItemVersion
 import dev.namelessnanashi.flipperzero.faphub.installation.queue.impl.executor.actions.FapActionUpload
 import dev.namelessnanashi.flipperzero.faphub.target.model.FlipperTarget
 
-private const val PERCENT_FOR_DOWNLOAD = 0.1f
+private const val PERCENT_FOR_DOWNLOAD = FAP_DOWNLOAD_PROGRESS_SHARE
 private const val PERCENT_FOR_UPLOAD = 0.99f
 
 abstract class PrepareFapActionExecutor(

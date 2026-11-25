@@ -3,7 +3,6 @@ package dev.namelessnanashi.flipperzero.share.receive.composable.screens
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -97,21 +96,12 @@ private fun getDescriptionByShareError(typeError: ReceiverError): Int {
 @DrawableRes
 @Composable
 private fun getImageByShareError(typeError: ReceiverError): Int {
-    return if (isSystemInDarkTheme()) {
-        when (typeError) {
+    return when (typeError) {
             ReceiverError.NO_INTERNET_CONNECTION -> DesignSystem.drawable.ic_no_internet_dark
             ReceiverError.CANT_CONNECT_TO_SERVER -> DesignSystem.drawable.ic_server_error_dark
             ReceiverError.INVALID_FILE_FORMAT -> R.drawable.ic_file_invalid_format
             ReceiverError.EXPIRED_LINK -> R.drawable.ic_expired_link
         }
-    } else {
-        when (typeError) {
-            ReceiverError.NO_INTERNET_CONNECTION -> DesignSystem.drawable.ic_no_internet
-            ReceiverError.CANT_CONNECT_TO_SERVER -> DesignSystem.drawable.ic_server_error
-            ReceiverError.INVALID_FILE_FORMAT -> R.drawable.ic_file_invalid_format
-            ReceiverError.EXPIRED_LINK -> R.drawable.ic_expired_link
-        }
-    }
 }
 
 private fun isCanUserRetryImportKey(typeError: ReceiverError): Boolean {

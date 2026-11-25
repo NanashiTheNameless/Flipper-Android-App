@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -47,13 +48,13 @@ class FFeatureProviderImpl @Inject constructor(
     }
 
     override fun <T : FDeviceFeatureApi> get(clazz: KClass<T>): Flow<FFeatureStatus<T>> {
-        return deviceStateFlow.map { deviceApi ->
-            return@map if (deviceApi == null) {
+        return deviceStateFlow.mapLatest { deviceApi ->
+            return@mapLatest if (deviceApi == null) {
                 FFeatureStatus.Retrieving
             } else {
                 val feature = deviceApi.get(clazz)
-                    ?: return@map FFeatureStatus.Unsupported
-                return@map FFeatureStatus.Supported<T>(feature)
+                    ?: return@mapLatest FFeatureStatus.Unsupported
+                return@mapLatest FFeatureStatus.Supported<T>(feature)
             }
         }
     }

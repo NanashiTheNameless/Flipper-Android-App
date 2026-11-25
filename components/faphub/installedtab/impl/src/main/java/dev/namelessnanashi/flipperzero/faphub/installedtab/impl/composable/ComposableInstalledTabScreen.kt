@@ -74,6 +74,7 @@ internal fun ComposableInstalledTabScreen(
                             onCheck = repairAppsViewModel::onCheck,
                             onRepair = repairAppsViewModel::onRepair,
                             onDismiss = repairAppsViewModel::onDismiss,
+                            onCancel = repairAppsViewModel::onCancel,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                     }

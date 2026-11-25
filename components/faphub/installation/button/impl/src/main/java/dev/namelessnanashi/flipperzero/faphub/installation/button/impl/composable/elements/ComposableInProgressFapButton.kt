@@ -1,12 +1,9 @@
 package dev.namelessnanashi.flipperzero.faphub.installation.button.impl.composable.elements
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,7 +11,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import dev.namelessnanashi.flipperzero.faphub.installation.queue.api.model.FAP_DOWNLOAD_PROGRESS_SHARE
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,9 +36,12 @@ fun ComposableInProgressFapButton(
     percent: Float,
     fapButtonSize: FapButtonSize,
     color: Color,
+    @StringRes installLabelCompact: Int,
+    @StringRes installLabelLarge: Int,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
-    fapButtonModifier: Modifier = Modifier
+    fapButtonModifier: Modifier = Modifier,
+    backgroundDownload: Boolean = false
 ) {
     Row(
         modifier = modifier,
@@ -56,8 +58,11 @@ fun ComposableInProgressFapButton(
         }
         ComposableInProgressFapButtonInternal(
             percent = percent,
+            backgroundDownload = backgroundDownload,
             fapButtonSize = fapButtonSize,
             color = color,
+            installLabelCompact = installLabelCompact,
+            installLabelLarge = installLabelLarge,
             modifier = fapButtonModifier
         )
         when (fapButtonSize) {
@@ -90,8 +95,33 @@ private fun ComposableInProgressFapButtonInternal(
     percent: Float,
     fapButtonSize: FapButtonSize,
     color: Color,
+    @StringRes installLabelCompact: Int,
+    @StringRes installLabelLarge: Int,
+    backgroundDownload: Boolean,
     modifier: Modifier = Modifier
 ) {
+    // Fork: the download from the catalog and the upload to the Flipper are shown as two
+    // steps, each with its own 0-100 %
+    val isDownloading = backgroundDownload || percent < FAP_DOWNLOAD_PROGRESS_SHARE
+    val stepPercent = if (isDownloading) {
+        percent / FAP_DOWNLOAD_PROGRESS_SHARE
+    } else {
+        (percent - FAP_DOWNLOAD_PROGRESS_SHARE) / (1f - FAP_DOWNLOAD_PROGRESS_SHARE)
+    }.coerceIn(0f, 1f)
+    val label = stringResource(
+        when (fapButtonSize) {
+            FapButtonSize.COMPACTED -> if (isDownloading) {
+                R.string.faphub_installation_step_download_compact
+            } else {
+                installLabelCompact
+            }
+            FapButtonSize.LARGE -> if (isDownloading) {
+                R.string.faphub_installation_step_download
+            } else {
+                installLabelLarge
+            }
+        }
+    )
     val buttonModifier = when (fapButtonSize) {
         FapButtonSize.COMPACTED -> modifier.width(92.dp)
         FapButtonSize.LARGE -> modifier
@@ -100,13 +130,13 @@ private fun ComposableInProgressFapButtonInternal(
         modifier = buttonModifier
             .height(fapButtonSize.heightDp.dp)
             .clip(RoundedCornerShape(6.dp))
+            .background(LocalPallet.current.background)
             .border(2.dp, color, RoundedCornerShape(6.dp)),
         contentAlignment = Alignment.Center
     ) {
-        ComposableProgressRow(percent, accentColor = color.copy(alpha = 0.3f))
         Text(
             modifier = Modifier.padding(vertical = 4.dp),
-            text = percent.roundPercentToString(),
+            text = "$label ${stepPercent.roundPercentToString()}",
             textAlign = TextAlign.Center,
             style = LocalTypography.current.fapHubButtonProgressText.copy(
                 fontSize = fapButtonSize.textSizeSp.sp
@@ -114,28 +144,5 @@ private fun ComposableInProgressFapButtonInternal(
             maxLines = 1,
             color = color
         )
-    }
-}
-
-@Composable
-private fun BoxScope.ComposableProgressRow(percent: Float, accentColor: Color) {
-    val animatedPercent by animateFloatAsState(targetValue = percent)
-    Row(
-        modifier = Modifier
-            .matchParentSize()
-    ) {
-        val remainingWeight = 1.0f - animatedPercent
-        if (animatedPercent > 0.0f) {
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(animatedPercent)
-                    .background(accentColor)
-            )
-        }
-
-        if (remainingWeight > 0.0f) {
-            Box(modifier = Modifier.weight(remainingWeight))
-        }
     }
 }

@@ -1,6 +1,5 @@
 package dev.namelessnanashi.flipperzero.updater.card.composable.dialogs
 
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,11 +23,7 @@ fun ComposableSuccessfulUpdate(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val imageId = if (MaterialTheme.colors.isLight) {
-        DesignSystem.drawable.pic_update_successfull
-    } else {
-        DesignSystem.drawable.pic_update_successfull_dark
-    }
+    val imageId = DesignSystem.drawable.pic_update_successfull_dark
 
     FlipperDialog(
         modifier = modifier,
@@ -67,11 +62,7 @@ fun ComposableFailedUpdate(
     FlipperDialog(
         modifier = modifier,
         painter = painterResource(
-            id = if (MaterialTheme.colors.isLight) {
-                R.drawable.pic_update_failed
-            } else {
-                R.drawable.pic_update_failed_dark
-            }
+            id = R.drawable.pic_update_failed_dark
         ),
         titleComposable = {
             Text(

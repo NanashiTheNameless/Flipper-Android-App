@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -49,11 +48,7 @@ fun CompleteAttack(
     Image(
         modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 14.dp, bottom = 24.dp),
         painter = painterResource(
-            if (MaterialTheme.colors.isLight) {
-                DesignSystem.drawable.pic_update_successfull
-            } else {
-                DesignSystem.drawable.pic_update_successfull_dark
-            }
+            DesignSystem.drawable.pic_update_successfull_dark
         ),
         contentDescription = text
     )

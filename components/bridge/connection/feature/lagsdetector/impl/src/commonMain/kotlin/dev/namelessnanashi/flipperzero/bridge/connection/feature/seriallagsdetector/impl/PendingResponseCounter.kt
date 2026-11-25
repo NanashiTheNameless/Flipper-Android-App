@@ -4,20 +4,26 @@ import dev.namelessnanashi.flipperzero.bridge.connection.feature.rpc.model.Flipp
 import dev.namelessnanashi.flipperzero.core.buildkonfig.BuildKonfig
 import dev.namelessnanashi.flipperzero.core.log.error
 import dev.namelessnanashi.flipperzero.core.log.verbose
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
+import kotlinx.coroutines.flow.updateAndGet
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicInteger
 
 internal class PendingResponseCounter(
     private val onAction: () -> Unit
 ) {
-    private val counter = AtomicInteger(0)
+    private val counter = MutableStateFlow(0)
     private val pendingCommands = ConcurrentHashMap<FlipperRequest, Unit>()
 
+    fun pendingCount(): StateFlow<Int> = counter.asStateFlow()
+
     fun hasPendingRequests(): Boolean {
-        return if (counter.get() > 0) {
+        return if (counter.value > 0) {
             true
-        } else if (counter.get() < 0) {
-            counter.set(0)
+        } else if (counter.value < 0) {
+            counter.value = 0
             if (BuildKonfig.CRASH_APP_ON_FAILED_CHECKS) {
                 error("Pending response counter less than zero")
             }
@@ -33,7 +39,7 @@ internal class PendingResponseCounter(
         }
         val tag = request?.javaClass?.simpleName.orEmpty()
         onAction.invoke()
-        val pendingCount = counter.getAndIncrement()
+        val pendingCount = counter.getAndUpdate { it + 1 }
         verbose { "Increase pending response command $tag, current size is ${pendingCount + 1}" }
     }
 
@@ -41,7 +47,7 @@ internal class PendingResponseCounter(
         if (BuildKonfig.LOGGING_PENDING_COMMANDS && request != null) {
             pendingCommands.remove(request)
         }
-        val pendingCount = counter.decrementAndGet()
+        val pendingCount = counter.updateAndGet { it - 1 }
         verbose { "Decrease pending response command, current size is $pendingCount" }
     }
 

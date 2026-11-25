@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -44,11 +43,7 @@ internal fun ComposableFlipperButtonAnimation(
                 modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
                     .size(24.dp),
                 painter = painterResource(
-                    if (MaterialTheme.colors.isLight) {
-                        button.enum.lightId
-                    } else {
-                        button.enum.darkId
-                    }
+                    button.enum.darkId
                 ),
                 contentDescription = null
             )

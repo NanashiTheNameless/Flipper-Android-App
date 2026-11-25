@@ -3,4 +3,17 @@
     <string name="synchronization_status_synced">Synced</string>
     <string name="synchronization_status_syncing">Syncing</string>
     <string name="synchronization_status_not_synced">Not Synced</string>
+    <string name="sync_sync_progress">Syncing with Flipper…</string>
+    <string name="sync_sync_cancel">Cancel sync</string>
+    <string name="sync_status_working">Working: %1$s/s</string>
+    <string name="sync_status_waiting">Waiting for the Flipper…</string>
+    <string name="sync_updating">Syncing: %1$s</string>
+    <string name="sync_syncing">Syncing</string>
+    <string name="sync_preparing">Preparing sync: getting files from flipper</string>
+    <string name="sync_favorites">Syncing favorite keys…</string>
+    <string name="sync_hashes">Preparing sync: %1$s</string>
+    <string name="sync_dismiss">Dismiss</string>
+    <string name="sync_dismiss_hint">Syncing continues when you dismiss this popup.</string>
+    <string name="sync_show_status">Show sync status</string>
+    <string name="sync_status_percent">Syncing %1$s</string>
 </resources>

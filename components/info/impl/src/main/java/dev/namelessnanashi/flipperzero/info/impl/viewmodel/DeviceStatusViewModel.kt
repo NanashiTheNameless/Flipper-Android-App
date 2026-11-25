@@ -1,6 +1,8 @@
 package dev.namelessnanashi.flipperzero.info.impl.viewmodel
 
+import dev.namelessnanashi.flipperzero.bridge.connection.config.api.FDevicePersistedStorage
 import androidx.datastore.core.DataStore
+import dev.namelessnanashi.flipperzero.bridge.connection.feature.getinfo.model.FGattInformation
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.getinfo.api.FGattInfoFeatureApi
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.provider.api.FFeatureProvider
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.provider.api.FFeatureStatus
@@ -17,7 +19,6 @@ import dev.namelessnanashi.flipperzero.updater.model.UpdatingState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -28,20 +29,35 @@ class DeviceStatusViewModel @Inject constructor(
     dataStorePair: DataStore<PairSettings>,
     fFeatureProvider: FFeatureProvider,
     fDeviceOrchestrator: FDeviceOrchestrator,
+    devicePersistedStorage: FDevicePersistedStorage,
     private val updaterApi: UpdaterApi,
     private val firmwareVersionBuilderApi: FirmwareVersionBuilderApi
 ) : DecomposeViewModel() {
+
+    // Fork: name the Flipper reported over RPC while connected (USB-only setups store none)
+    @Volatile
+    private var lastReportedName: String? = null
 
     private val deviceState = combine(
         flow = fDeviceOrchestrator.getState(),
         flow2 = fFeatureProvider.get<FGattInfoFeatureApi>()
             .map { status -> status as? FFeatureStatus.Supported<FGattInfoFeatureApi> }
-            .flatMapLatest { status -> status?.featureApi?.getGattInfoFlow() ?: emptyFlow() },
-        flow3 = dataStorePair.data
-    ) { connectionState, flipperInformation, pairSettings ->
+            .flatMapLatest { status -> status?.featureApi?.getGattInfoFlow() ?: flowOf(FGattInformation()) },
+        flow3 = dataStorePair.data,
+        flow4 = devicePersistedStorage.getCurrentDevice()
+    ) { connectionState, flipperInformation, pairSettings, selectedDevice ->
         when (connectionState) {
             is FDeviceConnectStatus.Disconnected -> {
-                if (pairSettings.device_name.isBlank() || pairSettings.device_id.isBlank()) {
+                val knownDevice = selectedDevice ?: connectionState.device
+                if (pairSettings.device_name.isBlank() && knownDevice != null) {
+                    // Fork: a USB-only setup stores no name, but the device is still known
+                    // (plugged in, disconnected): show it, so Connect reconnects instead of
+                    // opening Bluetooth pairing
+                    DeviceStatus.NoDeviceInformation(
+                        lastReportedName ?: knownDevice.humanReadableName,
+                        connectInProgress = false
+                    )
+                } else if (pairSettings.device_name.isBlank() || pairSettings.device_id.isBlank()) {
                     DeviceStatus.NoDevice
                 } else {
                     DeviceStatus.NoDeviceInformation(
@@ -56,7 +72,9 @@ class DeviceStatusViewModel @Inject constructor(
             is FDeviceConnectStatus.Connected -> {
                 var deviceName = pairSettings.device_name
                 if (deviceName.isBlank()) {
-                    deviceName = "Unknown"
+                    // Fork: set up over USB, never paired; the Flipper reports its name over RPC
+                    deviceName = flipperInformation.deviceName?.takeIf { it.isNotBlank() } ?: "Unknown"
+                    flipperInformation.deviceName?.takeIf { it.isNotBlank() }?.let { lastReportedName = it }
                 }
                 val batteryLevel = flipperInformation.batteryLevel
                 if (batteryLevel == null) {

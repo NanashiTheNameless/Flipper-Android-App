@@ -34,6 +34,7 @@ androidDependencies {
     implementation(libs.kotlin.serialization.json)
 
     implementation(projects.components.bridge.connection.orchestrator.api)
+    implementation(projects.components.bridge.connection.config.api)
 
     // Compose
 

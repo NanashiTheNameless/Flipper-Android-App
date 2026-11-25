@@ -9,6 +9,7 @@ import dev.namelessnanashi.flipperzero.faphub.installation.manifest.error.NoSdCa
 import dev.namelessnanashi.flipperzero.faphub.installation.manifest.model.FapManifestState
 import dev.namelessnanashi.flipperzero.faphub.installation.queue.api.FapInstallationQueueApi
 import dev.namelessnanashi.flipperzero.faphub.installation.queue.api.model.FapActionRequest
+import dev.namelessnanashi.flipperzero.faphub.installation.queue.api.model.FAP_DOWNLOAD_PROGRESS_SHARE
 import dev.namelessnanashi.flipperzero.faphub.installation.queue.api.model.FapQueueState
 import dev.namelessnanashi.flipperzero.faphub.installation.stateprovider.api.api.FapInstallationStateManager
 import dev.namelessnanashi.flipperzero.faphub.installation.stateprovider.api.model.FapState
@@ -158,10 +159,13 @@ class FapInstallationStateManagerImpl @Inject constructor(
             is FapActionRequest.Cancel -> FapState.Canceling
             is FapActionRequest.Install -> FapState.InstallationInProgress(
                 active = false,
-                progress = 0f
+                progress = queueState.downloadProgress * FAP_DOWNLOAD_PROGRESS_SHARE
             )
 
-            is FapActionRequest.Update -> FapState.UpdatingInProgress(active = false, progress = 0f)
+            is FapActionRequest.Update -> FapState.UpdatingInProgress(
+                active = false,
+                progress = queueState.downloadProgress * FAP_DOWNLOAD_PROGRESS_SHARE
+            )
             is FapActionRequest.Delete -> FapState.Deleting
         }
 

@@ -3,7 +3,6 @@ package dev.namelessnanashi.flipperzero.updater.card.composable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,11 +27,7 @@ fun ComposableUpdaterReboot(modifier: Modifier = Modifier) {
     ) {
         val title = stringResource(R.string.updater_card_updater_reboot_title) + animatedDots()
 
-        val imageId = if (MaterialTheme.colors.isLight) {
-            R.drawable.pic_reboot
-        } else {
-            R.drawable.pic_reboot_dark
-        }
+        val imageId = R.drawable.pic_reboot_dark
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(

@@ -79,26 +79,25 @@ data class FlipperPallet(
     val placeholder: Color,
 
     // Fork: headers use the screen background instead of the orange accent
-    val appBar: Color = Color(0xFFFBFBFB),
-    val onAppBar: Color = Color(0xFF000000),
+    val appBar: Color = Color(0xFF000000),
+    val onAppBar: Color = Color(0xFFFFFFFF),
 
-    // Fork: monochrome accents. Defaults are the light theme (near-black accent, white on it);
-    // the dark theme overrides them (near-white accent, black on it). See ROADMAP item 11.
-    val accent: Color = Color(0xFF1A1A1A),
-    val accentSecond: Color = Color(0xFF3D3D3D),
-    val updateProgressBackgroundBlue: Color = Color(0xFFD6D6D6),
-    val onFlipperButton: Color = Color(0xFFFFFFFF),
-    val actionOnFlipperEnable: Color = Color(0xFF3D3D3D),
-    val actionOnFlipperProgress: Color = Color(0xFF9E9E9E),
-    val actionOnFlipperSubGhzEnable: Color = Color(0xFF1A1A1A),
+    // Fork: monochrome accents for the fixed OLED dark theme. See ROADMAP item 11.
+    val accent: Color = Color(0xFFE6E6E6),
+    val accentSecond: Color = Color(0xFFBDBDBD),
+    val updateProgressBackgroundBlue: Color = Color(0xFF4D4D4D),
+    val onFlipperButton: Color = Color(0xFF000000),
+    val actionOnFlipperEnable: Color = Color(0xFFBDBDBD),
+    val actionOnFlipperProgress: Color = Color(0xFF707070),
+    val actionOnFlipperSubGhzEnable: Color = Color(0xFFE6E6E6),
     val actionOnFlipperSubGhzProgress: Color = Color(0xFF8C8C8C),
-    val actionOnFlipperInfraredEnable: Color = Color(0xFF1A1A1A),
+    val actionOnFlipperInfraredEnable: Color = Color(0xFFE6E6E6),
     val actionOnFlipperInfraredProgress: Color = Color(0xFF8C8C8C),
-    val shareSheetBackgroundAction: Color = Color(0xFF1A1A1A),
-    val fapHubOpenAppEnable: Color = Color(0xFF9E9E9E),
-    val fapHubOpenAppProgress: Color = Color(0xFF3D3D3D),
-    val onFapHubInstallButton: Color = Color(0xFFFFFFFF),
-    val tabSwitchActiveColor: Color = Color(0xFFFFFFFF)
+    val shareSheetBackgroundAction: Color = Color(0xFFE6E6E6),
+    val fapHubOpenAppEnable: Color = Color(0xFF707070),
+    val fapHubOpenAppProgress: Color = Color(0xFFBDBDBD),
+    val onFapHubInstallButton: Color = Color(0xFF000000),
+    val tabSwitchActiveColor: Color = Color(0xFF000000)
 ) {
     val onError: Color = Color(0xFFF63F3F)
     val onErrorBorder: Color = onError.copy(alpha = 0.3f)
@@ -182,7 +181,7 @@ data class FlipperPallet(
     val infraredEditorKeyName = Color(0xFFFFFFFF)
 }
 
-internal fun FlipperPallet.toMaterialColors(isLight: Boolean) = Colors(
+internal fun FlipperPallet.toMaterialColors() = Colors(
     primary = content,
     primaryVariant = accentSecond,
     secondary = content,
@@ -195,7 +194,7 @@ internal fun FlipperPallet.toMaterialColors(isLight: Boolean) = Colors(
     onBackground = onContent,
     onSurface = onContent,
     onError = onError,
-    isLight = isLight
+    isLight = false
 )
 
 internal fun FlipperPallet.toTextSelectionColors() = TextSelectionColors(

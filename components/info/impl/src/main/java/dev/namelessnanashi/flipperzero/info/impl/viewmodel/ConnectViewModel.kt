@@ -28,10 +28,13 @@ class ConnectViewModel @Inject constructor(
         }
         connectRequestState.update { ConnectRequestState.CONNECTING_AND_SYNCHRONIZING }
         viewModelScope.launch {
-            fConnectionService.forceReconnect()
-            synchronizationApi.startSynchronization(force = true)
-            connectRequestState.update { ConnectRequestState.NOT_REQUESTED }
-            alreadyRequestConnect.compareAndSet(true, false)
+            try {
+                fConnectionService.forceReconnect()
+                synchronizationApi.startSynchronization(force = true)
+            } finally {
+                connectRequestState.update { ConnectRequestState.NOT_REQUESTED }
+                alreadyRequestConnect.set(false)
+            }
         }
     }
 

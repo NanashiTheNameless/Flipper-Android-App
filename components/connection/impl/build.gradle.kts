@@ -18,6 +18,7 @@ androidDependencies {
     implementation(projects.components.core.ui.theme)
 
     implementation(projects.components.bridge.connection.orchestrator.api)
+    implementation(projects.components.bridge.connection.config.api)
     implementation(projects.components.bridge.synchronization.api)
     implementation(projects.components.bridge.connection.feature.common.api)
     implementation(projects.components.bridge.connection.feature.provider.api)

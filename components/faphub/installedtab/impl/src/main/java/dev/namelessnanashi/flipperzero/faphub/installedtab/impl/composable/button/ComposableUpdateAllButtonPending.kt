@@ -1,5 +1,6 @@
 package dev.namelessnanashi.flipperzero.faphub.installedtab.impl.composable.button
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +30,8 @@ fun ComposableUpdateAllButtonPending(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(LocalPallet.current.updateProgressGreen),
+            .background(LocalPallet.current.background)
+            .border(1.5.dp, LocalPallet.current.updateProgressGreen, RoundedCornerShape(8.dp)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -40,14 +42,15 @@ fun ComposableUpdateAllButtonPending(
             style = LocalTypography.current.fapHubButtonText.copy(
                 fontSize = 18.sp
             ),
-            color = LocalPallet.current.onFapHubInstallButton
+            color = LocalPallet.current.updateProgressGreen
         )
 
         Box(
             modifier = Modifier
                 .padding(vertical = 8.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(LocalPallet.current.onFapHubInstallButton.copy(alpha = 0.8f))
+                .background(LocalPallet.current.background)
+                .border(1.dp, LocalPallet.current.updateProgressGreen, RoundedCornerShape(4.dp))
         ) {
             Text(
                 modifier = Modifier.padding(vertical = 2.dp, horizontal = 7.dp),

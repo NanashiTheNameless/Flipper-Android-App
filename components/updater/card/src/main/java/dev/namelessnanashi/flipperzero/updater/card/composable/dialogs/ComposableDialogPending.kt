@@ -1,6 +1,5 @@
 package dev.namelessnanashi.flipperzero.updater.card.composable.dialogs
 
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
@@ -118,11 +117,7 @@ fun FlipperDialogFileExtension(onDismiss: () -> Unit) {
 
 @Composable
 fun FlipperDialogLowBattery(onDismiss: () -> Unit) {
-    val imageId = if (MaterialTheme.colors.isLight) {
-        R.drawable.pic_flipper_low_battery
-    } else {
-        R.drawable.pic_flipper_low_battery_dark
-    }
+    val imageId = R.drawable.pic_flipper_low_battery_dark
 
     FlipperDialogAndroid(
         imageId = imageId,

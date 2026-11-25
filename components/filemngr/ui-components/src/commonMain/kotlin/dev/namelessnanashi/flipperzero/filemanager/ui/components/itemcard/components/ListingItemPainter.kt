@@ -1,6 +1,5 @@
 package dev.namelessnanashi.flipperzero.filemanager.ui.components.itemcard.components
 
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -22,19 +21,13 @@ fun ListingItem.asPainter(): Painter {
     val keyType = FlipperKeyType.getByExtension(File(fileName).extension)
     return when {
         fileType == FileType.DIR -> painterResource(
-            when {
-                MaterialTheme.colors.isLight -> FR.drawable.ic_folder_black
-                else -> FR.drawable.ic_folder_white
-            }
+            FR.drawable.ic_folder_white
         )
 
         keyType != null -> painterResource(keyType.iconResource)
 
         else -> painterResource(
-            when {
-                MaterialTheme.colors.isLight -> FR.drawable.ic_file_black
-                else -> FR.drawable.ic_file_white
-            }
+            FR.drawable.ic_file_white
         )
     }
 }

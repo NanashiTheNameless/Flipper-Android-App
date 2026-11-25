@@ -1,5 +1,6 @@
 package dev.namelessnanashi.flipperzero.faphub.catalogtab.impl.composable
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,8 @@ fun ComposableInstallAll(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
-                .background(LocalPallet.current.accentSecond)
+                .background(LocalPallet.current.background)
+                .border(1.5.dp, LocalPallet.current.accentSecond, RoundedCornerShape(8.dp))
                 .clickableRipple(onClick = onRequestInstallAll),
             contentAlignment = Alignment.Center
         ) {
@@ -48,7 +50,7 @@ fun ComposableInstallAll(
                         .padding(vertical = 9.dp)
                         .size(24.dp),
                     strokeWidth = 2.dp,
-                    color = LocalPallet.current.onFapHubInstallButton
+                    color = LocalPallet.current.accentSecond
                 )
             } else {
                 Text(
@@ -56,7 +58,7 @@ fun ComposableInstallAll(
                     text = stringResource(R.string.faphub_catalog_install_all),
                     textAlign = TextAlign.Center,
                     style = LocalTypography.current.fapHubButtonText.copy(fontSize = 18.sp),
-                    color = LocalPallet.current.onFapHubInstallButton
+                    color = LocalPallet.current.accentSecond
                 )
             }
         }

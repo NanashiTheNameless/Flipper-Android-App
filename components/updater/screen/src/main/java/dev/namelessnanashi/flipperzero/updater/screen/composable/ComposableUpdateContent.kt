@@ -27,7 +27,8 @@ import dev.namelessnanashi.flipperzero.core.ui.res.R as DesignSystem
 fun ComposableUpdateContent(
     updaterScreenState: UpdaterScreenState,
     onRetry: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isUsb: Boolean = false
 ) {
     val version = updaterScreenState.updateRequest?.updateTo
     if (version != null) {
@@ -70,7 +71,7 @@ fun ComposableUpdateContent(
             modifier = localModifier,
             accentColor = LocalPallet.current.accentSecond,
             secondColor = LocalPallet.current.updateProgressBackgroundBlue,
-            iconId = DesignSystem.drawable.ic_bluetooth,
+            iconId = if (isUsb) R.drawable.ic_usb else DesignSystem.drawable.ic_bluetooth,
             percent = updaterScreenState.percent
         )
         UpdaterScreenState.CancelingUpdate -> AndroidFlipperProgressIndicator(

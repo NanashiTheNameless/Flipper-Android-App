@@ -33,7 +33,9 @@ internal fun ComposableSearchingView(
     lifecycleOwner: LifecycleOwner,
     onHelpClicking: () -> Unit,
     onFinishConnection: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onUseUsb: () -> Unit,
+    usbNotFound: Boolean
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -92,7 +94,9 @@ internal fun ComposableSearchingView(
         onSkipConnection = { pairViewModel.finishConnection(onEndAction = onFinishConnection) },
         onDeviceClick = pairViewModel::startConnectToDevice,
         onRefreshSearching = searchStateBuilder::resetByUser,
-        onResetTimeoutState = pairViewModel::resetConnection
+        onResetTimeoutState = pairViewModel::resetConnection,
+        onUseUsb = onUseUsb,
+        usbNotFound = usbNotFound
     )
 }
 

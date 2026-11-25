@@ -34,6 +34,7 @@ internal fun ComposableFapButton(
             modifier = modifier,
             fapButtonSize = fapButtonSize,
             percent = localState.progress,
+            backgroundDownload = !localState.active,
             onCancel = { statusViewModel.cancel(config) }
         )
 
@@ -68,6 +69,7 @@ internal fun ComposableFapButton(
             modifier = modifier,
             fapButtonSize = fapButtonSize,
             percent = localState.progress,
+            backgroundDownload = !localState.active,
             onCancel = { statusViewModel.cancel(config) }
         )
 

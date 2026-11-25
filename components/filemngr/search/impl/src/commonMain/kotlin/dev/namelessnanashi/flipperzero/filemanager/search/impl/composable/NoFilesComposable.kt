@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,10 +42,7 @@ fun NoFilesComposable(
             )
             Image(
                 painter = painterResource(
-                    when {
-                        MaterialTheme.colors.isLight -> FR.drawable.ic__no_files_white
-                        else -> FR.drawable.ic__no_files_black
-                    }
+                    FR.drawable.ic__no_files_black
                 ),
                 contentDescription = null,
                 modifier = Modifier.height(100.dp)

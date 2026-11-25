@@ -20,7 +20,10 @@ class ReaderRequestLooper(
 ) : Closeable {
     private val queue = Channel<Main>(Channel.UNLIMITED)
 
-    private val responseFlowJob: Job = scope.launch(FlipperDispatchers.workStealingDispatcher) {
+    // Fork: readers wait for this on their own thread (FFlipperSource.read is blocking), so it
+    // must not need a thread of the shared pool: 4 sync reads + 4 manifest reads took all 8
+    // and deadlocked (thread dump, 2026-11-25)
+    private val responseFlowJob: Job = scope.launch(FlipperDispatchers.blockingDispatcher) {
         rpcFeatureApi.request(
             Main(
                 storage_read_request = ReadRequest(

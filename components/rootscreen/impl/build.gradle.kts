@@ -25,6 +25,7 @@ androidDependencies {
     implementation(projects.components.share.api)
     implementation(projects.components.keyscreen.api)
     implementation(projects.components.bridge.dao.api)
+    implementation(projects.components.bridge.synchronization.api)
     implementation(projects.components.changelog.api)
 
     implementation(projects.components.remoteControls.main.api)

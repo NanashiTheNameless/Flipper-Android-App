@@ -1,5 +1,7 @@
 package dev.namelessnanashi.flipperzero.updater.screen.api
 
+import dev.namelessnanashi.flipperzero.bridge.connection.config.api.FDevicePersistedStorage
+import dev.namelessnanashi.flipperzero.bridge.connection.config.api.model.FDeviceFlipperZeroUsbModel
 import android.app.Activity
 import android.view.WindowManager
 import androidx.compose.runtime.Composable
@@ -35,7 +37,8 @@ class UpdaterDecomposeComponentImpl @AssistedInject constructor(
     @Assisted private val onBack: DecomposeOnBackParameter,
     private val flipperColorViewModelProvider: Provider<FlipperColorViewModel>,
     private val updaterViewModelProvider: Provider<UpdaterViewModel>,
-    private val changelogFormatterApi: ChangelogFormatterApi
+    private val changelogFormatterApi: ChangelogFormatterApi,
+    private val deviceStorage: FDevicePersistedStorage
 ) : UpdaterDecomposeComponent(componentContext) {
 
     @Composable
@@ -63,6 +66,11 @@ class UpdaterDecomposeComponentImpl @AssistedInject constructor(
 
         val flipperColor by flipperColorViewModel.getFlipperColor().collectAsState()
 
+        val currentDevice by remember { deviceStorage.getCurrentDevice() }.collectAsState(null)
+        var isUsb by remember { mutableStateOf(false) }
+        LaunchedEffect(currentDevice) {
+            if (currentDevice != null) isUsb = currentDevice is FDeviceFlipperZeroUsbModel
+        }
         val updaterScreenState by updaterViewModel.getState().collectAsState()
         if (updaterScreenState is UpdaterScreenState.Finish) {
             LaunchedEffect(key1 = Unit) {
@@ -76,6 +84,7 @@ class UpdaterDecomposeComponentImpl @AssistedInject constructor(
         ComposableUpdaterScreen(
             updaterScreenState = updaterScreenState,
             flipperColor = flipperColor,
+            isUsb = isUsb,
             onCancel = { isCancelDialogOpen = true },
             onRetry = { updaterViewModel.retry(updateRequest) },
             changelog = remember(changelog) {

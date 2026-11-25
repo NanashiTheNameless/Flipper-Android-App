@@ -20,6 +20,7 @@ import dev.namelessnanashi.flipperzero.core.preference.pb.HardwareColor
 import dev.namelessnanashi.flipperzero.core.ui.flippermockup.ComposableFlipperMockup
 import dev.namelessnanashi.flipperzero.core.ui.flippermockup.ComposableFlipperMockupImage
 import dev.namelessnanashi.flipperzero.core.ui.ktx.clickableRipple
+import dev.namelessnanashi.flipperzero.core.ui.ktx.elements.ComposableCancelButton
 import dev.namelessnanashi.flipperzero.core.ui.theme.LocalPallet
 import dev.namelessnanashi.flipperzero.core.ui.theme.LocalTypography
 import dev.namelessnanashi.flipperzero.updater.screen.R
@@ -33,7 +34,8 @@ fun ComposableUpdaterScreen(
     changelog: String?,
     onCancel: () -> Unit,
     onRetry: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isUsb: Boolean = false
 ) {
     Column(
         modifier
@@ -50,7 +52,7 @@ fun ComposableUpdaterScreen(
                 updaterScreenState,
                 flipperColor = flipperColor
             )
-            ComposableUpdateContent(updaterScreenState, onRetry)
+            ComposableUpdateContent(updaterScreenState, onRetry, isUsb = isUsb)
             if (changelog != null) {
                 ComposableChangelog(changelog)
             }
@@ -125,15 +127,10 @@ private fun CancelButton(
             )
             return
         }
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickableRipple(onClick = onCancel)
-                .padding(vertical = 8.dp),
+        ComposableCancelButton(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             text = stringResource(R.string.update_screen_cancel),
-            textAlign = TextAlign.Center,
-            color = LocalPallet.current.accentSecond,
-            style = LocalTypography.current.buttonM16
+            onClick = onCancel
         )
     }
 }

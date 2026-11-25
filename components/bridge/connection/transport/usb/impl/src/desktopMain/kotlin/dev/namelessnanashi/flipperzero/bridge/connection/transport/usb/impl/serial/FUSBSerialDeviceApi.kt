@@ -2,7 +2,6 @@ package dev.namelessnanashi.flipperzero.bridge.connection.transport.usb.impl.ser
 
 import com.fazecast.jSerialComm.SerialPort
 import dev.namelessnanashi.flipperzero.bridge.connection.feature.actionnotifier.api.FlipperActionNotifier
-import dev.namelessnanashi.flipperzero.bridge.connection.transport.common.api.meta.FTransportMetaInfoApi
 import dev.namelessnanashi.flipperzero.bridge.connection.transport.common.api.serial.FSerialDeviceApi
 import dev.namelessnanashi.flipperzero.bridge.connection.transport.common.api.serial.FSerialRestartApi
 import dev.namelessnanashi.flipperzero.bridge.connection.transport.common.api.serial.FlipperSerialSpeed
@@ -24,7 +23,6 @@ class FUSBSerialDeviceApi(
 ) : FUSBApi,
     FSerialDeviceApi,
     FSerialRestartApi by NoopRestartApi(),
-    FTransportMetaInfoApi by FakeTransportMetaInfoApi(),
     LogTagProvider {
     override val TAG = "FUSBSerialDeviceApi"
 

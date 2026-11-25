@@ -21,6 +21,11 @@ import dev.namelessnanashi.flipperzero.faphub.target.model.FlipperTarget
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.binding
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import dev.namelessnanashi.flipperzero.faphub.installation.all.api.FapRepairProgress
+import dev.namelessnanashi.flipperzero.faphub.installation.all.api.FapRepairStage
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -39,7 +44,8 @@ class FapRepairImpl @Inject constructor(
 ) : FapRepairApi, LogTagProvider {
     override val TAG = "FapRepairApi"
 
-    override suspend fun check(): FapRepairReport {
+    override suspend fun check(onProgress: suspend (FapRepairProgress) -> Unit): FapRepairReport {
+        onProgress(FapRepairProgress())
         val installed = manifestApi.getManifestFlow()
             .filter { it is FapManifestState.Loaded && !it.inProgress }
             .mapNotNull { (it as? FapManifestState.Loaded)?.items }
@@ -52,17 +58,23 @@ class FapRepairImpl @Inject constructor(
 
         val broken = mutableListOf<FapManifestItem>()
         val uncheckable = mutableListOf<FapManifestItem>()
-        for (item in installed) {
+        for ((index, item) in installed.withIndex()) {
+            currentCoroutineContext().ensureActive()
+            onProgress(FapRepairProgress(index, installed.size, item.fullName, FapRepairStage.CHECKING))
             val flipperMd5 = storageApi.md5Api().md5(item.path).getOrNull()
             if (flipperMd5 == null) {
                 info { "${item.applicationAlias}: ${item.path} is missing" }
                 broken += item
+                onProgress(FapRepairProgress(index + 1, installed.size, item.fullName, FapRepairStage.CHECKING))
                 continue
             }
             val expectedMd5 = runCatching {
-                fapDownloadApi.downloadBundle(target, item.versionUid)
+                fapDownloadApi.downloadBundle(target, item.versionUid) { progress ->
+                    onProgress(FapRepairProgress(index, installed.size, item.fullName, FapRepairStage.DOWNLOADING, progress))
+                }
                     .source().buffer().use { it.readByteString().md5().hex() }
             }.onFailure {
+                if (it is CancellationException) throw it
                 error(it) { "${item.applicationAlias}: can't get catalog build ${item.versionUid}" }
             }.getOrNull()
             when {
@@ -72,6 +84,7 @@ class FapRepairImpl @Inject constructor(
                     broken += item
                 }
             }
+            onProgress(FapRepairProgress(index + 1, installed.size, item.fullName, FapRepairStage.CHECKING))
         }
         info { "Check done: ${broken.size} broken, ${uncheckable.size} could not be checked" }
         return FapRepairReport(
@@ -81,10 +94,12 @@ class FapRepairImpl @Inject constructor(
         )
     }
 
-    override suspend fun repair(broken: List<FapManifestItem>): Int {
+    override suspend fun repair(broken: List<FapManifestItem>, onProgress: suspend (FapRepairProgress) -> Unit): Int {
         val target = targetProviderApi.getFlipperTarget().filterNotNull().first()
         var queued = 0
-        for (item in broken) {
+        for ((index, item) in broken.withIndex()) {
+            currentCoroutineContext().ensureActive()
+            onProgress(FapRepairProgress(index, broken.size, item.fullName, FapRepairStage.QUEUING))
             val catalogItem = fapNetworkApi.getFapItemById(target, item.uid)
                 .onFailure { error(it) { "${item.applicationAlias}: not found in the catalog" } }
                 .getOrNull() ?: continue
@@ -97,6 +112,7 @@ class FapRepairImpl @Inject constructor(
                 )
             )
             queued++
+            onProgress(FapRepairProgress(index + 1, broken.size, item.fullName, FapRepairStage.QUEUING))
         }
         info { "Queued $queued of ${broken.size} repairs" }
         return queued

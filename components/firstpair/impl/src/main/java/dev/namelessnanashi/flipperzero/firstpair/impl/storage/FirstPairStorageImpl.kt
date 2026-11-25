@@ -22,20 +22,8 @@ class FirstPairStorageImpl @Inject constructor(
 ) : FirstPairStorage, LogTagProvider {
     override val TAG = "FirstPairStorage"
 
-    override fun isTosPassed(): Boolean {
-        return runBlockingWithLog("is_passed") { pairSettingsStore.data.first() }.tos_passed
-    }
-
     override fun isDeviceSelected(): Boolean {
         return runBlockingWithLog("is_device_selected") { pairSettingsStore.data.first() }.pair_device_pass
-    }
-
-    override fun markTosPassed(): Unit = runBlockingWithLog("mark_tos_passed") {
-        pairSettingsStore.updateData {
-            it.copy(
-                tos_passed = true
-            )
-        }
     }
 
     override fun markDeviceSelected(

@@ -21,6 +21,18 @@ Nightly APKs only: download `Flipper-Nanashi-nightly.apk` from the [Nightly-Roll
 > [!NOTE]
 > The release workflow is not set up yet, so there is nothing to install from Obtainium until the first nightly is published.
 
+## Thanks
+
+- [0xProto](https://github.com/0xType/0xProto) by 0xType: a beautifully clear, distinctive typeface that deserves to be everyone's default. It's the only font in this app, used for every piece of text in place of Roboto, Roboto Mono and the Flipper pixel fonts. Thank you, 0xType! Licensed under the [SIL Open Font License 1.1](docs/fork/licenses/0xProto-OFL.txt).
+
+## Support this fork
+
+- [GitHub Sponsors](https://github.com/sponsors/NanashiTheNameless)
+- [Buy Me a Coffee](https://buymeacoffee.com/NamelessNanashi)
+- [Ko-fi](https://ko-fi.com/NanashiTheNameless)
+- [Liberapay](https://liberapay.com/NamelessNanashi)
+- [Throne](https://throne.com/NamelessNanashi)
+
 ## Build
 
 ```bash

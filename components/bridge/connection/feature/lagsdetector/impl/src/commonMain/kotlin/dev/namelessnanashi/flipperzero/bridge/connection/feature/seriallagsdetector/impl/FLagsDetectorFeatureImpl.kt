@@ -15,6 +15,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -52,6 +54,10 @@ class FLagsDetectorFeatureImpl @AssistedInject constructor(
             }
         }
     }
+
+    override fun hasPendingRequests(): Flow<Boolean> = pendingResponseCounter.pendingCount()
+        .map { it > 0 }
+        .distinctUntilChanged()
 
     override fun notifyAboutAction() {
         flipperActionNotifier.notifyAboutAction()

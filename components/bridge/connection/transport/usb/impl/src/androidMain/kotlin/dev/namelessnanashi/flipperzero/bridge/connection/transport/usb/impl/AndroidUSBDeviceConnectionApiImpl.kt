@@ -19,6 +19,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicBoolean
 
 private val CLI_PROMPT = ">: ".toByteArray()
 private val START_RPC_COMMAND = "start_rpc_session\r".toByteArray()
@@ -54,15 +55,15 @@ class AndroidUSBDeviceConnectionApiImpl(
         info { "Opened ${device.deviceName}, waiting for the CLI prompt" }
         val initialRpcBytes = try {
             withContext(Dispatchers.IO) {
-                // Wait for the CLI prompt so the command is not sent before the shell is ready;
-                // continue anyway if it never shows (the prompt text differs between firmwares)
+                // A previous RPC session can still be unwinding after Disconnect. Do not
+                // send CLI text into that session or report Connected without a handshake.
                 if (port.skipUntil(CLI_PROMPT, PROMPT_TIMEOUT_MS) == null) {
-                    info { "No CLI prompt seen, sending start_rpc_session anyway" }
+                    throw IOException("Flipper USB shell is not ready; retry after the previous session closes")
                 }
                 port.write(START_RPC_COMMAND)
                 // Skip the echoed command line; everything after it is RPC
                 port.skipUntil("\n".toByteArray(), ECHO_TIMEOUT_MS)
-                    ?: byteArrayOf().also { info { "No echo of start_rpc_session seen" } }
+                    ?: throw IOException("Flipper did not confirm the USB RPC session")
             }
         } catch (e: Exception) {
             port.close()
@@ -70,17 +71,30 @@ class AndroidUSBDeviceConnectionApiImpl(
         }
         info { "Flipper on ${config.path} is in RPC mode" }
 
+        // Fork: upstream never reported Disconnected for USB, so after Disconnect or unplugging
+        // the app kept showing "Connected". Reported once, when the link ends either way.
+        val isDisconnectReported = AtomicBoolean(false)
+        val reportDisconnected = {
+            if (isDisconnectReported.compareAndSet(false, true)) {
+                info { "USB link to ${config.path} ended" }
+                listener.onStatusUpdate(FInternalTransportConnectionStatus.Disconnected)
+            }
+        }
         val deviceApi = FAndroidUSBSerialDeviceApi(
             scope = scope,
             port = port,
             actionNotifier = actionNotifierFactory(scope),
-            initialBytes = initialRpcBytes
+            initialBytes = initialRpcBytes,
+            onLinkLost = reportDisconnected
         )
         scope.launch {
             try {
                 awaitCancellation()
             } finally {
-                withContext(NonCancellable) { port.close() }
+                withContext(NonCancellable) {
+                    port.close()
+                    reportDisconnected()
+                }
             }
         }
         listener.onStatusUpdate(FInternalTransportConnectionStatus.Connected(scope, deviceApi))

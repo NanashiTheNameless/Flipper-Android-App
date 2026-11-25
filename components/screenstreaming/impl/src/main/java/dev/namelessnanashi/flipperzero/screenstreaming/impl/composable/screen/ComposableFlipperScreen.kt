@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -78,7 +77,7 @@ private fun ComposableFlipperScreenInternal(
     }
     var borderColor = LocalPallet.current.screenStreamingBorderColor
 
-    if (!MaterialTheme.colors.isLight && flipperScreenState == FlipperScreenState.NotConnected) {
+    if (flipperScreenState == FlipperScreenState.NotConnected) {
         borderColor = LocalPallet.current.screenStreamingNotConnectedColor
     }
 
@@ -125,11 +124,7 @@ private fun ComposableFlipperScreenImage(flipperScreenState: FlipperScreenState)
 
         FlipperScreenState.NotConnected -> Image(
             modifier = canvasModifier,
-            painter = if (MaterialTheme.colors.isLight) {
-                painterResource(R.drawable.pic_not_connected_light)
-            } else {
-                painterResource(R.drawable.pic_not_connected_dark)
-            },
+            painter = painterResource(R.drawable.pic_not_connected_dark),
             contentDescription = canvasDescription
         )
 

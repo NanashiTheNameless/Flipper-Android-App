@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -95,10 +94,7 @@ fun SdCardLoadingComposable(
         ) {
             Icon(
                 painter = painterResource(
-                    when {
-                        MaterialTheme.colors.isLight -> FR.drawable.ic_sd_card_ok_black
-                        else -> FR.drawable.ic_sd_card_ok_white
-                    }
+                    FR.drawable.ic_sd_card_ok_white
                 ),
                 tint = Color.Unspecified,
                 contentDescription = null,

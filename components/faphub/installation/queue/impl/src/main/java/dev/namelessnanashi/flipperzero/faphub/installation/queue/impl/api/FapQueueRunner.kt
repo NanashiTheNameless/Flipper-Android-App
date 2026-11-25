@@ -9,6 +9,7 @@ import dev.namelessnanashi.flipperzero.core.log.info
 import dev.namelessnanashi.flipperzero.faphub.dao.api.FapDownloadApi
 import dev.namelessnanashi.flipperzero.faphub.installation.queue.api.model.FapActionRequest
 import dev.namelessnanashi.flipperzero.faphub.installation.queue.impl.executor.FapActionExecutor
+import dev.namelessnanashi.flipperzero.faphub.installation.queue.impl.model.bundleKey
 import dev.namelessnanashi.flipperzero.faphub.installation.queue.impl.model.FapInternalQueueState
 import dev.namelessnanashi.flipperzero.faphub.target.model.FlipperTarget
 import kotlinx.collections.immutable.ImmutableList
@@ -30,7 +31,7 @@ import kotlinx.coroutines.withContext
 import dev.zacsweers.metro.Inject
 
 // Bundles downloaded at once while the queue uploads other apps
-private const val PREFETCH_PARALLELISM = 3
+private const val PREFETCH_PARALLELISM = 8
 
 class FapQueueRunner @Inject constructor(
     private val fapActionExecutor: FapActionExecutor,
@@ -45,6 +46,9 @@ class FapQueueRunner @Inject constructor(
         MutableStateFlow<ImmutableList<FapActionRequest>>(persistentListOf())
     private var currentTaskJob: Job? = null
     private val currentTaskFlow = MutableStateFlow<FapInternalQueueState?>(null)
+
+    private val prefetchProgress = MutableStateFlow<Map<String, Float>>(emptyMap())
+    fun prefetchProgressFlow() = prefetchProgress.asStateFlow()
 
     private val prefetchSemaphore = Semaphore(PREFETCH_PARALLELISM)
     private val prefetchStarted = mutableSetOf<String>()
@@ -71,19 +75,23 @@ class FapQueueRunner @Inject constructor(
                 else -> return@forEach
             }
             val target = version.target as? FlipperTarget.Received ?: return@forEach
-            val key = "${version.id}_${target.target}_${target.sdk}"
+            val key = request.bundleKey() ?: return@forEach
             if (!synchronized(prefetchStarted) { prefetchStarted.add(key) }) return@forEach
             scope.launch {
                 try {
                     prefetchSemaphore.withPermit {
                         // Skip apps that were cancelled while waiting
                         if (pendingTaskFlow.value.any { it.applicationUid == request.applicationUid }) {
-                            fapDownloadApi.downloadBundle(target, version.id, listener = null)
+                            fapDownloadApi.downloadBundle(target, version.id) { progress ->
+                                prefetchProgress.update { it + (key to progress.coerceIn(0f, 1f)) }
+                            }
+                            prefetchProgress.update { it + (key to 1f) }
                         }
                     }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (throwable: Throwable) {
+                    prefetchProgress.update { it - key }
                     error(throwable) { "Prefetch of ${version.id} failed" }
                 } finally {
                     synchronized(prefetchStarted) { prefetchStarted.remove(key) }
@@ -132,6 +140,9 @@ class FapQueueRunner @Inject constructor(
                 fapActionExecutor.execute(currentTask) { progress ->
                     currentTaskFlow.emit(FapInternalQueueState.InProgress(currentTask, progress))
                 }
+            } catch (cancellation: CancellationException) {
+                // Cancelled by the user: not a failure
+                throw cancellation
             } catch (throwable: Throwable) {
                 error(throwable) { "While executing $currentTask" }
                 currentTaskFlow.emit(FapInternalQueueState.Failed(currentTask, throwable))
@@ -153,6 +164,8 @@ class FapQueueRunner @Inject constructor(
         if (currentTaskFlow.value?.request?.applicationUid == actionRequest.applicationUid) {
             info { "Current job is job for canceling, so cancel job" }
             currentTaskJob?.cancel()
+            // Fork: show it as cancelled at once instead of after the upload unwinds
+            currentTaskFlow.emit(null)
         }
         pendingTaskFlow.update { list ->
             list.filterNot { it.applicationUid == actionRequest.applicationUid }.toImmutableList()

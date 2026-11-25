@@ -47,12 +47,12 @@ class FProtobufMessageCollector @AssistedInject constructor(
     }
 
     private fun subscribeToAnswers(scope: CoroutineScope) {
-        scope.launch(FlipperDispatchers.workStealingDispatcher) {
+        scope.launch(FlipperDispatchers.blockingDispatcher) {
             serialApi.getReceiveBytesFlow().collect {
                 reader.onReceiveBytes(it)
             }
         }
-        scope.launch(FlipperDispatchers.workStealingDispatcher) {
+        scope.launch(FlipperDispatchers.blockingDispatcher) {
             reader.getResponses().collect {
                 val listener = requestListeners[it.command_id]
                 if (listener == null) {
@@ -72,14 +72,14 @@ class FProtobufMessageCollector @AssistedInject constructor(
             }
         }
 
-        scope.launch(FlipperDispatchers.workStealingDispatcher) {
+        scope.launch(FlipperDispatchers.blockingDispatcher) {
             try {
                 awaitCancellation()
             } finally {
                 withContext(NonCancellable) { onClose() }
             }
         }
-        scope.launch(FlipperDispatchers.workStealingDispatcher) {
+        scope.launch(FlipperDispatchers.blockingDispatcher) {
             while (isActive) {
                 val request = requestStorage.getNextRequest()
                 if (request != null) {

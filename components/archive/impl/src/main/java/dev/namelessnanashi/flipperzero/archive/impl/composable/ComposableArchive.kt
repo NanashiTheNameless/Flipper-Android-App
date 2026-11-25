@@ -9,15 +9,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -26,23 +34,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.namelessnanashi.flipperzero.archive.impl.R
 import dev.namelessnanashi.flipperzero.archive.impl.composable.category.ComposableCategoryCard
-import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ArchiveProgressScreen
 import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ComposableAllKeysTitle
 import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ComposableFavoriteKeysTitle
+import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ComposableFavoritesEditor
+import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ComposableFavoritePathsGrid
 import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ComposableKeysGrid
 import dev.namelessnanashi.flipperzero.archive.impl.model.CategoryItem
+import dev.namelessnanashi.flipperzero.archive.impl.model.FavoriteSaveState
 import dev.namelessnanashi.flipperzero.archive.model.CategoryType
-import dev.namelessnanashi.flipperzero.bridge.connection.transport.common.api.serial.FlipperSerialSpeed
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKey
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKeyPath
 import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationState
 import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationUiApi
+import dev.namelessnanashi.flipperzero.core.ktx.jre.roundPercentToString
 import dev.namelessnanashi.flipperzero.core.ui.ktx.OrangeAppBarWithIcon
+import dev.namelessnanashi.flipperzero.core.ui.ktx.clickableRipple
+import dev.namelessnanashi.flipperzero.core.ui.ktx.elements.ComposableCancelButton
 import dev.namelessnanashi.flipperzero.core.ui.ktx.elements.SwipeRefresh
+import dev.namelessnanashi.flipperzero.core.ui.res.R as DesignSystem
 import dev.namelessnanashi.flipperzero.core.ui.theme.LocalPallet
 import dev.namelessnanashi.flipperzero.core.ui.theme.LocalTypography
 import kotlinx.collections.immutable.ImmutableList
-import dev.namelessnanashi.flipperzero.core.ui.res.R as DesignSystem
 
 @Composable
 fun ComposableArchive(
@@ -53,35 +65,41 @@ fun ComposableArchive(
     keys: ImmutableList<FlipperKey>?,
     synchronizationState: SynchronizationState,
     favoriteKeys: ImmutableList<FlipperKey>,
+    favoritePaths: ImmutableList<FlipperKeyPath>,
     categories: ImmutableList<CategoryItem>,
     deletedCategory: CategoryItem,
     lazyListState: LazyListState,
-    speed: FlipperSerialSpeed?,
-    onRefresh: () -> Unit,
-    cancelSynchronization: () -> Unit
+    favoriteSaveState: FavoriteSaveState,
+    onSaveFavorites: (List<FlipperKeyPath>, () -> Unit) -> Unit,
+    onRefresh: () -> Unit
 ) {
-    val isKeysPresented = favoriteKeys.isNotEmpty() || !keys.isNullOrEmpty()
+    val isKeysPresented = favoritePaths.isNotEmpty() || favoriteKeys.isNotEmpty() || !keys.isNullOrEmpty()
 
-    if (synchronizationState is SynchronizationState.InProgress) {
-        ArchiveProgressScreen(
-            inProgressState = synchronizationState,
-            onCancel = cancelSynchronization,
-            speed = speed
-        )
-    } else {
-        ComposableArchiveReady(
-            synchronizationUiApi = synchronizationUiApi,
-            keys = keys,
-            favoriteKeys = favoriteKeys,
-            onRefresh = onRefresh,
-            synchronizationState = synchronizationState,
-            isKeysPresented = isKeysPresented,
-            onOpenKeyScreen = onOpenKeyScreen,
-            onOpenSearchScreen = onOpenSearchScreen,
-            onOpenCategory = onOpenCategory,
-            categories = categories,
-            deletedCategory = deletedCategory,
-            lazyListState = lazyListState,
+    var showFavoritesEditor by remember { mutableStateOf(false) }
+    ComposableArchiveReady(
+        synchronizationUiApi = synchronizationUiApi,
+        keys = keys,
+        favoriteKeys = favoriteKeys,
+        favoritePaths = favoritePaths,
+        onRefresh = onRefresh,
+        synchronizationState = synchronizationState,
+        isKeysPresented = isKeysPresented,
+        onOpenKeyScreen = onOpenKeyScreen,
+        onOpenSearchScreen = onOpenSearchScreen,
+        onOpenCategory = onOpenCategory,
+        categories = categories,
+        deletedCategory = deletedCategory,
+        lazyListState = lazyListState,
+        onEditFavorites = { showFavoritesEditor = true }
+    )
+    if (showFavoritesEditor) {
+        ComposableFavoritesEditor(
+            favorites = favoritePaths,
+            otherKeys = keys.orEmpty(),
+            syncing = synchronizationState is SynchronizationState.InProgress,
+            saveState = favoriteSaveState,
+            onSave = { paths -> onSaveFavorites(paths) { showFavoritesEditor = false } },
+            onDismiss = { showFavoritesEditor = false }
         )
     }
 }
@@ -91,6 +109,7 @@ private fun ComposableArchiveReady(
     synchronizationUiApi: SynchronizationUiApi,
     keys: ImmutableList<FlipperKey>?,
     favoriteKeys: ImmutableList<FlipperKey>,
+    favoritePaths: ImmutableList<FlipperKeyPath>,
     lazyListState: LazyListState,
     onRefresh: () -> Unit,
     synchronizationState: SynchronizationState,
@@ -100,6 +119,7 @@ private fun ComposableArchiveReady(
     onOpenKeyScreen: (FlipperKeyPath) -> Unit,
     onOpenSearchScreen: () -> Unit,
     onOpenCategory: (CategoryType) -> Unit,
+    onEditFavorites: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -111,6 +131,27 @@ private fun ComposableArchiveReady(
             endIconId = DesignSystem.drawable.ic_search,
             onEndClick = onOpenSearchScreen
         )
+        if (synchronizationState is SynchronizationState.InProgress) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .clickableRipple(onClick = synchronizationUiApi::showSynchronizationDialog)
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                CircularProgressIndicator(Modifier.size(20.dp), color = LocalPallet.current.text100, strokeWidth = 2.dp)
+                Text(
+                    text = stringResource(R.string.archive_sync_percent, synchronizationState.progress.roundPercentToString()),
+                    style = LocalTypography.current.bodyM14,
+                    color = LocalPallet.current.text100
+                )
+                Text(
+                    text = stringResource(R.string.archive_sync_show_status),
+                    style = LocalTypography.current.bodyM14,
+                    color = LocalPallet.current.text60
+                )
+            }
+        }
         SwipeRefresh(onRefresh = onRefresh) {
             LazyColumn(
                 modifier = Modifier
@@ -124,9 +165,18 @@ private fun ComposableArchiveReady(
                         deletedCategory = deletedCategory
                     )
                 }
+                item {
+                    ComposableCancelButton(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                        text = stringResource(R.string.archive_edit_favorites),
+                        onClick = onEditFavorites
+                    )
+                }
                 if (isKeysPresented) {
                     KeyCatalog(
                         favoriteKeys = favoriteKeys,
+                        favoritePaths = favoritePaths,
+                        onManageFavorites = onEditFavorites,
                         otherKeys = keys,
                         synchronizationUiApi = synchronizationUiApi,
                         synchronizationState = synchronizationState,
@@ -148,20 +198,24 @@ private fun ComposableArchiveReady(
 @Suppress("FunctionName")
 private fun LazyListScope.KeyCatalog(
     favoriteKeys: List<FlipperKey>,
+    favoritePaths: List<FlipperKeyPath>,
+    onManageFavorites: () -> Unit,
     otherKeys: List<FlipperKey>?,
     synchronizationUiApi: SynchronizationUiApi,
     synchronizationState: SynchronizationState,
     onKeyOpen: (FlipperKeyPath) -> Unit
 ) {
-    if (favoriteKeys.isNotEmpty()) {
+    if (favoritePaths.isNotEmpty()) {
         item {
             ComposableFavoriteKeysTitle()
         }
-        ComposableKeysGrid(
-            favoriteKeys,
-            synchronizationUiApi,
-            synchronizationState,
-            onKeyOpen
+        ComposableFavoritePathsGrid(
+            paths = favoritePaths,
+            knownKeys = favoriteKeys,
+            synchronizationUiApi = synchronizationUiApi,
+            synchronizationState = synchronizationState,
+            onKeyOpen = onKeyOpen,
+            onManageFavorites = onManageFavorites
         )
     }
 

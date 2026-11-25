@@ -283,6 +283,7 @@ dependencies {
 
     implementation(libs.annotations)
     implementation(libs.ktx)
+    implementation(libs.kotlin.immutable.collections)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.work.ktx)

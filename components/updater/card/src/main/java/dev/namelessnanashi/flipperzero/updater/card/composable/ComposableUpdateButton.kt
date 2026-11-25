@@ -1,7 +1,10 @@
 package dev.namelessnanashi.flipperzero.updater.card.composable
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,9 +21,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import dev.namelessnanashi.flipperzero.core.ui.dialog.composable.multichoice.FlipperMultiChoiceDialog
+import dev.namelessnanashi.flipperzero.core.ui.dialog.composable.multichoice.FlipperMultiChoiceDialogModel
+import dev.namelessnanashi.flipperzero.core.ui.dialog.composable.multichoice.addButton
+import dev.namelessnanashi.flipperzero.core.ui.dialog.composable.multichoice.setDescription
+import dev.namelessnanashi.flipperzero.core.ui.dialog.composable.multichoice.setTitle
 import dev.namelessnanashi.flipperzero.core.ui.ktx.clickableRipple
 import dev.namelessnanashi.flipperzero.core.ui.ktx.placeholderConnecting
 import dev.namelessnanashi.flipperzero.core.ui.theme.LocalPallet
@@ -32,6 +42,7 @@ import dev.namelessnanashi.flipperzero.updater.card.viewmodel.UpdateRequestViewM
 import dev.namelessnanashi.flipperzero.updater.model.UpdateCardState
 import dev.namelessnanashi.flipperzero.updater.model.UpdateRequest
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ComposableUpdateButton(
     updateRequestViewModel: UpdateRequestViewModel,
@@ -60,12 +71,42 @@ fun ComposableUpdateButton(
     when (updateCardState) {
         is UpdateCardState.Error -> return
         UpdateCardState.InProgress -> return
-        is UpdateCardState.NoUpdate -> ComposableUpdateButtonContent(
-            buttonModifier = buttonModifier,
-            textId = R.string.updater_card_updater_button_no_updates,
-            descriptionId = R.string.updater_card_updater_button_no_updates_desc,
-            color = LocalPallet.current.text20
-        )
+        is UpdateCardState.NoUpdate -> {
+            // Fork: long press offers reinstalling the current build ("Update anyway")
+            val reinstall = updateCardState.reinstall
+            var showUpdateAnyway by remember { mutableStateOf(false) }
+            if (reinstall != null) {
+                val haptic = LocalHapticFeedback.current
+                buttonModifier = buttonModifier
+                    .clip(RoundedCornerShape(9.dp))
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            showUpdateAnyway = true
+                        }
+                    )
+            }
+            if (showUpdateAnyway && reinstall != null) {
+                ComposableUpdateAnywayDialog(
+                    onConfirm = {
+                        showUpdateAnyway = false
+                        pendingUpdateRequest = UpdatePending.Request(reinstall)
+                    },
+                    onDismiss = { showUpdateAnyway = false }
+                )
+            }
+            ComposableUpdateButtonContent(
+                buttonModifier = buttonModifier,
+                textId = R.string.updater_card_updater_button_no_updates,
+                descriptionId = if (reinstall != null) {
+                    R.string.updater_card_updater_button_no_updates_hold_desc
+                } else {
+                    R.string.updater_card_updater_button_no_updates_desc
+                },
+                color = LocalPallet.current.text30
+            )
+        }
 
         is UpdateCardState.UpdateFromFile -> ComposableUpdateButtonContentChooseFile(
             modifier = buttonModifier,
@@ -83,18 +124,32 @@ fun ComposableUpdateButton(
                     buttonModifier = buttonModifier,
                     textId = R.string.updater_card_updater_button_install,
                     descriptionId = R.string.updater_card_updater_button_install_desc,
-                    color = LocalPallet.current.accent
+                    color = LocalPallet.current.text100
                 )
             } else {
                 ComposableUpdateButtonContent(
                     buttonModifier = buttonModifier,
                     textId = R.string.updater_card_updater_button_update,
                     descriptionId = R.string.updater_card_updater_button_update_desc,
-                    color = LocalPallet.current.updateProgressGreen
+                    color = LocalPallet.current.text100
                 )
             }
         }
     }
+}
+
+@Composable
+private fun ComposableUpdateAnywayDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    val model = remember(onConfirm, onDismiss) {
+        FlipperMultiChoiceDialogModel.Builder()
+            .setTitle(R.string.updater_card_update_anyway_title)
+            .setDescription(R.string.updater_card_update_anyway_desc)
+            .setOnDismissRequest(onDismiss)
+            .addButton(R.string.updater_card_update_anyway_button, onConfirm, isActive = true)
+            .addButton(R.string.updater_card_update_anyway_cancel, onDismiss)
+            .build()
+    }
+    FlipperMultiChoiceDialog(model = model)
 }
 
 @Composable
@@ -122,10 +177,12 @@ fun ComposableUpdateButtonContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
+            // Fork: outlined like the app's other buttons (was a filled block)
             modifier = buttonModifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(9.dp))
-                .background(color),
+                .background(LocalPallet.current.background)
+                .border(2.dp, color, RoundedCornerShape(9.dp)),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -133,7 +190,7 @@ fun ComposableUpdateButtonContent(
                 text = stringResource(textId),
                 textAlign = TextAlign.Center,
                 style = LocalTypography.current.updateButton40,
-                color = LocalPallet.current.onFirmwareUpdateButton
+                color = color
             )
         }
         Text(

@@ -37,7 +37,7 @@ class FFileUploadApiImpl(
         fileOnAndroid: Path,
         priority: StorageRequestPriority,
         progressListener: FixedProgressListener?
-    ) = withContext(FlipperDispatchers.workStealingDispatcher) {
+    ) = withContext(FlipperDispatchers.blockingDispatcher) {
         runCatching {
             fileSystem.source(fileOnAndroid).buffer().use { source ->
                 sink(pathOnFlipper, priority).use { sink ->

@@ -6,6 +6,8 @@ import dev.namelessnanashi.flipperzero.bridge.dao.api.delegates.FavoriteApi
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperFile
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperFilePath
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKey
+import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKeyPath
+import dev.namelessnanashi.flipperzero.bridge.synchronization.impl.repository.flipper.FlipperFavoritesRepositoryImpl
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKeyContent
 import dev.namelessnanashi.flipperzero.bridge.synchronization.impl.executor.FlipperKeyStorage
 import dev.namelessnanashi.flipperzero.bridge.synchronization.impl.repository.FavoriteSynchronization
@@ -45,7 +47,9 @@ class FavoriteSynchronizationTestSingle {
 
     @Before
     fun setUp() {
-        favoriteApi = mockk()
+        favoriteApi = mockk {
+            coEvery { getFavoritePaths() } coAnswers { getFavorites().map { it.getKeyPath() } }
+        }
         flipperStorage = mockk()
         favoritesRepository = mockk()
 
@@ -66,7 +70,7 @@ class FavoriteSynchronizationTestSingle {
 
     @Test
     @Suppress("LongMethod")
-    fun `on similar manifest nothing happes`() = runTest {
+    fun `legacy key-only favorites import uncached paths without changing flipper order`() = runTest {
         val manifestFavorites = listOf(
             FlipperFilePath("test", "test.ibtn"),
             FlipperFilePath("test", "test2.nfc"),
@@ -115,9 +119,11 @@ class FavoriteSynchronizationTestSingle {
             )
         }
 
+        coEvery { favoritesRepository.applyDiff(any(), any(), any()) } returns favoritesFromFlipper
+        coEvery { favoriteApi.updateFavorites(any()) } answers { firstArg() }
         underTest.syncFavorites(detailedProgressWrapperTrackerStub())
 
-        coVerify(exactly = 0) {
+        coVerify(exactly = 1) {
             favoritesRepository.applyDiff(
                 flipperKeyStorage = any(),
                 oldFavorites = any(),
@@ -125,13 +131,72 @@ class FavoriteSynchronizationTestSingle {
             )
         }
 
-        coVerify(exactly = 0) {
-            favoriteApi.updateFavorites(any())
+        coVerify(exactly = 1) {
+            favoriteApi.updateFavorites(favoritesFromFlipper.map { FlipperKeyPath(it, false) })
         }
 
         val manifestFile = manifestStorage.load()
         Assert.assertNotNull(manifestFile)
-        Assert.assertEquals(manifestFavorites, manifestFile!!.favorites)
+        Assert.assertEquals(manifestFlipper, manifestFile!!.favorites)
         Assert.assertEquals(manifestFlipper, manifestFile.favoritesFromFlipper)
     }
+    @Test
+    fun `phone reorder reaches flipper without adding or removing favorites`() = runTest {
+        checkOrderSync(phoneReordered = true)
+    }
+
+    @Test
+    fun `flipper reorder reaches phone without rewriting flipper favorites`() = runTest {
+        checkOrderSync(phoneReordered = false)
+    }
+
+    private suspend fun checkOrderSync(phoneReordered: Boolean) {
+        val garage = FlipperFilePath("subghz", "Garage.sub")
+        val gate = FlipperFilePath("subghz", "Gate.sub")
+        val unknown = FlipperFilePath("apps", "Unknown.fap")
+        val original = listOf(garage, gate)
+        val reordered = listOf(gate, garage)
+        manifestStorage.update {
+            it.copy(favorites = original, favoritesFromFlipper = listOf(garage, unknown, gate))
+        }
+        var content = (if (phoneReordered) listOf(garage, unknown, gate) else listOf(gate, unknown, garage))
+            .joinToString("\n", postfix = "\n") { it.getPathOnFlipper() }.toByteArray()
+        coEvery { flipperStorage.loadFile(any()) } answers { FlipperKeyContent.RawData(content) }
+        coEvery { flipperStorage.saveFile(any(), any()) } answers {
+            content = secondArg<FlipperKeyContent.RawData>().bytes
+        }
+        coEvery { favoriteApi.getFavorites() } returns (if (phoneReordered) reordered else original).map {
+            FlipperKey(FlipperFile(it, FlipperKeyContent.RawData(byteArrayOf())), synchronized = true, deleted = false)
+        }
+        coEvery { favoriteApi.updateFavorites(any()) } answers {
+            firstArg<List<FlipperKeyPath>>().filter { it.path != unknown }
+        }
+        val sync = FavoriteSynchronizationImpl(favoriteApi, manifestRepository, flipperStorage, FlipperFavoritesRepositoryImpl())
+
+        sync.syncFavorites(detailedProgressWrapperTrackerStub())
+
+        Assert.assertEquals(reordered, manifestStorage.load()!!.favorites)
+        Assert.assertEquals(listOf(gate, unknown, garage), manifestStorage.load()!!.favoritesFromFlipper)
+        Assert.assertEquals("/ext/subghz/Gate.sub\n/ext/apps/Unknown.fap\n/ext/subghz/Garage.sub\n", content.decodeToString())
+        coVerify(exactly = if (phoneReordered) 1 else 0) { flipperStorage.saveFile(any(), any()) }
+    }
+
+    @Test
+    fun `remote favorites are imported even when no key membership changed`() = runTest {
+        val bedroom = FlipperFilePath("subghz", "remote/BedRoom.txt")
+        val workroom = FlipperFilePath("subghz", "remote/WorkRoom.txt")
+        val garage = FlipperFilePath("subghz", "Garage.sub")
+        val full = listOf(bedroom, garage, workroom)
+        manifestStorage.update { it.copy(favorites = listOf(garage), favoritesFromFlipper = full) }
+        coEvery { favoritesRepository.getFavorites(any()) } returns full
+        coEvery { favoritesRepository.applyDiff(any(), any(), any()) } returns full
+        coEvery { favoriteApi.getFavoritePaths() } returns listOf(FlipperKeyPath(garage, false))
+        coEvery { favoriteApi.updateFavorites(any()) } answers { firstArg() }
+
+        underTest.syncFavorites(detailedProgressWrapperTrackerStub())
+
+        coVerify { favoriteApi.updateFavorites(full.map { FlipperKeyPath(it, false) }) }
+        Assert.assertEquals(full, manifestStorage.load()!!.favorites)
+    }
+
 }

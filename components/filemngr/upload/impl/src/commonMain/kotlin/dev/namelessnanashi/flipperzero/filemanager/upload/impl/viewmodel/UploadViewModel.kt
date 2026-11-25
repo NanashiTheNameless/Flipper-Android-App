@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -60,10 +61,9 @@ class UploadViewModel @Inject constructor(
     private var lastJob: Job? = null
 
     fun onCancel() {
-        viewModelScope.launch {
-            lastJob?.cancelAndJoin()
-            _state.update { State.Cancelled }
-        }
+        // Fork: the screen reacts at once; the upload cleans up (temp file) in the background
+        lastJob?.cancel()
+        _state.update { State.Cancelled }
     }
 
     @Suppress("LongParameterList")
@@ -175,6 +175,8 @@ class UploadViewModel @Inject constructor(
                                 folderPath = folderPath,
                             ).getOrNull().let(::listOf).filterNotNull()
                             storageProvider.fileSystem.delete(temporaryFile)
+                            // A cancelled upload must not report success over "Cancelled"
+                            ensureActive()
                             _state.emit(State.Uploaded(uploadedItems))
                         }
                     }
@@ -233,6 +235,8 @@ class UploadViewModel @Inject constructor(
                                 ).getOrNull()
                             }.filterNotNull()
 
+                            // A cancelled upload must not report success over "Cancelled"
+                            ensureActive()
                             _state.emit(State.Uploaded(uploadedItems))
                         }
                     }

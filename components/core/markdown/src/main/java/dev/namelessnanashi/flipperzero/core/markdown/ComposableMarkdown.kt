@@ -64,8 +64,9 @@ fun markdownTypography(
     h6Style: TextStyle = LocalTypography.current.bodySB14,
     inlineCode: TextStyle = LocalTypography.current.monoSpaceM14,
     listStyle: TextStyle = LocalTypography.current.bodyR14,
+    // Fork: links in the main text colour (they rendered nearly invisible on the dark theme)
     linkStyle: TextStyle = LocalTypography.current.bodyR14.copy(
-        color = LocalPallet.current.accentSecond,
+        color = LocalPallet.current.text100,
         textDecoration = TextDecoration.Underline
     ),
     orderedStyle: TextStyle = LocalTypography.current.bodyR14,

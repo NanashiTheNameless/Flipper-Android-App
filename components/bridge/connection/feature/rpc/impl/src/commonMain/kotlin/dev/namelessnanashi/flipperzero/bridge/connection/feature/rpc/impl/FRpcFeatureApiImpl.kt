@@ -18,6 +18,7 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
@@ -99,7 +100,10 @@ class FRpcFeatureApiImpl @AssistedInject constructor(
         // Generate unique ID for each command
         val uniqueId = findEmptyId()
 
-        val commandAnswerJob = scope.async {
+        // Fork: UNDISPATCHED registers the answer listener before the request is sent. With a
+        // dispatched async the listener could still be unregistered when the answer arrived
+        // (~3 ms over USB), the answer was dropped as "without id" and the caller waited forever
+        val commandAnswerJob = scope.async(start = CoroutineStart.UNDISPATCHED) {
             val result = awaitCommandAnswer(uniqueId)
             return@async result
         }
@@ -133,7 +137,10 @@ class FRpcFeatureApiImpl @AssistedInject constructor(
         // This is dirty way to understand if request is finished correctly with response
         var isFinished = false
 
-        val commandAnswerJob = scope.async {
+        // Fork: UNDISPATCHED registers the answer listener before the request is sent. With a
+        // dispatched async the listener could still be unregistered when the answer arrived
+        // (~3 ms over USB), the answer was dropped as "without id" and the caller waited forever
+        val commandAnswerJob = scope.async(start = CoroutineStart.UNDISPATCHED) {
             val result = awaitCommandAnswer(uniqueId)
             isFinished = true
             return@async result

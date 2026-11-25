@@ -71,6 +71,8 @@ class SynchronizationApiImpl @Inject constructor(
 
     override suspend fun stop() {
         markDirty = false
+        // Fork: the UI shows it stopped at once; the task's own Finished still resets isLaunched
+        synchronizationState.value = SynchronizationState.Finished
         synchronizationTask?.onStop()
     }
 

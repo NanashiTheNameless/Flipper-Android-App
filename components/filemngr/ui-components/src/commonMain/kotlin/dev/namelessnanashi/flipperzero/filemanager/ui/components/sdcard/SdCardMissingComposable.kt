@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -68,10 +67,7 @@ fun SdCardMissingComposable(modifier: Modifier = Modifier) {
         ) {
             Icon(
                 painter = painterResource(
-                    when {
-                        MaterialTheme.colors.isLight -> FR.drawable.ic_sd_card_error_black
-                        else -> FR.drawable.ic_sd_card_error_white
-                    }
+                    FR.drawable.ic_sd_card_error_white
                 ),
                 tint = Color.Unspecified,
                 contentDescription = null,

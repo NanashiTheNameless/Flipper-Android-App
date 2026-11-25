@@ -36,6 +36,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -234,7 +235,8 @@ class FapManifestsLoader @AssistedInject constructor(
 
     private suspend fun loadManifestFile(
         filePath: String
-    ): ByteArray? = coroutineScope {
+    ): ByteArray? = withContext(FlipperDispatchers.blockingDispatcher) {
+        // Blocking read: keep it off the shared pool
         fFeatureProvider
             .getSync<FStorageFeatureApi>()
             ?.downloadApi()

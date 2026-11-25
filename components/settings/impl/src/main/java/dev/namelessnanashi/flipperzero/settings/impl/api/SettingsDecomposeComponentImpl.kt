@@ -7,6 +7,7 @@ import com.arkivanov.decompose.value.Value
 import dev.namelessnanashi.flipperzero.core.di.AppGraph
 import dev.namelessnanashi.flipperzero.debug.api.StressTestDecomposeComponent
 import dev.namelessnanashi.flipperzero.filemanager.main.api.FileManagerDecomposeComponent
+import dev.namelessnanashi.flipperzero.firstpair.api.ConnectionGuideDecomposeComponent
 import dev.namelessnanashi.flipperzero.settings.api.SettingsDecomposeComponent
 import dev.namelessnanashi.flipperzero.settings.impl.model.SettingsNavigationConfig
 import dev.namelessnanashi.flipperzero.ui.decompose.DecomposeComponent
@@ -23,7 +24,8 @@ class SettingsDecomposeComponentImpl @AssistedInject constructor(
     @Assisted private val onBack: DecomposeOnBackParameter,
     private val fileManagerComponentFactory: FileManagerDecomposeComponent.Factory,
     private val mainComponentFactory: MainScreenDecomposeComponent.Factory,
-    private val stressTestFactory: StressTestDecomposeComponent.Factory
+    private val stressTestFactory: StressTestDecomposeComponent.Factory,
+    private val connectionGuideFactory: ConnectionGuideDecomposeComponent.Factory
 ) : SettingsDecomposeComponent<SettingsNavigationConfig>(), ComponentContext by componentContext {
 
     override val stack: Value<ChildStack<SettingsNavigationConfig, DecomposeComponent>> =
@@ -51,5 +53,11 @@ class SettingsDecomposeComponentImpl @AssistedInject constructor(
         )
 
         SettingsNavigationConfig.StressTest -> stressTestFactory(componentContext)
+
+        SettingsNavigationConfig.ConnectionGuide -> connectionGuideFactory(
+            componentContext = componentContext,
+            onBack = { navigation.popOr(onBack::invoke) },
+            onUsbConnected = null
+        )
     }
 }

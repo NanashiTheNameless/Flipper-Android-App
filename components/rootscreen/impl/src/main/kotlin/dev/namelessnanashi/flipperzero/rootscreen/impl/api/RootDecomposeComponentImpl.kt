@@ -13,6 +13,7 @@ import com.arkivanov.decompose.router.stack.navigate
 import com.arkivanov.decompose.router.stack.pushToFront
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
+import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationUiApi
 import dev.namelessnanashi.flipperzero.bottombar.api.BottomBarDecomposeComponent
 import dev.namelessnanashi.flipperzero.changelog.api.ChangelogScreenDecomposeComponent
 import dev.namelessnanashi.flipperzero.core.di.AppGraph
@@ -21,6 +22,7 @@ import dev.namelessnanashi.flipperzero.deeplink.model.Deeplink
 import dev.namelessnanashi.flipperzero.faphub.screenshotspreview.api.ScreenshotsPreviewDecomposeComponent
 import dev.namelessnanashi.flipperzero.firstpair.api.FirstPairApi
 import dev.namelessnanashi.flipperzero.firstpair.api.FirstPairDecomposeComponent
+import dev.namelessnanashi.flipperzero.firstpair.api.ForkNoticeDecomposeComponent
 import dev.namelessnanashi.flipperzero.keyscreen.api.KeyScreenDecomposeComponent
 import dev.namelessnanashi.flipperzero.rootscreen.api.RootDecomposeComponent
 import dev.namelessnanashi.flipperzero.rootscreen.impl.deeplink.RootDeeplinkHandler
@@ -47,9 +49,11 @@ class RootDecomposeComponentImpl @AssistedInject constructor(
     @Assisted initialDeeplink: Deeplink?,
     private val firstPairApi: FirstPairApi,
     private val firstPairFactory: FirstPairDecomposeComponent.Factory,
+    private val forkNoticeFactory: ForkNoticeDecomposeComponent.Factory,
     private val bottomBarFactory: BottomBarDecomposeComponent.Factory,
     private val updaterFactory: UpdaterDecomposeComponent.Factory,
     private val updaterApi: UpdaterApi,
+    private val synchronizationUiApi: SynchronizationUiApi,
     private val screenStreamingFactory: ScreenStreamingDecomposeComponent.Factory,
     private val widgetScreenFactory: WidgetDecomposeComponent.Factory,
     private val receiveKeyFactory: KeyReceiveDecomposeComponent.Factory,
@@ -92,6 +96,11 @@ class RootDecomposeComponentImpl @AssistedInject constructor(
             componentContext = componentContext,
             updateRequest = config.updateRequest,
             onBack = this::internalOnBack
+        )
+
+        RootScreenConfig.ForkNotice -> forkNoticeFactory(
+            componentContext = componentContext,
+            onClose = this::internalOnBack
         )
 
         RootScreenConfig.ScreenStreaming -> screenStreamingFactory(
@@ -142,6 +151,10 @@ class RootDecomposeComponentImpl @AssistedInject constructor(
             stack.add(RootScreenConfig.UpdateScreen(null))
         }
 
+        if (firstPairApi.consumeForkNoticeOnStart()) {
+            stack.add(RootScreenConfig.ForkNotice)
+        }
+
         return stack
     }
 
@@ -172,6 +185,9 @@ class RootDecomposeComponentImpl @AssistedInject constructor(
             stack = childStack,
         ) {
             it.instance.Render()
+        }
+        if (childStack.active.configuration is RootScreenConfig.BottomBar) {
+            synchronizationUiApi.RenderSynchronizationDialog()
         }
     }
 }

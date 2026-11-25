@@ -37,7 +37,7 @@ class FavoriteSynchronizationImpl @Inject constructor(
             current = 0.5f,
             detail = FavoriteSynchronization.FavoritesProgressDetail
         )
-        val favoritesFromAndroid = favoriteApi.getFavorites().map { it.path }
+        val favoritesFromAndroid = favoriteApi.getFavoritePaths().map { it.path }
         val diffWithManifestAndFlipper = manifestRepository
             .compareFlipperFavoritesWithManifest(favoritesFromFlipper)
         val diffWithManifestAndAndroid = manifestRepository
@@ -57,7 +57,14 @@ class FavoriteSynchronizationImpl @Inject constructor(
         ).sortedBy { it.action }
         info { "Favorites diff is $combinedDiff" }
 
-        if (combinedDiff.isEmpty()) {
+        val previousAndroidFavorites = manifestRepository.getFavorites()
+        val androidOrderChanged = !previousAndroidFavorites.isNullOrEmpty() &&
+            favoritesFromAndroid != previousAndroidFavorites
+        val knownKeys = favoritesFromAndroid.toSet()
+        val flipperOrderChanged = favoritesFromFlipper.filter { it in knownKeys } != favoritesFromAndroid
+
+        val hasUntrackedFiles = favoritesFromFlipper.any { it !in knownKeys }
+        if (combinedDiff.isEmpty() && !androidOrderChanged && !flipperOrderChanged && !hasUntrackedFiles) {
             manifestRepository.updateManifest(
                 favorites = favoritesFromAndroid,
                 favoritesOnFlipper = favoritesFromFlipper
@@ -67,11 +74,16 @@ class FavoriteSynchronizationImpl @Inject constructor(
 
         val diffForFlipper = combinedDiff
             .filter { it.source == DiffSource.ANDROID }
-        val newFavoritesOnFlipper = favoritesRepository.applyDiff(
+        val mergedFavorites = favoritesRepository.applyDiff(
             flipperStorage,
             favoritesFromFlipper,
             diffForFlipper
         ) // Update on Flipper
+        val newFavoritesOnFlipper = if (androidOrderChanged) {
+            favoritesRepository.reorderFavorites(flipperStorage, mergedFavorites, favoritesFromAndroid)
+        } else {
+            mergedFavorites
+        }
         val favoritesOnAndroid = favoriteApi.updateFavorites(
             newFavoritesOnFlipper.map {
                 FlipperKeyPath(path = it, deleted = false)

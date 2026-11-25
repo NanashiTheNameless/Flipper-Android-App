@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
@@ -89,7 +90,13 @@ class AnnotatedStringRenderer(
         )
 
         addLink(
-            url = LinkAnnotation.Url(url.toString()),
+            // Fork: explicit link style, or a theme default colour can override the span's
+            url = LinkAnnotation.Url(
+                url = url.toString(),
+                styles = TextLinkStyles(
+                    style = SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline)
+                )
+            ),
             start = startIndex,
             end = endIndex
         )

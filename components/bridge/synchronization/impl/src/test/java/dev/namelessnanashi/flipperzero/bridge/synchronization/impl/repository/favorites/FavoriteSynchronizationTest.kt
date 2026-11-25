@@ -51,6 +51,7 @@ class FavoriteSynchronizationTest(
     @Before
     fun setUp() {
         favoriteApi = mockk {
+            coEvery { getFavoritePaths() } coAnswers { getFavorites().map { it.getKeyPath() } }
             coEvery { updateFavorites(any()) } coAnswers {
                 (args[0] as List<*>).map { it as FlipperKeyPath }.filterNot {
                     it.path.nameWithoutExtension.startsWith("notExistedKey")
@@ -59,6 +60,12 @@ class FavoriteSynchronizationTest(
         }
         flipperStorage = mockk()
         favoritesRepository = mockk {
+            coEvery { reorderFavorites(any(), any(), any()) } coAnswers {
+                val old = secondArg<List<FlipperFilePath>>()
+                val ordered = thirdArg<List<FlipperFilePath>>().filter { it in old }
+                val iterator = ordered.iterator()
+                old.map { if (it in ordered) iterator.next() else it }
+            }
             coEvery { applyDiff(any(), any(), any()) } coAnswers {
                 val oldFavorites = (args[1] as List<*>).map { it as FlipperFilePath }
                 val favoritesDiff = (args[2] as List<*>).map { it as KeyDiff }

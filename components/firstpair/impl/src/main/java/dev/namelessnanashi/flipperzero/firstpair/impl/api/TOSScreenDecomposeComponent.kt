@@ -3,7 +3,6 @@ package dev.namelessnanashi.flipperzero.firstpair.impl.api
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.ComponentContext
 import dev.namelessnanashi.flipperzero.firstpair.impl.composable.tos.ComposableTOS
-import dev.namelessnanashi.flipperzero.firstpair.impl.storage.FirstPairStorage
 import dev.namelessnanashi.flipperzero.ui.decompose.ScreenDecomposeComponent
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -11,8 +10,7 @@ import dev.zacsweers.metro.AssistedInject
 
 class TOSScreenDecomposeComponent @AssistedInject constructor(
     @Assisted componentContext: ComponentContext,
-    @Assisted private val onApply: () -> Unit,
-    private val firstPairStorage: FirstPairStorage
+    @Assisted private val onApply: () -> Unit
 ) : ScreenDecomposeComponent(componentContext) {
 
     @Composable
@@ -20,7 +18,8 @@ class TOSScreenDecomposeComponent @AssistedInject constructor(
     override fun Render() {
         ComposableTOS(
             onApplyPress = {
-                firstPairStorage.markTosPassed()
+                // Seen it just now: don't open the start-up notice right after
+                ForkNoticeSession.markShown()
                 onApply()
             }
         )

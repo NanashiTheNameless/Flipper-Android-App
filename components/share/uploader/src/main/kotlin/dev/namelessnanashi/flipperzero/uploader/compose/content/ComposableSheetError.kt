@@ -3,7 +3,6 @@ package dev.namelessnanashi.flipperzero.uploader.compose.content
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -81,17 +80,9 @@ private fun getDescriptionByShareError(typeError: ShareError): Int {
 @DrawableRes
 @Composable
 private fun getImageByShareError(typeError: ShareError): Int {
-    return if (isSystemInDarkTheme()) {
-        when (typeError) {
+    return when (typeError) {
             ShareError.NO_INTERNET_CONNECTION -> DesignSystem.drawable.ic_no_internet_dark
             ShareError.CANT_CONNECT_TO_SERVER -> DesignSystem.drawable.ic_server_error_dark
             ShareError.OTHER -> DesignSystem.drawable.ic_warning_triangle
         }
-    } else {
-        when (typeError) {
-            ShareError.NO_INTERNET_CONNECTION -> DesignSystem.drawable.ic_no_internet
-            ShareError.CANT_CONNECT_TO_SERVER -> DesignSystem.drawable.ic_server_error
-            ShareError.OTHER -> DesignSystem.drawable.ic_warning_triangle
-        }
-    }
 }

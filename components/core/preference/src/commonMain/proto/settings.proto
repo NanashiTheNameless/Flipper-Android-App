@@ -16,11 +16,7 @@ enum SelectedChannel {
   DEV = 2;
 }
 
-enum SelectedTheme {
-  SYSTEM = 0;
-  DARK = 1;
-  LIGHT = 2;
-}
+
 
 enum SelectedCatalogSort {
   UPDATE_AT_DESC = 0;
@@ -60,7 +56,8 @@ message Settings {
   bool always_update = 8;
   SelectedChannel selected_channel = 10;
   string uuid = 11;
-  SelectedTheme selected_theme = 13;
+  reserved 13;
+  reserved "selected_theme";
   bool expert_mode = 14;
   bool ignore_subghz_provisioning_on_zero_region = 15;
   bool skip_auto_sync_in_debug = 17;
@@ -80,4 +77,8 @@ message Settings {
   bool disabled_experimental_functions = 35;
   // Fork: app catalog lists show only apps that are not installed
   bool faphub_only_not_installed = 36;
+  // Fork: skip the unofficial-build notice that otherwise opens on every app start
+  bool hide_fork_notice_on_start = 37;
+  // Full favorites order, including firmware favorites that are not ordinary key files.
+  repeated string favorite_paths = 38;
 }

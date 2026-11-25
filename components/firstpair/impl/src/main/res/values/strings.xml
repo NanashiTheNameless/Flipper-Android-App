@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="firstpair_tos_title">Turn On Bluetooth \non your Flipper</string>
-    <string name="firstpair_tos_description">Settings > Bluetooth > Switch On</string>
-    <string name="firstpair_tos_button">Connect</string>
-    <string name="firstpair_tos_footer">By tapping Connect you agree with our [Terms Of Service](https://flipp.dev/flipper-app-terms-of-service) and [Privacy Policy](https://flipp.dev/flipper-app-privacy-policy)</string>
+    <!-- Fork: first launch notice -->
+    <string name="firstpair_fork_title">Unofficial fork</string>
+    <string name="firstpair_fork_intro">This is NamelessNanashi\'s personal build of the Flipper Zero app.</string>
+    <string name="firstpair_fork_point_1">It is not made, endorsed or supported by Flipper Devices. Don\'t contact their support about it.</string>
+    <string name="firstpair_fork_point_2">It is built for Momentum firmware and comes with no warranty. Use it at your own risk and keep a backup of your SD card.</string>
+    <string name="firstpair_fork_point_3">It collects no data. The app catalog, remotes and key sharing still use Flipper Devices\' servers.</string>
+    <string name="firstpair_fork_point_4">Updates come from GitHub releases (Obtainium), not Google Play.</string>
+    <string name="firstpair_fork_button">I understand</string>
+    <string name="firstpair_fork_source_title">Source code</string>
+    <string name="firstpair_fork_source">View on GitHub</string>
+    <string name="firstpair_fork_source_url" translatable="false">https://github.com/NanashiTheNameless/Flipper-Android-App</string>
+    <string name="firstpair_fork_support">Support the developer</string>
     <string name="firstpair_search_flipper_status">Flipper status</string>
     <string name="firstpair_search_flipper_model_zero">Flipper Zero</string>
     <string name="firstpair_search_connect_button">Connect</string>
     <string name="firstpair_search_back">Back</string>
     <string name="firstpair_search_title">Connect your Flipper</string>
     <string name="firstpair_search_title_status_text">Searching</string>
-    <string name="firstpair_search_title_help">Help</string>
+    <string name="firstpair_search_title_help">Guide</string>
+    <string name="firstpair_search_how_ble">Bluetooth: on the Flipper, Settings > Bluetooth > ON, then pick it below.</string>
+    <string name="firstpair_search_how_usb">USB (faster): plug the Flipper into this phone with a data cable, then tap the button below. No pairing needed.</string>
+    <string name="firstpair_search_use_usb">Connect with USB cable</string>
     <string name="firstpair_search_skip_connection">Skip Connection</string>
     <string name="firstpair_search_loader_text">Turn On Bluetooth on your Flipper</string>
 
@@ -35,19 +46,50 @@
     <string name="firstpair_retry_dialog_retry_btn">Retry</string>
     <string name="firstpair_retry_dialog_cancel_btn">Cancel</string>
 
-    <string name="firstpair_help_title">Can’t Find your Flipper?</string>
-    <string name="firstpair_help_1_title">Check the name of your Flipper</string>
-    <string name="firstpair_help_1_description">[How to know the name of Flipper](https://flipp.dev/passport)</string>
-    <string name="firstpair_help_2_title">Make sure Bluetooth on your Flipper is turned on.</string>
-    <string name="firstpair_help_2_description">[How to turn On Bluetooth on Flipper](https://flipp.dev/bluetooth-on)</string>
-    <string name="firstpair_help_3_title">Check Bluetooth connection on your phone.</string>
-    <string name="firstpair_help_3_description">Go to Bluetooth settings</string>
-    <string name="firstpair_help_4_title">Disconnect your Flipper from other apps and devices.</string>
-    <string name="firstpair_help_5_title">Install the latest firmware version on Flipper. It’s important to update regularly.</string>
-    <string name="firstpair_help_5_description">[How to install the firmware](https://flipp.dev/firmware-update)</string>
-    <string name="firstpair_help_6_title">Check that you have the latest version of the Flipper App installed.</string>
-    <string name="firstpair_help_6_description">Go to Play Market</string>
-    <string name="firstpair_help_7_title">Try to reboot your Flipper.</string>
-    <string name="firstpair_help_7_description">[How to reboot Flipper](https://flipp.dev/reboot)</string>
 
+    <!-- Fork: connection guide (Bluetooth and USB) -->
+    <string name="firstpair_guide_title">Connection Guide</string>
+    <string name="firstpair_guide_ble_title">Bluetooth</string>
+    <string name="firstpair_guide_ble_intro">Wireless. Pair once, then the app reconnects on its own whenever the Flipper is nearby.</string>
+    <string name="firstpair_guide_ble_1_title">Turn on Bluetooth on the Flipper</string>
+    <string name="firstpair_guide_ble_1_desc">On the Flipper: Settings → Bluetooth → Bluetooth: ON.</string>
+    <string name="firstpair_guide_ble_1_link">[How to turn on Bluetooth on the Flipper](https://flipp.dev/bluetooth-on)</string>
+    <string name="firstpair_guide_ble_2_title">Turn on Bluetooth on the phone</string>
+    <string name="firstpair_guide_ble_2_desc">Allow the Nearby devices permission when the app asks (Location on Android 11 and older). Without it the app can\'t find the Flipper.</string>
+    <string name="firstpair_guide_ble_2_action">Open Bluetooth settings</string>
+    <string name="firstpair_guide_ble_3_title">Pick your Flipper in the list</string>
+    <string name="firstpair_guide_ble_3_desc">The list shows Flippers by name. Keep the Flipper unlocked and within a few metres of the phone.</string>
+    <string name="firstpair_guide_ble_3_link">[How to find your Flipper\'s name](https://flipp.dev/passport)</string>
+    <string name="firstpair_guide_ble_4_title">Confirm the PIN</string>
+    <string name="firstpair_guide_ble_4_desc">The Flipper shows a 6-digit code. Enter it, or confirm it when the phone shows the same code. The first sync starts after pairing.</string>
+    <string name="firstpair_guide_ble_5_title">Pairing fails or keeps dropping?</string>
+    <string name="firstpair_guide_ble_5_desc">Remove the Flipper from the phone\'s Bluetooth settings, and on the Flipper choose Settings → Bluetooth → Forget All Paired Devices. Then pair again from this app.</string>
+    <string name="firstpair_guide_ble_6_title">Close other Flipper apps</string>
+    <string name="firstpair_guide_ble_6_desc">Only one app may talk to the Flipper at a time. The official Flipper app or qFlipper sharing the connection can corrupt files.</string>
+    <string name="firstpair_guide_usb_title">USB cable</string>
+    <string name="firstpair_guide_usb_intro">Much faster than Bluetooth for big transfers and app installs. No pairing needed.</string>
+    <string name="firstpair_guide_usb_1_title">Use a data cable</string>
+    <string name="firstpair_guide_usb_1_desc">USB-C to USB-C, or a USB-C cable with an OTG adapter. Charge-only cables do not work. The phone must support USB host (OTG); most USB-C phones do.</string>
+    <string name="firstpair_guide_usb_2_title">Plug the Flipper into the phone</string>
+    <string name="firstpair_guide_usb_2_desc">The Flipper must be on and unlocked, not in DFU or update mode.</string>
+    <string name="firstpair_guide_usb_3_title">Allow USB access</string>
+    <string name="firstpair_guide_usb_3_desc">Android asks whether this app may use the Flipper. Tap OK. Tick "Always open" to skip the question next time.</string>
+    <string name="firstpair_guide_usb_4_title">That\'s it</string>
+    <string name="firstpair_guide_usb_4_desc">The app switches to the cable on its own while the Flipper is plugged in, and back to Bluetooth (if paired) when you unplug it.</string>
+    <string name="firstpair_guide_usb_5_title">Nothing happens?</string>
+    <string name="firstpair_guide_usb_5_desc">Unplug and plug the cable back in, try another cable, and close qFlipper or any terminal app that may hold the Flipper\'s USB port.</string>
+    <string name="firstpair_guide_usb_button">Use USB (Flipper plugged in)</string>
+    <string name="firstpair_guide_usb_not_found">No Flipper found on USB. Check the cable and allow USB access, then try again.</string>
+    <string name="firstpair_guide_more_title">Still not working?</string>
+    <string name="firstpair_guide_more_intro">These help with both Bluetooth and USB.</string>
+    <string name="firstpair_guide_more_1_title">Reboot the Flipper</string>
+    <string name="firstpair_guide_more_1_desc">Hold Left and Back for 5 seconds.</string>
+    <string name="firstpair_guide_more_2_title">Update the Flipper\'s firmware</string>
+    <string name="firstpair_guide_more_2_desc">Once connected, the Device tab offers Momentum firmware updates. Old firmware may not connect.</string>
+    <string name="firstpair_guide_more_2_link">[Momentum firmware](https://momentum-fw.dev)</string>
+    <string name="firstpair_guide_more_3_title">Restart Bluetooth on the phone</string>
+    <string name="firstpair_guide_more_3_desc">Turn Bluetooth off and on again, or restart the phone.</string>
+    <string name="firstpair_guide_more_4_title">Update this app</string>
+    <string name="firstpair_guide_more_4_desc">New builds are published on GitHub (Obtainium picks them up).</string>
+    <string name="firstpair_guide_more_4_link">[Releases on GitHub](https://github.com/NanashiTheNameless/Flipper-Android-App/releases)</string>
 </resources>

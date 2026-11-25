@@ -6,6 +6,7 @@ import dev.namelessnanashi.flipperzero.core.FlipperStorageProvider
 import dev.namelessnanashi.flipperzero.core.di.AppGraph
 import dev.namelessnanashi.flipperzero.core.preference.internal.NewPairSettingsSerializer
 import dev.namelessnanashi.flipperzero.core.preference.internal.PairSettingsSerializer
+import dev.namelessnanashi.flipperzero.core.preference.internal.RemovePolicyAcceptanceMigration
 import dev.namelessnanashi.flipperzero.core.preference.internal.SettingsSerializer
 import dev.namelessnanashi.flipperzero.core.preference.pb.NewPairSettings
 import dev.namelessnanashi.flipperzero.core.preference.pb.PairSettings
@@ -46,7 +47,7 @@ interface FlipperSharedPreferenceModule {
         return DataStoreFactory.create(
             serializer = PairSettingsSerializer,
             corruptionHandler = null,
-            migrations = emptyList(),
+            migrations = listOf(RemovePolicyAcceptanceMigration),
             scope = scope + Dispatchers.IO,
             produceFile = {
                 storageProvider.rootPath
