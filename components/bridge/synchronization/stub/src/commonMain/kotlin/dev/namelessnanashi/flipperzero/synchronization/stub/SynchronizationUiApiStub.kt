@@ -12,6 +12,14 @@ import dev.zacsweers.metro.Inject
 @ContributesBinding(AppGraph::class)
 class SynchronizationUiApiStub @Inject constructor() : SynchronizationUiApi {
     @Composable
+    override fun RenderSynchronizationDialog() = Unit
+
+    @Composable
+    override fun RenderSynchronizationStatus() = Unit
+
+    override fun showSynchronizationDialog() = Unit
+
+    @Composable
     override fun RenderSynchronizationState(
         componentContext: ComponentContext,
         keyPath: FlipperKeyPath,

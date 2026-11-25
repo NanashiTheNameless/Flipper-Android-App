@@ -112,6 +112,9 @@ Settled 2026-11-18:
   Final phone checks are deferred at the user's request; no firmware was flashed.
   Earlier phone checks verified formatted sync status, Dismiss, and favorites draft
   reorder/Cancel before the latest full-path favorites and dark-theme cleanup.
+- CI follow-up: the full unit-test task graph also compiles the synchronization UI
+  stub, which the APK and focused regression tasks do not use. Added the three missing
+  no-op methods after the sync UI API expansion; full CI task verification pending.
 
 ## Where work stopped (2026-10-28, paused by the user)
 
