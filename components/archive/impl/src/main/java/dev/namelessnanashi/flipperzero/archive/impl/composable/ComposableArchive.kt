@@ -37,10 +37,12 @@ import dev.namelessnanashi.flipperzero.archive.impl.composable.category.Composab
 import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ComposableAllKeysTitle
 import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ComposableFavoriteKeysTitle
 import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ComposableFavoritesEditor
+import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ComposableAddFavorites
 import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ComposableFavoritePathsGrid
 import dev.namelessnanashi.flipperzero.archive.impl.composable.page.ComposableKeysGrid
 import dev.namelessnanashi.flipperzero.archive.impl.model.CategoryItem
 import dev.namelessnanashi.flipperzero.archive.impl.model.FavoriteSaveState
+import dev.namelessnanashi.flipperzero.archive.impl.model.FavoriteApp
 import dev.namelessnanashi.flipperzero.archive.model.CategoryType
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKey
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKeyPath
@@ -66,6 +68,8 @@ fun ComposableArchive(
     synchronizationState: SynchronizationState,
     favoriteKeys: ImmutableList<FlipperKey>,
     favoritePaths: ImmutableList<FlipperKeyPath>,
+    favoriteApps: ImmutableList<FavoriteApp>,
+    favoriteAppsLoading: Boolean,
     categories: ImmutableList<CategoryItem>,
     deletedCategory: CategoryItem,
     lazyListState: LazyListState,
@@ -76,6 +80,7 @@ fun ComposableArchive(
     val isKeysPresented = favoritePaths.isNotEmpty() || favoriteKeys.isNotEmpty() || !keys.isNullOrEmpty()
 
     var showFavoritesEditor by remember { mutableStateOf(false) }
+    var showAddFavorites by remember { mutableStateOf(false) }
     ComposableArchiveReady(
         synchronizationUiApi = synchronizationUiApi,
         keys = keys,
@@ -90,16 +95,28 @@ fun ComposableArchive(
         categories = categories,
         deletedCategory = deletedCategory,
         lazyListState = lazyListState,
-        onEditFavorites = { showFavoritesEditor = true }
+        onEditFavorites = { showFavoritesEditor = true },
+        onAddFavorites = { showAddFavorites = true }
     )
     if (showFavoritesEditor) {
         ComposableFavoritesEditor(
             favorites = favoritePaths,
-            otherKeys = keys.orEmpty(),
             syncing = synchronizationState is SynchronizationState.InProgress,
             saveState = favoriteSaveState,
             onSave = { paths -> onSaveFavorites(paths) { showFavoritesEditor = false } },
             onDismiss = { showFavoritesEditor = false }
+        )
+    }
+    if (showAddFavorites) {
+        ComposableAddFavorites(
+            favorites = favoritePaths,
+            keys = favoriteKeys + keys.orEmpty(),
+            apps = favoriteApps,
+            appsLoading = favoriteAppsLoading,
+            syncing = synchronizationState is SynchronizationState.InProgress,
+            saveState = favoriteSaveState,
+            onSave = { paths -> onSaveFavorites(paths) { showAddFavorites = false } },
+            onDismiss = { showAddFavorites = false }
         )
     }
 }
@@ -120,6 +137,7 @@ private fun ComposableArchiveReady(
     onOpenSearchScreen: () -> Unit,
     onOpenCategory: (CategoryType) -> Unit,
     onEditFavorites: () -> Unit,
+    onAddFavorites: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -168,6 +186,11 @@ private fun ComposableArchiveReady(
                 item {
                     ComposableCancelButton(
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                        text = stringResource(R.string.archive_add_favorites),
+                        onClick = onAddFavorites
+                    )
+                    ComposableCancelButton(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
                         text = stringResource(R.string.archive_edit_favorites),
                         onClick = onEditFavorites
                     )
@@ -176,7 +199,7 @@ private fun ComposableArchiveReady(
                     KeyCatalog(
                         favoriteKeys = favoriteKeys,
                         favoritePaths = favoritePaths,
-                        onManageFavorites = onEditFavorites,
+                        onManageFavorites = onAddFavorites,
                         otherKeys = keys,
                         synchronizationUiApi = synchronizationUiApi,
                         synchronizationState = synchronizationState,

@@ -30,6 +30,7 @@ androidDependencies {
 
     implementation(projects.components.bridge.dao.api)
     implementation(projects.components.bridge.synchronization.api)
+    implementation(projects.components.faphub.installation.manifest.api)
     implementation(projects.components.bridge.connection.feature.provider.api)
     implementation(projects.components.bridge.connection.feature.common.api)
     implementation(projects.components.bridge.connection.feature.serialspeed.api)

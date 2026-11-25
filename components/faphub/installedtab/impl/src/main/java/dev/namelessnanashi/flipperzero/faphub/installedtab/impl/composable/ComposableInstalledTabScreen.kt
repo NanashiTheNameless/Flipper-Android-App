@@ -1,18 +1,22 @@
 package dev.namelessnanashi.flipperzero.faphub.installedtab.impl.composable
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.Text
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.namelessnanashi.flipperzero.core.ui.ktx.elements.SwipeRefresh
@@ -33,6 +37,8 @@ import dev.namelessnanashi.flipperzero.faphub.installedtab.impl.model.FapInstall
 import dev.namelessnanashi.flipperzero.faphub.installedtab.impl.model.InstalledFapApp
 import dev.namelessnanashi.flipperzero.faphub.installedtab.impl.viewmodel.InstalledFapsViewModel
 import dev.namelessnanashi.flipperzero.faphub.installedtab.impl.viewmodel.RepairAppsViewModel
+import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationState
+import dev.namelessnanashi.flipperzero.core.ui.res.R as DesignSystem
 
 private const val DEFAULT_FAP_COUNT = 20
 
@@ -50,6 +56,10 @@ internal fun ComposableInstalledTabScreen(
     val state by viewModel.getFapInstalledScreenState().collectAsState()
     val buttonState by viewModel.getFapBatchUpdateButtonState().collectAsState()
     val repairState by repairAppsViewModel.getState().collectAsState()
+    val favoritePaths by viewModel.favoritePaths.collectAsState()
+    val favoriteChanges by viewModel.favoriteChanges.collectAsState()
+    val favoriteError by viewModel.favoriteError.collectAsState()
+    val syncState by viewModel.synchronizationState.collectAsState()
 
     val screenModifier = modifier.padding(horizontal = 14.dp)
 
@@ -67,6 +77,11 @@ internal fun ComposableInstalledTabScreen(
             onRefresh = { viewModel.refresh(true) }
         ) {
             LazyColumn {
+                if (favoriteError) {
+                    item {
+                        Text(stringResource(R.string.faphub_installed_favorite_error), color = LocalPallet.current.text100)
+                    }
+                }
                 if (stateLocal.faps.isNotEmpty()) {
                     item {
                         ComposableRepairApps(
@@ -105,7 +120,24 @@ internal fun ComposableInstalledTabScreen(
                     onOpenFapItem = onOpenFapItem,
                     installationButton = installationButton,
                     uninstallButtonOffline = uninstallButtonOffline,
-                    uninstallButtonOnline = uninstallButtonOnline
+                    uninstallButtonOnline = uninstallButtonOnline,
+                    favoriteButton = { app ->
+                        val path = viewModel.getAppFavoritePath(app.applicationUid)
+                        val selected = path in favoritePaths
+                        IconButton(
+                            onClick = { viewModel.toggleFavorite(app.applicationUid) },
+                            enabled = path != null && app.applicationUid !in favoriteChanges && syncState !is SynchronizationState.InProgress
+                        ) {
+                            Icon(
+                                painterResource(if (selected) DesignSystem.drawable.ic_star_enabled else DesignSystem.drawable.ic_star_disabled),
+                                contentDescription = stringResource(
+                                    if (selected) R.string.faphub_installed_favorite_remove else R.string.faphub_installed_favorite_add,
+                                    app.name
+                                ),
+                                tint = if (selected) LocalPallet.current.keyFavorite else LocalPallet.current.text60
+                            )
+                        }
+                    }
                 )
             }
         }
@@ -118,7 +150,8 @@ private fun LazyListScope.ComposableInstalledTabScreenState(
     onOpenFapItem: (String) -> Unit,
     uninstallButtonOffline: @Composable (InstalledFapApp.OfflineFapApp, Modifier) -> Unit,
     uninstallButtonOnline: @Composable (FapItemShort, Modifier) -> Unit,
-    installationButton: @Composable (FapItemShort?, Modifier) -> Unit
+    installationButton: @Composable (FapItemShort?, Modifier) -> Unit,
+    favoriteButton: @Composable (InstalledFapApp) -> Unit
 ) {
     when (screenState) {
         is FapInstalledScreenState.Error -> {}
@@ -145,18 +178,22 @@ private fun LazyListScope.ComposableInstalledTabScreenState(
                 key = { screenState.faps[it].first.applicationUid }
             ) { index ->
                 val (item, state) = screenState.faps[index]
-                ComposableFapApp(
-                    installedFapApp = item,
-                    state = state,
-                    installationButton = installationButton,
-                    uninstallButtonOffline = uninstallButtonOffline,
-                    uninstallButtonOnline = uninstallButtonOnline,
-                    onOpenFapItem = onOpenFapItem,
-                    modifier = Modifier
-                        .padding(vertical = 12.dp)
-                    // Waiting for fix https://issuetracker.google.com/issues/326278117
-                    // .animateItemPlacement()
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    favoriteButton(item)
+                    ComposableFapApp(
+                        installedFapApp = item,
+                        state = state,
+                        installationButton = installationButton,
+                        uninstallButtonOffline = uninstallButtonOffline,
+                        uninstallButtonOnline = uninstallButtonOnline,
+                        onOpenFapItem = onOpenFapItem,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(vertical = 12.dp)
+                        // Waiting for fix https://issuetracker.google.com/issues/326278117
+                        // .animateItemPlacement()
+                    )
+                }
 
                 if (index != screenState.faps.lastIndex) {
                     ComposableLoadingItemDivider()

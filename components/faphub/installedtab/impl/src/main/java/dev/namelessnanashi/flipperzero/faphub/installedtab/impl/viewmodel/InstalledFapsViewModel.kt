@@ -1,12 +1,18 @@
 package dev.namelessnanashi.flipperzero.faphub.installedtab.impl.viewmodel
 
 import dev.namelessnanashi.flipperzero.core.di.provideDelegate
+import dev.namelessnanashi.flipperzero.bridge.dao.api.delegates.FavoriteApi
+import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperFilePath
+import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKeyPath
+import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationApi
+import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationState
 import dev.namelessnanashi.flipperzero.core.ktx.jre.FlipperDispatchers
 import dev.namelessnanashi.flipperzero.core.log.LogTagProvider
 import dev.namelessnanashi.flipperzero.core.log.error
 import dev.namelessnanashi.flipperzero.core.log.info
 import dev.namelessnanashi.flipperzero.core.ui.lifecycle.DecomposeViewModel
 import dev.namelessnanashi.flipperzero.faphub.installation.manifest.api.FapManifestApi
+import dev.namelessnanashi.flipperzero.faphub.installation.manifest.model.FapManifestState
 import dev.namelessnanashi.flipperzero.faphub.installation.queue.api.FapInstallationQueueApi
 import dev.namelessnanashi.flipperzero.faphub.installation.queue.api.model.FapActionRequest
 import dev.namelessnanashi.flipperzero.faphub.installedtab.impl.model.FapBatchUpdateButtonState
@@ -28,6 +34,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provider
@@ -35,10 +42,16 @@ import dev.zacsweers.metro.Provider
 class InstalledFapsViewModel @Inject constructor(
     private val fapManifestApi: FapManifestApi,
     private val queueApi: FapInstallationQueueApi,
-    fapsStateProducerProvider: Provider<InstalledFapsFromNetworkProducer>
+    fapsStateProducerProvider: Provider<InstalledFapsFromNetworkProducer>,
+    private val favoriteApi: FavoriteApi,
+    private val synchronizationApi: SynchronizationApi
 ) : DecomposeViewModel(), LogTagProvider {
     override val TAG = "InstalledFapsViewModel"
     private var fetcherJob: Job? = null
+    val favoritePaths = MutableStateFlow<Set<FlipperKeyPath>>(emptySet())
+    val favoriteChanges = MutableStateFlow<Set<String>>(emptySet())
+    val favoriteError = MutableStateFlow(false)
+    val synchronizationState = synchronizationApi.getSynchronizationState()
 
     private val fapsStateProducer by fapsStateProducerProvider
     private val installedFapsStateFlow = MutableStateFlow<FapInstalledInternalLoadingState>(
@@ -58,6 +71,9 @@ class InstalledFapsViewModel @Inject constructor(
     )
 
     init {
+        favoriteApi.getFavoritePathsFlow().onEach {
+            favoritePaths.value = it.toSet()
+        }.launchIn(viewModelScope)
         refresh(force = false)
         installedFapsStateFlow.onEach {
             screenStateFlow.emit(it.toScreenState())
@@ -71,6 +87,33 @@ class InstalledFapsViewModel @Inject constructor(
     internal fun getFapInstalledScreenState() = screenStateFlow.asStateFlow()
 
     fun getFapBatchUpdateButtonState() = batchUpdateButtonState.asStateFlow()
+
+    fun getAppFavoritePath(applicationUid: String): FlipperKeyPath? =
+        (fapManifestApi.getManifestFlow().value as? FapManifestState.Loaded)
+            ?.items?.firstOrNull { it.uid == applicationUid }
+            ?.let { FlipperKeyPath(FlipperFilePath.fromFavoritePath(it.path), false) }
+
+    fun toggleFavorite(applicationUid: String) {
+        if (applicationUid in favoriteChanges.value || synchronizationState.value is SynchronizationState.InProgress) {
+            return
+        }
+        val path = getAppFavoritePath(applicationUid) ?: return
+        favoriteChanges.update { it + applicationUid }
+        favoriteError.value = false
+        viewModelScope.launch {
+            try {
+                favoriteApi.setFavorite(path, !favoriteApi.isFavorite(path))
+                synchronizationApi.startSynchronization(force = true)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (exception: Exception) {
+                error(exception) { "Could not change app favorite" }
+                favoriteError.value = true
+            } finally {
+                favoriteChanges.update { it - applicationUid }
+            }
+        }
+    }
 
     fun updateAll() = viewModelScope.launch {
         val state = installedFapsStateFlow.first()

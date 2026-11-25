@@ -46,6 +46,8 @@ class ArchiveScreenDecomposeComponentImpl @AssistedInject constructor(
         val favoritePaths by tabViewModel.getFavoritePaths().collectAsState()
         val synchronizationState by tabViewModel.getSynchronizationState().collectAsState()
         val favoriteSaveState by tabViewModel.favoriteSaveState.collectAsState()
+        val favoriteApps by tabViewModel.favoriteApps.collectAsState()
+        val favoriteAppsLoading by tabViewModel.favoriteAppsLoading.collectAsState()
 
         val categoryViewModel = viewModelWithFactory(key = null) {
             categoryViewModelProvider.invoke()
@@ -80,6 +82,8 @@ class ArchiveScreenDecomposeComponentImpl @AssistedInject constructor(
             synchronizationState = synchronizationState,
             favoriteKeys = favoriteKeys,
             favoritePaths = favoritePaths,
+            favoriteApps = favoriteApps,
+            favoriteAppsLoading = favoriteAppsLoading,
             onRefresh = tabViewModel::refresh,
             favoriteSaveState = favoriteSaveState,
             onSaveFavorites = tabViewModel::saveFavorites,

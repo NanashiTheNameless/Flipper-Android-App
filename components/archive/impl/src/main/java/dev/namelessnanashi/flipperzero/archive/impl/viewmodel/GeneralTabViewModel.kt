@@ -5,6 +5,11 @@ import dev.namelessnanashi.flipperzero.bridge.dao.api.delegates.key.SimpleKeyApi
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKey
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKeyPath
 import dev.namelessnanashi.flipperzero.archive.impl.model.FavoriteSaveState
+import dev.namelessnanashi.flipperzero.archive.impl.model.FavoriteApp
+import dev.namelessnanashi.flipperzero.archive.impl.model.builtInFavoriteApps
+import dev.namelessnanashi.flipperzero.archive.impl.model.favoriteAppsFromManifests
+import dev.namelessnanashi.flipperzero.faphub.installation.manifest.api.FapManifestApi
+import dev.namelessnanashi.flipperzero.faphub.installation.manifest.model.FapManifestState
 import kotlinx.coroutines.CancellationException
 import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationApi
 import dev.namelessnanashi.flipperzero.bridge.synchronization.api.SynchronizationState
@@ -24,8 +29,11 @@ class GeneralTabViewModel @Inject constructor(
     private val simpleKeyApi: SimpleKeyApi,
     private val favoriteApi: FavoriteApi,
     private val synchronizationApi: SynchronizationApi,
+    fapManifestApi: FapManifestApi,
 ) : DecomposeViewModel() {
     val favoriteSaveState = MutableStateFlow(FavoriteSaveState.IDLE)
+    val favoriteApps = MutableStateFlow<ImmutableList<FavoriteApp>>(builtInFavoriteApps.toImmutableList())
+    val favoriteAppsLoading = MutableStateFlow(true)
     private val keys = MutableStateFlow<ImmutableList<FlipperKey>>(persistentListOf())
     private val favoritePaths = MutableStateFlow<ImmutableList<FlipperKeyPath>>(persistentListOf())
     private val favoriteKeys = MutableStateFlow<ImmutableList<FlipperKey>>(persistentListOf())
@@ -33,6 +41,11 @@ class GeneralTabViewModel @Inject constructor(
         MutableStateFlow<SynchronizationState>(SynchronizationState.NotStarted)
 
     init {
+        fapManifestApi.getManifestFlow().onEach { state ->
+            val loaded = state as? FapManifestState.Loaded
+            favoriteApps.value = favoriteAppsFromManifests(loaded?.items.orEmpty()).toImmutableList()
+            favoriteAppsLoading.value = loaded?.inProgress == true
+        }.launchIn(viewModelScope)
         viewModelScope.launch {
             simpleKeyApi.getExistKeysAsFlow(null)
                 .combine(favoriteApi.getFavoritesFlow()) { keyList, favoriteKeysList ->

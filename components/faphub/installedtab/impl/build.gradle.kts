@@ -6,6 +6,8 @@ plugins {
 
 androidDependencies {
     implementation(projects.components.faphub.installedtab.api)
+    implementation(projects.components.bridge.dao.api)
+    implementation(projects.components.bridge.synchronization.api)
 
     implementation(projects.components.core.di)
     implementation(projects.components.core.data)

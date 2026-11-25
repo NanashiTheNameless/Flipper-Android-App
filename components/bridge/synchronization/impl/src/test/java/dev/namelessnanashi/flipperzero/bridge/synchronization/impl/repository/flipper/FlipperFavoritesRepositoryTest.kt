@@ -71,6 +71,21 @@ class FlipperFavoritesRepositoryTest {
         Assert.assertEquals("\n", written()?.decodeToString())
     }
 
+    @Test
+    fun `installed apps and built-in shortcuts round trip alongside keys`() = runTest {
+        val installedApp = FlipperFilePath.fromFavoritePath("/ext/apps/Tools/test.fap")
+        val builtInApp = FlipperFilePath.fromFavoritePath("/app:setting/NFC")
+        val (storage, written) = storageRemembering()
+
+        underTest.applyDiff(storage, listOf(garage), listOf(diff(installedApp, KeyAction.ADD), diff(builtInApp, KeyAction.ADD)))
+
+        Assert.assertEquals(
+            "/ext/subghz/Garage.sub\n/ext/apps/Tools/test.fap\n/app:setting/NFC\n",
+            written()?.decodeToString()
+        )
+        Assert.assertEquals(listOf(garage, installedApp, builtInApp), underTest.getFavorites(storage))
+    }
+
     @Test(expected = IllegalStateException::class)
     fun `a write that does not read back the same fails`() = runTest {
         val storage = mockk<FlipperKeyStorage>(relaxed = true) {

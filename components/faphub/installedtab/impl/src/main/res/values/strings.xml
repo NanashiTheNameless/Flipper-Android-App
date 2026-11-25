@@ -39,4 +39,7 @@
     <string name="faphub_installed_repair_dismiss_hint">Work continues when you dismiss this popup.</string>
     <string name="faphub_installed_repair_dismiss">Dismiss</string>
     <string name="faphub_installed_repair_cancel">Cancel</string>
+    <string name="faphub_installed_favorite_add">Add %s to favorites</string>
+    <string name="faphub_installed_favorite_remove">Remove %s from favorites</string>
+    <string name="faphub_installed_favorite_error">Could not change favorite. Please try again.</string>
 </resources>
