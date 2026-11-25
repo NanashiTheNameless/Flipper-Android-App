@@ -22,3 +22,12 @@
 /.android-sdk/
 *.jks
 *.keystore
+
+nogit/*
+nogit
+githide/*
+githide
+*.nogit.*
+*.githide.*
+*.nogit
+*.githide
