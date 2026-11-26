@@ -60,6 +60,11 @@ class FapRepairImpl @Inject constructor(
         val uncheckable = mutableListOf<FapManifestItem>()
         for ((index, item) in installed.withIndex()) {
             currentCoroutineContext().ensureActive()
+            if (item.externalSource != null) {
+                uncheckable += item
+                onProgress(FapRepairProgress(index + 1, installed.size, item.fullName, FapRepairStage.CHECKING))
+                continue
+            }
             onProgress(FapRepairProgress(index, installed.size, item.fullName, FapRepairStage.CHECKING))
             val flipperMd5 = storageApi.md5Api().md5(item.path).getOrNull()
             if (flipperMd5 == null) {
@@ -77,6 +82,12 @@ class FapRepairImpl @Inject constructor(
                 if (it is CancellationException) throw it
                 error(it) { "${item.applicationAlias}: can't get catalog build ${item.versionUid}" }
             }.getOrNull()
+            if (expectedMd5 != null && expectedMd5.equals(flipperMd5, ignoreCase = true)) {
+                runCatching { fapDownloadApi.discardBundle(target, item.versionUid) }.onFailure {
+                    if (it is CancellationException) throw it
+                    error(it) { "Could not release checked bundle ${item.versionUid}" }
+                }
+            }
             when {
                 expectedMd5 == null -> uncheckable += item
                 !expectedMd5.equals(flipperMd5, ignoreCase = true) -> {
@@ -99,6 +110,7 @@ class FapRepairImpl @Inject constructor(
         var queued = 0
         for ((index, item) in broken.withIndex()) {
             currentCoroutineContext().ensureActive()
+            if (item.externalSource != null) continue
             onProgress(FapRepairProgress(index, broken.size, item.fullName, FapRepairStage.QUEUING))
             val catalogItem = fapNetworkApi.getFapItemById(target, item.uid)
                 .onFailure { error(it) { "${item.applicationAlias}: not found in the catalog" } }

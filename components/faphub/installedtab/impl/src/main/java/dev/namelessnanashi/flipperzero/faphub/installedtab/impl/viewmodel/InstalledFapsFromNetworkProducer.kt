@@ -125,10 +125,14 @@ class InstalledFapsFromNetworkProducer @Inject constructor(
             )
         }
 
-        val loadedFapsResult = fapNetworkApi.getAllItem(
-            applicationIds = toRequestItems.keys.toList(),
+        val catalogIds = toRequestItems.values.filter {
+            !it.applicationUid.startsWith("external:") &&
+                (it !is FapInstalledFromManifest.Offline || it.offlineFap.sourceUrl == null)
+        }.map { it.applicationUid }
+        val loadedFapsResult = if (catalogIds.isEmpty()) Result.success(emptyList()) else fapNetworkApi.getAllItem(
+            applicationIds = catalogIds,
             offset = 0,
-            limit = toRequestItems.size,
+            limit = catalogIds.size,
             sortType = SortType.UPDATE_AT_DESC,
             target = flipperTarget
         )

@@ -27,6 +27,7 @@ import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.binding
 
 private const val BUNDLE_CACHE_DIR = "fap_bundles"
+private const val ABANDONED_BUNDLE_AGE_MS = 24L * 60 * 60 * 1000
 
 // The install queue prefetches bundles while another app uploads, so the same bundle can be
 // requested twice at once; one lock per bundle file keeps them from sharing a .part file.
@@ -54,9 +55,37 @@ class FapDownloadApiImpl @Inject constructor(
         listener: ProgressListener?
     ): File {
         val cacheDir = storageProvider.getCacheFolder(BUNDLE_CACHE_DIR).toFile()
-        val bundleFile = File(cacheDir, "${versionUid}_${target.target}_${target.sdk}.fap")
+        val bundleFile = bundleFile(cacheDir, target, versionUid)
+        pruneAbandonedBundles(cacheDir, bundleFile)
         return bundleLocks.getOrPut(bundleFile.name) { Mutex() }.withLock {
             downloadBundleLocked(bundleFile, cacheDir, target, versionUid, listener)
+        }
+    }
+
+    override suspend fun discardBundle(target: FlipperTarget.Received, versionUid: String) {
+        val cacheDir = storageProvider.getCacheFolder(BUNDLE_CACHE_DIR).toFile()
+        val bundleFile = bundleFile(cacheDir, target, versionUid)
+        bundleLocks.getOrPut(bundleFile.name) { Mutex() }.withLock {
+            bundleFile.delete()
+            File(cacheDir, bundleFile.name + ".part").delete()
+        }
+    }
+
+    private fun bundleFile(cacheDir: File, target: FlipperTarget.Received, versionUid: String): File {
+        require(versionUid.matches(Regex("[A-Za-z0-9_-]{1,128}")) && target.target.matches(Regex("[A-Za-z0-9_-]{1,20}"))) {
+            "Invalid bundle cache identity"
+        }
+        return File(cacheDir, "${versionUid}_${target.target}_${target.sdk}.fap")
+    }
+
+    private fun pruneAbandonedBundles(cacheDir: File, requested: File) {
+        val cutoff = System.currentTimeMillis() - ABANDONED_BUNDLE_AGE_MS
+        cacheDir.listFiles()?.filter { it.isFile && it != requested && it.lastModified() < cutoff }?.forEach { file ->
+            val key = file.name.removeSuffix(".part")
+            val lock = bundleLocks.getOrPut(key) { Mutex() }
+            if (lock.tryLock()) {
+                try { if (file.lastModified() < cutoff) file.delete() } finally { lock.unlock() }
+            }
         }
     }
 
@@ -68,6 +97,7 @@ class FapDownloadApiImpl @Inject constructor(
         listener: ProgressListener?
     ): File {
         if (bundleFile.length() > 0) {
+            bundleFile.setLastModified(System.currentTimeMillis())
             info { "Use cached bundle for $versionUid: ${bundleFile.path}" }
             listener?.onProgress(1f)
             return bundleFile

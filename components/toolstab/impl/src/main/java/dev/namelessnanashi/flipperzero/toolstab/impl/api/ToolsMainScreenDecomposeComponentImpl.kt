@@ -15,11 +15,13 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import dev.zacsweers.metro.Provider
+import dev.namelessnanashi.flipperzero.faphub.source.api.AppSourcesApi
 
 class ToolsMainScreenDecomposeComponentImpl @AssistedInject constructor(
     @Assisted componentContext: ComponentContext,
     @Assisted private val navigation: StackNavigation<ToolsNavigationConfig>,
     private val toolsNotificationViewModelProvider: Provider<ToolsNotificationViewModel>,
+    private val appSourcesApi: AppSourcesApi,
 ) : ScreenDecomposeComponent(componentContext) {
     @Composable
     @Suppress("NonSkippableComposable")
@@ -30,6 +32,7 @@ class ToolsMainScreenDecomposeComponentImpl @AssistedInject constructor(
         val hasNotification by nfcAttackViewModel.hasNotificationStateFlow.collectAsState()
 
         ComposableHub(
+            appSourcesEntry = { appSourcesApi.ToolsEntry() },
             hasNotification = hasNotification,
             onOpenMfKey32 = {
                 navigation.pushToFront(ToolsNavigationConfig.MfKey32)

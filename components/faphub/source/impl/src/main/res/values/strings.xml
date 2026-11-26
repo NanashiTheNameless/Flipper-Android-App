@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="source_title">App sources &amp; backups · Beta</string>
+    <string name="source_entry">App sources &amp; backups · Beta</string>
+    <string name="source_entry_description">Install from links or files, build apps, check updates, and back up your data.</string>
+    <string name="source_notification_channel">App builds and imports</string>
+    <string name="source_notification_title">Flipper-Nanashi · App sources</string>
+    <string name="source_notification_text">Preparing, building, or installing apps</string>
+    <string name="source_cancel">Cancel</string>
+</resources>

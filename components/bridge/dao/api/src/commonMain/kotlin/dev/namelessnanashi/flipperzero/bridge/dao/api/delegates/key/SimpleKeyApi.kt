@@ -19,6 +19,9 @@ interface SimpleKeyApi {
 
     suspend fun insertKey(key: FlipperKey)
 
+    /** Atomically import keys, replacing matching paths while keeping existing key identities. */
+    suspend fun restoreKeys(keys: List<FlipperKey>)
+
     suspend fun updateKeyContent(keyPath: FlipperKeyPath, content: FlipperKeyContent)
 
     suspend fun getKey(keyPath: FlipperKeyPath): FlipperKey?

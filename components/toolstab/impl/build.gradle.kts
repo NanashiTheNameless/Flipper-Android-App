@@ -6,6 +6,7 @@ plugins {
 }
 
 androidDependencies {
+    implementation(projects.components.faphub.source.api)
     implementation(projects.components.toolstab.api)
 
     implementation(projects.components.core.di)

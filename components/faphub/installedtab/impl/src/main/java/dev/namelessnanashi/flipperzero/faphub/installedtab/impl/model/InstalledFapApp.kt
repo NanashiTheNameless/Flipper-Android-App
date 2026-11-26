@@ -16,14 +16,16 @@ sealed class InstalledFapApp {
         override val applicationUid: String,
         override val applicationAlias: String,
         val iconBase64: String?,
-        val category: String
+        val category: String,
+        val sourceUrl: String? = null
     ) : InstalledFapApp() {
         constructor(fapManifestItem: FapManifestItem) : this(
             name = fapManifestItem.fullName,
             iconBase64 = fapManifestItem.iconBase64,
             category = extractCategoryFromPath(fapManifestItem.path),
             applicationUid = fapManifestItem.uid,
-            applicationAlias = fapManifestItem.applicationAlias
+            applicationAlias = fapManifestItem.applicationAlias,
+            sourceUrl = fapManifestItem.externalSource?.url
         )
     }
 

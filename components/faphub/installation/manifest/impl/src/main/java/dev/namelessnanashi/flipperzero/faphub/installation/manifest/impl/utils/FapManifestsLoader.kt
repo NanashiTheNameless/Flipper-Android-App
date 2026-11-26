@@ -184,7 +184,7 @@ class FapManifestsLoader @AssistedInject constructor(
         // List every category folder at once instead of one per first check
         fapExistChecker.prefetch(cachedManifests.map { it.path })
         cachedManifests.filter { fapExistChecker.checkExist(it.path) }
-            .filter { it.isDevCatalog == isUseDevCatalog }
+            .filter { (it.externalSource != null || it.isDevCatalog == isUseDevCatalog) }
             .forEach {
                 fapItemsList.add(it)
                 manifestLoaderState.emit(
@@ -207,7 +207,7 @@ class FapManifestsLoader @AssistedInject constructor(
                     }
                     // Checked here, in parallel, rather than one by one in the ordered loop below
                     content?.takeIf {
-                        it.isDevCatalog == isUseDevCatalog && fapExistChecker.checkExist(it.path)
+                        (it.externalSource != null || it.isDevCatalog == isUseDevCatalog) && fapExistChecker.checkExist(it.path)
                     }
                 }
             }.forEach { loading ->

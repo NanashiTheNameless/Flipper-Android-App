@@ -141,6 +141,7 @@ class FapInstallationStateManagerImpl @Inject constructor(
 
     private fun queueStateToFapState(queueState: FapQueueState) = when (queueState) {
         is FapQueueState.InProgress -> when (queueState.request) {
+            is FapActionRequest.InstallArtifact -> FapState.InstallationInProgress(true, queueState.float)
             is FapActionRequest.Cancel -> FapState.Canceling
             is FapActionRequest.Install -> FapState.InstallationInProgress(
                 active = true,
@@ -156,6 +157,7 @@ class FapInstallationStateManagerImpl @Inject constructor(
         }
 
         is FapQueueState.Pending -> when (queueState.request) {
+            is FapActionRequest.InstallArtifact -> FapState.InstallationInProgress(false, 0f)
             is FapActionRequest.Cancel -> FapState.Canceling
             is FapActionRequest.Install -> FapState.InstallationInProgress(
                 active = false,

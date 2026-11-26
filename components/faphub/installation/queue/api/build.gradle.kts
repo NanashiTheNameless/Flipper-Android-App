@@ -6,6 +6,7 @@ plugins {
 androidDependencies {
     implementation(projects.components.faphub.dao.api)
     implementation(projects.components.faphub.installation.manifest.api)
+    implementation(projects.components.faphub.target.api)
 
     implementation(projects.components.core.data)
 

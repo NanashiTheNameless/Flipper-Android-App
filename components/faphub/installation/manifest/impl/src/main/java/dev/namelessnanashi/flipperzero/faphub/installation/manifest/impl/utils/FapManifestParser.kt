@@ -4,6 +4,8 @@ import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperFileFormat
 import dev.namelessnanashi.flipperzero.core.data.SemVer
 import dev.namelessnanashi.flipperzero.core.ktx.jre.md5
 import dev.namelessnanashi.flipperzero.faphub.installation.manifest.model.FapManifestItem
+import dev.namelessnanashi.flipperzero.faphub.installation.manifest.model.ExternalAppSource
+import java.util.Base64
 import java.io.File
 import java.nio.charset.Charset
 import dev.zacsweers.metro.Inject
@@ -35,7 +37,18 @@ class FapManifestParser @Inject constructor() {
             iconBase64 = dict[FAP_MANIFEST_ICON_KEY],
             sdkApi = dict[FAP_MANIFEST_API_KEY]?.let { SemVer.fromString(it) },
             sourceFileHash = fileContent.md5(),
-            isDevCatalog = dict[FAP_MANIFEST_DEV_CATALOG]?.toBooleanStrictOrNull() ?: false
+            isDevCatalog = dict[FAP_MANIFEST_DEV_CATALOG]?.toBooleanStrictOrNull() ?: false,
+            externalSource = dict["Nanashi Source URL"]?.let { encoded ->
+                fun field(key: String): String = dict["Nanashi $key"]?.let {
+                    String(Base64.getDecoder().decode(it), Charsets.UTF_8)
+                }.orEmpty()
+                ExternalAppSource(
+                    url = String(Base64.getDecoder().decode(encoded), Charsets.UTF_8),
+                    revision = field("Revision"), tracking = field("Tracking"), sha256 = field("SHA256"),
+                    project = field("Project"), sdkUrl = field("SDK URL"), sdkSha256 = field("SDK SHA256"),
+                    firmware = field("Firmware"), backend = field("Backend"), sourceSha256 = field("Source SHA256")
+                )
+            }
         )
     }
 
@@ -58,6 +71,17 @@ class FapManifestParser @Inject constructor() {
         orderedDict.add(FAP_MANIFEST_PATH_KEY to fapItem.path)
         if (fapItem.isDevCatalog) {
             orderedDict.add(FAP_MANIFEST_DEV_CATALOG to fapItem.isDevCatalog.toString())
+        }
+        fapItem.externalSource?.let { source ->
+            listOf(
+                "Source URL" to source.url, "Revision" to source.revision,
+                "Tracking" to source.tracking, "SHA256" to source.sha256,
+                "Project" to source.project, "SDK URL" to source.sdkUrl,
+                "SDK SHA256" to source.sdkSha256, "Firmware" to source.firmware,
+                "Backend" to source.backend, "Source SHA256" to source.sourceSha256
+            ).forEach { (key, value) ->
+                orderedDict.add("Nanashi $key" to Base64.getEncoder().encodeToString(value.toByteArray(Charsets.UTF_8)))
+            }
         }
 
         return FlipperFileFormat(orderedDict)

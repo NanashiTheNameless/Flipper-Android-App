@@ -10,7 +10,8 @@ import dev.zacsweers.metro.Inject
 class FapActionExecutor @Inject constructor(
     private val installationExecutor: InstallationActionExecutor,
     private val updateActionExecutor: UpdateActionExecutor,
-    private val fapManifestApi: FapManifestApi
+    private val fapManifestApi: FapManifestApi,
+    private val artifactExecutor: ArtifactInstallationExecutor
 ) : LogTagProvider {
     override val TAG = "FapActionExecutor"
     suspend fun execute(
@@ -19,6 +20,7 @@ class FapActionExecutor @Inject constructor(
     ) {
         info { "Received fap action request $fapAction" }
         when (fapAction) {
+            is FapActionRequest.InstallArtifact -> artifactExecutor.install(fapAction, progressListener)
             is FapActionRequest.Install -> installationExecutor.install(fapAction, progressListener)
             is FapActionRequest.Update -> updateActionExecutor.update(fapAction, progressListener)
             is FapActionRequest.Cancel -> error("Cancel shouldn't be here")

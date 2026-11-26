@@ -1,6 +1,8 @@
 package dev.namelessnanashi.flipperzero.bridge.dao.impl.api.key
 
 import dev.namelessnanashi.flipperzero.bridge.dao.api.delegates.key.SimpleKeyApi
+import androidx.room.withTransaction
+import dev.namelessnanashi.flipperzero.bridge.dao.impl.AppDatabase
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKey
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKeyContent
 import dev.namelessnanashi.flipperzero.bridge.dao.api.model.FlipperKeyPath
@@ -26,12 +28,14 @@ import dev.zacsweers.metro.binding
 @ContributesBinding(AppGraph::class, binding<SimpleKeyApi>())
 class SimpleKeyApiImpl @Inject constructor(
     keysDaoProvider: Provider<SimpleKeyDao>,
-    additionalFileDaoProvider: Provider<AdditionalFileDao>
+    additionalFileDaoProvider: Provider<AdditionalFileDao>,
+    databaseProvider: Provider<AppDatabase>
 ) : SimpleKeyApi, LogTagProvider {
     override val TAG = "SimpleKeyApi"
 
     private val simpleKeyDao by keysDaoProvider
     private val additionalFileDao by additionalFileDaoProvider
+    private val database by databaseProvider
 
     override suspend fun getAllKeys(
         includeDeleted: Boolean
@@ -80,6 +84,22 @@ class SimpleKeyApiImpl @Inject constructor(
                 .forEach { additionalFileDao.insert(it) }
         }
         Unit
+    }
+
+    override suspend fun restoreKeys(keys: List<FlipperKey>) = withContext(FlipperDispatchers.workStealingDispatcher) {
+        database.withTransaction {
+            for (key in keys) {
+                val existing = simpleKeyDao.getByPath(key.path.pathToKey, key.deleted)
+                if (existing == null) {
+                    simpleKeyDao.insert(key.copy(synchronized = false).toDatabaseKey())
+                } else {
+                    simpleKeyDao.update(key.copy(synchronized = false).toDatabaseKey().copy(uid = existing.uid))
+                    additionalFileDao.getFilesForKeyWithId(existing.uid).forEach { additionalFileDao.delete(it) }
+                }
+                val uid = simpleKeyDao.getByPath(key.path.pathToKey, key.deleted)?.uid ?: error("Key import failed")
+                key.additionalFiles.forEach { additionalFileDao.insert(it.toDatabaseFile(uid)) }
+            }
+        }
     }
 
     override suspend fun updateKeyContent(keyPath: FlipperKeyPath, content: FlipperKeyContent) {

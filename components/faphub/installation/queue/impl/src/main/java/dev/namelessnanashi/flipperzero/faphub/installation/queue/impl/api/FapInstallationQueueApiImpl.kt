@@ -74,6 +74,10 @@ class FapInstallationQueueApiImpl @Inject constructor(
         info { "Enqueue $actionRequest" }
         queueRunner.enqueueSync(actionRequest)
     }
+
+    override suspend fun installArtifact(request: FapActionRequest.InstallArtifact) {
+        queueRunner.enqueueAndAwait(request)
+    }
     private fun FapInternalQueueState.withDownloadProgress(downloads: Map<String, Float>): FapQueueState {
         val state = toFapQueueState()
         val downloaded = downloads[request.bundleKey()] ?: return state

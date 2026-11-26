@@ -9,6 +9,7 @@
 - No analytics, crash reporting or push notifications (Countly, Sentry and Firebase removed).
 - No Google Play Services, Play Store updater or Wear OS companion app.
 - Faster Bluetooth transfers.
+- **Tools → App sources & backups · Beta:** link/file app imports, on-phone source builds through Termux, update checks and portable backups. [Setup and supported workflows](docs/app-sources.md).
 
 Fork plans and status: [docs/fork/ROADMAP.md](docs/fork/ROADMAP.md).
 

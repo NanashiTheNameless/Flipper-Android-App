@@ -12,4 +12,7 @@ interface FapInstallationQueueApi {
 
     fun enqueue(actionRequest: FapActionRequest)
     suspend fun enqueueSync(actionRequest: FapActionRequest)
+
+    /** Completes only after the shared device queue verifies and finalizes this artifact. */
+    suspend fun installArtifact(request: FapActionRequest.InstallArtifact)
 }

@@ -13,6 +13,7 @@ fun ComposableHub(
     hasNotification: Boolean,
     onOpenMfKey32: () -> Unit,
     onOpenRemoteControls: () -> Unit,
+    appSourcesEntry: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
@@ -26,5 +27,6 @@ fun ComposableHub(
         RemoteControlsComposable(
             onOpenRemoteControls = onOpenRemoteControls
         )
+        appSourcesEntry()
     }
 }

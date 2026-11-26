@@ -20,6 +20,10 @@ import dev.namelessnanashi.flipperzero.faphub.installation.queue.api.model.FapQu
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancelAndJoin
+import dev.namelessnanashi.flipperzero.faphub.installation.manifest.model.ExternalAppSource
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -27,6 +31,55 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class FapQueueRunnerTest {
+    private fun artifactRequest() = FapActionRequest.InstallArtifact(
+        "external:" + "a".repeat(64), "/cache/app.fap", "app", "Tools",
+        ExternalAppSource("https://example.com/app.fap", "", "file", "b".repeat(64)),
+        FlipperTarget.Received("f7", SemVer(88, 2)), "serial", "firmware"
+    )
+
+    @Test
+    fun `artifact completion waits for the common upload queue without catalog downloads`() = runTest {
+        mockkObject(FlipperDispatchers)
+        try {
+            every { FlipperDispatchers.workStealingDispatcher } returns StandardTestDispatcher(testScheduler)
+            val gate = CompletableDeferred<Unit>()
+            val executor = mockk<FapActionExecutor> { coEvery { execute(any(), any()) } coAnswers { gate.await() } }
+            val downloader = mockk<FapDownloadApi>(relaxed = true)
+            val runner = FapQueueRunner(executor, downloader)
+            val result = backgroundScope.async { runner.enqueueAndAwait(artifactRequest()) }
+            runCurrent()
+            assertEquals(false, result.isCompleted)
+            coVerify(exactly = 1) { executor.execute(any(), any()) }
+            coVerify(exactly = 0) { downloader.downloadBundle(any(), any(), any()) }
+            gate.complete(Unit)
+            runCurrent()
+            assertEquals(true, result.isCompleted)
+            result.await()
+        } finally { unmockkObject(FlipperDispatchers) }
+    }
+
+    @Test
+    fun `cancelled artifact waiters also cancel their device operation`() = runTest {
+        mockkObject(FlipperDispatchers)
+        try {
+            every { FlipperDispatchers.workStealingDispatcher } returns StandardTestDispatcher(testScheduler)
+            val gate = CompletableDeferred<Unit>()
+            var cancelled = false
+            val executor = mockk<FapActionExecutor> {
+                coEvery { execute(any(), any()) } coAnswers {
+                    try { gate.await() } catch (error: CancellationException) { cancelled = true; throw error }
+                }
+            }
+            val runner = FapQueueRunner(executor, mockk(relaxed = true))
+            val result = backgroundScope.async { runner.enqueueAndAwait(artifactRequest()) }
+            runCurrent()
+            result.cancel()
+            runCurrent()
+            assertEquals(true, cancelled)
+            assertEquals(null, runner.currentTaskFlow().value)
+        } finally { unmockkObject(FlipperDispatchers) }
+    }
+
     @Test
     fun `eight bundles download concurrently while only one app installs`() = runTest {
         mockkObject(FlipperDispatchers)
@@ -41,6 +94,7 @@ class FapQueueRunnerTest {
             var peak = 0
             var completed = 0
             val downloader = mockk<FapDownloadApi> {
+                coEvery { discardBundle(any(), any()) } returns Unit
                 coEvery { downloadBundle(any(), any(), any()) } coAnswers {
                     thirdArg<ProgressListener>().onProgress(0.42f)
                     active++
@@ -85,8 +139,36 @@ class FapQueueRunnerTest {
             installGate.complete(Unit)
             runCurrent()
             coVerify(exactly = 12) { executor.execute(any(), any()) }
+            coVerify(exactly = 12) { downloader.discardBundle(any(), any()) }
         } finally {
             unmockkObject(FlipperDispatchers)
         }
+    }
+
+    @Test
+    fun `cancelled prefetch discards its bundle once the active download finishes`() = runTest {
+        mockkObject(FlipperDispatchers)
+        try {
+            every { FlipperDispatchers.workStealingDispatcher } returns StandardTestDispatcher(testScheduler)
+            val installing = CompletableDeferred<Unit>()
+            val downloading = CompletableDeferred<Unit>()
+            val executor = mockk<FapActionExecutor> { coEvery { execute(any(), any()) } coAnswers { installing.await() } }
+            val downloader = mockk<FapDownloadApi>(relaxed = true) {
+                coEvery { downloadBundle(any(), "version1", any()) } coAnswers { downloading.await(); File("cache.fap") }
+            }
+            val runner = FapQueueRunner(executor, downloader)
+            val sdk = SemVer(87, 1)
+            val target = FlipperTarget.Received("f7", sdk)
+            repeat(2) { index ->
+                runner.enqueueSync(FapActionRequest.Install("app$index", "app$index", "App $index",
+                    FapItemVersion("version$index", sdk, target, FapBuildState.READY, sdk), "Tools", ""))
+            }
+            runCurrent()
+            runner.enqueueSync(FapActionRequest.Cancel("app1"))
+            downloading.complete(Unit)
+            runCurrent()
+            coVerify(exactly = 1) { downloader.discardBundle(target, "version1") }
+            runner.enqueueSync(FapActionRequest.Cancel("app0"))
+        } finally { unmockkObject(FlipperDispatchers) }
     }
 }

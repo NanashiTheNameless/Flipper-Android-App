@@ -41,7 +41,11 @@ class FRpcInfoFeatureApiImpl @AssistedInject constructor(
         scope: CoroutineScope,
         force: Boolean
     ) = withLock(mutex, "invalidate") {
-        if (force.not() && alreadyRequested) {
+        // A caller's scope can cancel an unfinished load. Allow the next caller
+        // to retry instead of leaving the cached state permanently InProgress.
+        if (force.not() && alreadyRequested &&
+            (job?.isActive == true || rpcInformationFlow.value is FlipperInformationStatus.Ready)
+        ) {
             return@withLock
         }
         alreadyRequested = true

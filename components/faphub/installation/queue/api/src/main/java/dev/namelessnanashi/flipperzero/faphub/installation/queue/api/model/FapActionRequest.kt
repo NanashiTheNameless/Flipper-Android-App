@@ -2,9 +2,23 @@ package dev.namelessnanashi.flipperzero.faphub.installation.queue.api.model
 
 import dev.namelessnanashi.flipperzero.faphub.dao.api.model.FapItemVersion
 import dev.namelessnanashi.flipperzero.faphub.installation.manifest.model.FapManifestItem
+import dev.namelessnanashi.flipperzero.faphub.installation.manifest.model.ExternalAppSource
+import dev.namelessnanashi.flipperzero.faphub.target.model.FlipperTarget
 
 sealed class FapActionRequest {
     abstract val applicationUid: String
+
+    data class InstallArtifact(
+        override val applicationUid: String,
+        val localPath: String,
+        val fileName: String,
+        val category: String,
+        val source: ExternalAppSource,
+        val target: FlipperTarget.Received,
+        val deviceSerial: String,
+        val firmwareRevision: String,
+        val restoredManifest: FapManifestItem? = null
+    ) : FapActionRequest()
 
     data class Install(
         val applicationAlias: String,

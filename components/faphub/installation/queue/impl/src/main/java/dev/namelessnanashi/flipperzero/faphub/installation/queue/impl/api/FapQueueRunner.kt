@@ -16,6 +16,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -45,6 +46,7 @@ class FapQueueRunner @Inject constructor(
     private val pendingTaskFlow =
         MutableStateFlow<ImmutableList<FapActionRequest>>(persistentListOf())
     private var currentTaskJob: Job? = null
+    private val completions = mutableMapOf<FapActionRequest, CompletableDeferred<Unit>>()
     private val currentTaskFlow = MutableStateFlow<FapInternalQueueState?>(null)
 
     private val prefetchProgress = MutableStateFlow<Map<String, Float>>(emptyMap())
@@ -95,6 +97,10 @@ class FapQueueRunner @Inject constructor(
                     error(throwable) { "Prefetch of ${version.id} failed" }
                 } finally {
                     synchronized(prefetchStarted) { prefetchStarted.remove(key) }
+                    if (pendingTaskFlow.value.none { it.bundleKey() == key } && currentTaskFlow.value?.request?.bundleKey() != key) {
+                        discardBundle(request)
+                        prefetchProgress.update { it - key }
+                    }
                 }
             }
         }
@@ -102,6 +108,22 @@ class FapQueueRunner @Inject constructor(
 
     fun pendingTasksFlow() = pendingTaskFlow.asStateFlow()
     fun currentTaskFlow() = currentTaskFlow.asStateFlow()
+
+    private suspend fun discardBundle(request: FapActionRequest) {
+        val version = when (request) {
+            is FapActionRequest.Install -> request.toVersion
+            is FapActionRequest.Update -> request.toVersion
+            else -> return
+        }
+        val target = version.target as? FlipperTarget.Received ?: return
+        try {
+            fapDownloadApi.discardBundle(target, version.id)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            error(failure) { "Could not release completed bundle ${version.id}" }
+        }
+    }
 
     fun enqueue(actionRequest: FapActionRequest) = scope.launch {
         enqueueSync(actionRequest)
@@ -112,11 +134,30 @@ class FapQueueRunner @Inject constructor(
             cancelTasksForApplicationUid(actionRequest)
         } else {
             withLock(mutex, "enqueue") {
+                pendingTaskFlow.value.filter { it.applicationUid == actionRequest.applicationUid }.forEach {
+                    completions.remove(it)?.cancel(CancellationException("Replaced by a newer installation request"))
+                }
                 pendingTaskFlow.update { list ->
                     list.filterNot { it.applicationUid == actionRequest.applicationUid }
                         .plus(actionRequest).toImmutableList()
                 }
             }
+        }
+    }
+
+    suspend fun enqueueAndAwait(request: FapActionRequest.InstallArtifact) {
+        val completion = CompletableDeferred<Unit>()
+        withLock(mutex, "enqueue_artifact") {
+            check(pendingTaskFlow.value.none { it.applicationUid == request.applicationUid } &&
+                currentTaskFlow.value?.request?.applicationUid != request.applicationUid) { "This app is already installing" }
+            completions[request] = completion
+            pendingTaskFlow.update { (it + request).toImmutableList() }
+        }
+        try {
+            completion.await()
+        } catch (cancelled: CancellationException) {
+            withContext(NonCancellable) { enqueueSync(FapActionRequest.Cancel(request.applicationUid)) }
+            throw cancelled
         }
     }
 
@@ -131,6 +172,7 @@ class FapQueueRunner @Inject constructor(
     private suspend fun takeJobForLoop() = withLockResult(mutex, "create_job") {
         val mutableList = pendingTaskFlow.value.toMutableList()
         val currentTask = mutableList.removeFirstOrNull() ?: return@withLockResult null
+        val completion = completions.remove(currentTask)
         info { "Start execute $currentTask" }
         pendingTaskFlow.emit(mutableList.toImmutableList())
         currentTaskFlow.emit(FapInternalQueueState.Scheduled(currentTask))
@@ -140,10 +182,15 @@ class FapQueueRunner @Inject constructor(
                 fapActionExecutor.execute(currentTask) { progress ->
                     currentTaskFlow.emit(FapInternalQueueState.InProgress(currentTask, progress))
                 }
+                discardBundle(currentTask)
+                currentTask.bundleKey()?.let { key -> prefetchProgress.update { it - key } }
+                completion?.complete(Unit)
             } catch (cancellation: CancellationException) {
+                completion?.cancel(cancellation)
                 // Cancelled by the user: not a failure
                 throw cancellation
             } catch (throwable: Throwable) {
+                completion?.completeExceptionally(throwable)
                 error(throwable) { "While executing $currentTask" }
                 currentTaskFlow.emit(FapInternalQueueState.Failed(currentTask, throwable))
             } finally {
@@ -168,6 +215,9 @@ class FapQueueRunner @Inject constructor(
             currentTaskFlow.emit(null)
         }
         pendingTaskFlow.update { list ->
+            list.filter { it.applicationUid == actionRequest.applicationUid }.forEach {
+                completions.remove(it)?.cancel()
+            }
             list.filterNot { it.applicationUid == actionRequest.applicationUid }.toImmutableList()
         }
     }

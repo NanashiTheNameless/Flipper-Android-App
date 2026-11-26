@@ -259,6 +259,8 @@ include(
     ":components:faphub:catalogtab:impl",
     ":components:faphub:installedtab:api",
     ":components:faphub:installedtab:impl",
+    ":components:faphub:source:api",
+    ":components:faphub:source:impl",
     ":components:faphub:search:api",
     ":components:faphub:search:impl",
     ":components:faphub:category:api",
