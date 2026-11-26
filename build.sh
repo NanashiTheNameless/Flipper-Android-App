@@ -2,6 +2,7 @@
 # Sets up the JDK, SDK and submodules (see setup.sh), then runs Gradle.
 #
 #   ./build.sh                 unit tests + debug APK
+#   ./build.sh test            unit tests only (no APK build)
 #   ./build.sh install         unit tests + install the debug build on the connected phone
 #   ./build.sh release         unit tests + release APK, then show its signing certificate
 #   ./build.sh installRelease  unit tests + signed release APK + install on the connected phone
@@ -25,6 +26,19 @@ TEST_TASKS=(testDebugUnitTest testAndroidHostTest)
 case "${1:-}" in
     "")
         exec ./gradlew "${TEST_TASKS[@]}" "$APP:assembleDebug"
+        ;;
+    test)
+        shift
+        test_tasks_output=$(bash "$ROOT_DIR/scripts/unit_test_tasks.sh")
+        if [ -z "$test_tasks_output" ]; then
+            echo "error: no Android unit-test sources found." >&2
+            exit 1
+        fi
+        TEST_TASKS=()
+        while IFS= read -r test_task; do
+            TEST_TASKS+=("$test_task")
+        done <<< "$test_tasks_output"
+        exec ./gradlew "${TEST_TASKS[@]}" "$@"
         ;;
     install)
         shift

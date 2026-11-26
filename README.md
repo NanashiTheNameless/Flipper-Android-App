@@ -5,13 +5,18 @@
 
 ## Differences from upstream
 
-- Targets [Momentum firmware](https://github.com/Next-Flip/Momentum-Firmware): firmware updates come from Momentum's update server, and the RPC protocol comes from Momentum's protobuf fork.
-- No analytics, crash reporting or push notifications (Countly, Sentry and Firebase removed).
-- No Google Play Services, Play Store updater or Wear OS companion app.
-- Faster Bluetooth transfers.
-- **Tools → App sources & backups · Beta:** link/file app imports, on-phone source builds through Termux, update checks and portable backups. [Setup and supported workflows](docs/app-sources.md).
-
-Fork plans and status: [docs/fork/ROADMAP.md](docs/fork/ROADMAP.md).
+- **Momentum firmware:** updates come from [Momentum's update server](https://up.momentum-fw.dev/firmware/directory.json), and RPC uses [Momentum's protobuf fork](https://github.com/Next-Flip/flipperzero-protobuf). Hold **No updates** to reinstall the available firmware.
+- **OLED appearance:** a black-only, mostly monochrome interface with black headers, outlined controls, 0xProto throughout, and Momentum launcher/splash branding.
+- **Connections and transfers:** faster Bluetooth transfers and file reads, Bluetooth/USB connection instructions, improved USB handshake/reconnect handling, and a warning when another Flipper app shares the connection. Active syncs, installs and transfers use a foreground service to keep working in the background; idle connections do not keep that service running.
+- **Synchronization:** a dismissible progress popup with working/waiting status, reopen controls in Archive and Device, a Stop button, and a five-second cooldown after syncing.
+- **Favorites:** add/remove installed and built-in apps through the app list or Archive. Reorder favorites in the ordering editor, including uncached Momentum paths, remote `.txt` files, scripts and directories; preserve their full paths and order during sync.
+- **App management:** **Install All**, **Update All**, a **Not installed** filter, and **Check & Repair Apps**. Queued apps download concurrently with separate download/install progress; uploads stay sequential and are verified before installation. Installed-app lookup and update-state handling are also improved.
+- **Screen controls:** Momentum screen-streaming colours and text input from the phone keyboard.
+- **Tools → App sources & backups · Beta:** import apps from HTTPS links or local FAP/ZIP files, build source apps on ARM64 phones through Termux, and select the SDK matching the connected Momentum release or development revision automatically. Share `flipper-nanashi://app` links, retain installation provenance and check external-source apps for updates. [Setup, supported workflows and limits](docs/app-sources.md).
+- **Portable backups · Beta:** import/export keys, notes, settings, favorites, saved devices, widget presets, app metadata and build recipes. Include binaries only when a source recipe cannot rebuild them; this backs up managed data, not the entire Flipper SD card.
+- **Automatic cleanup:** remove completed source/build downloads and intermediates, release completed or abandoned catalog downloads, and retain installed build tools, metadata and files needed for backups.
+- **Privacy:** no analytics, crash reporting or push notifications; Countly, Sentry and Firebase are removed. No Google Play Services or Wear OS companion app. Catalogs, remotes and key sharing still use Flipper Devices' servers.
+- **Distribution:** a separate `dev.namelessnanashi.flipperzero` application ID and signed GitHub rolling nightlies with an Obtainium configuration; no Play Store updater or Google Play/F-Droid releases.
 
 ## Install
 
@@ -20,7 +25,7 @@ Fork plans and status: [docs/fork/ROADMAP.md](docs/fork/ROADMAP.md).
 Nightly APKs only: download `Flipper-Nanashi-nightly.apk` from the [Nightly-Rolling release](https://github.com/NanashiTheNameless/Flipper-Android-App/releases/tag/Nightly-Rolling), or use the Obtainium button above, which is preconfigured for rolling nightly updates. [Import configuration](docs/Flipper-Nanashi-obtainium.json). Releases are published on GitHub only, never on Google Play or F-Droid.
 
 > [!NOTE]
-> The release workflow is not set up yet, so there is nothing to install from Obtainium until the first nightly is published.
+> Nightly artifacts become available after the GitHub Actions release workflow completes successfully.
 
 ## Thanks
 
@@ -35,6 +40,14 @@ Nightly APKs only: download `Flipper-Nanashi-nightly.apk` from the [Nightly-Roll
 - [Throne](https://throne.com/NamelessNanashi)
 
 ## Build
+
+Run `./build.sh test` for all Android unit tests without assembling an APK.
+It discovers modules with test sources, including new untracked tests, and
+avoids preparing empty test variants. It accepts Gradle flags, for example
+`./build.sh test --continue`. Repeated runs reuse the Gradle daemon and cached
+compilation/test outputs. For a single
+module, pass its task directly, such as
+`./build.sh :components:faphub:source:impl:testAndroidHostTest`.
 
 ```bash
 git submodule update --init --recursive

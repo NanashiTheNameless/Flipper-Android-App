@@ -11,9 +11,10 @@ own use. Fork repository: https://github.com/NanashiTheNameless/Flipper-Android-
 remote: fetch from it to pull in fixes, never push to it. It is not affiliated with or endorsed by Flipper Devices. It is not
 meant for adoption by anyone else.
 
-The fork's goals, decisions and per-item status live in
-[`docs/fork/ROADMAP.md`](docs/fork/ROADMAP.md). Read it before starting work and
-update it when an item's status or a decision changes.
+The fork's implemented differences are summarized in [`README.md`](README.md).
+App-source builds and backups are documented in
+[`docs/app-sources.md`](docs/app-sources.md). Keep these documents aligned with
+the implementation when behavior changes.
 
 ## Rules
 

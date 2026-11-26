@@ -255,7 +255,7 @@ internal fun getDarkPallet(): FlipperPalletV2 = FlipperPalletV2(
             disabled = Color(0xFF666666)
         )
     ),
-    // Fork: monochrome accents (orange/blue -> greys), see docs/fork/ROADMAP.md item 11
+    // Fork: monochrome accents (orange/blue -> greys)
     // Fork: true black (OLED) surfaces; cards #111111, dialogs/sheets/menus #1A1A1A
     surface = Surface(
         fade = Fade(

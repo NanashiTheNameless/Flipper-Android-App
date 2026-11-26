@@ -13,6 +13,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.tasks.testing.AbstractTestTask
+import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.add
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -121,6 +122,11 @@ fun Project.suppressOptIn() {
 fun Project.ignoreNoDiscoveredTests() {
     tasks.withType<AbstractTestTask>().configureEach {
         failOnNoDiscoveredTests.set(false)
+    }
+    tasks.withType<Test>().configureEach {
+        // Test workers are short lived: avoid spending their run time on C2
+        // compilation and parallel-GC threads competing with other modules.
+        jvmArgs("-XX:TieredStopAtLevel=1", "-XX:+UseSerialGC")
     }
 }
 
